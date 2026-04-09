@@ -1,0 +1,880 @@
+/* Scoped version of healup-landing.html styles */
+.healupLanding,
+.healupLanding * ,
+.healupLanding *::before,
+.healupLanding *::after {
+  box-sizing: border-box;
+}
+
+.healupLanding {
+  --blue: #1a4fa0;
+  --blue-dark: #153d80;
+  --blue-bright: #2563eb;
+  --blue-light: #e8f0fb;
+  --gray-bg: #f0f4f8;
+  --border: #d8dce6;
+  --text: #1a1a2e;
+  --subtext: #6b7280;
+  --white: #fff;
+  --dark: #111827;
+  --dark2: #1f2937;
+
+  background: var(--white);
+  color: var(--text);
+  direction: rtl;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.healupLanding a {
+  color: inherit;
+}
+
+/* ─── NAVBAR ─── */
+.healupLanding nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40px;
+  height: 60px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.healupLanding .nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--blue);
+  text-decoration: none;
+  direction: ltr;
+  position: absolute;
+  right: 40px;
+}
+
+.healupLanding .nav-logo-icon {
+  background: var(--blue);
+  color: white;
+  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.healupLanding .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.healupLanding .nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.healupLanding .nav-links a:hover {
+  color: var(--blue);
+}
+
+.healupLanding .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  left: 40px;
+}
+
+.healupLanding .btn-login-nav {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.healupLanding .btn-login-nav:hover {
+  background: var(--gray-bg);
+}
+
+.healupLanding .btn-cta-nav {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  background: var(--blue);
+  border: none;
+  cursor: pointer;
+  padding: 9px 20px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.healupLanding .btn-cta-nav:hover {
+  background: var(--blue-dark);
+}
+
+/* ─── HERO ─── */
+.healupLanding .hero {
+  background: linear-gradient(
+    160deg,
+    #dce8f8 0%,
+    #eaf2fb 40%,
+    #f5f8fd 100%
+  );
+  padding: 70px 80px 60px;
+  position: relative;
+  overflow: hidden;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.healupLanding .hero::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(37, 99, 235, 0.08) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.healupLanding .hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(199, 218, 245, 0.6);
+  border: 1px solid rgba(148, 190, 235, 0.5);
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 12px;
+  color: var(--subtext);
+  margin-bottom: 18px;
+}
+
+.healupLanding .hero-badge span {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.healupLanding .hero h1 {
+  font-size: 46px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 16px;
+  max-width: 900px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.healupLanding .hero h1 .highlight {
+  color: var(--blue-bright);
+}
+
+.healupLanding .hero p {
+  font-size: 15px;
+  color: var(--subtext);
+  margin-bottom: 32px;
+  max-width: 700px;
+  line-height: 1.8;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Search bar */
+.healupLanding .search-bar-wrap {
+  position: relative;
+  max-width: 660px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.healupLanding .search-bar {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  padding: 6px 16px 6px 6px;
+  width: 100%;
+  gap: 10px;
+}
+
+.healupLanding .search-autocomplete {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  margin-top: 4px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 50;
+  border: 1px solid var(--border);
+}
+
+.healupLanding .search-autocomplete-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: right;
+  direction: rtl;
+  transition: background 0.15s;
+}
+
+.healupLanding .search-autocomplete-item:hover,
+.healupLanding .search-autocomplete-item:focus {
+  background: var(--blue-light);
+}
+
+.healupLanding .search-autocomplete-empty {
+  padding: 16px;
+  font-size: 13px;
+  color: var(--subtext);
+  text-align: right;
+}
+
+.healupLanding .search-icon {
+  color: #aab0bf;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.healupLanding .search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--text);
+  background: transparent;
+  text-align: right;
+  direction: rtl;
+  padding: 10px 0;
+  min-width: 0;
+}
+
+.healupLanding .search-input::placeholder {
+  color: #bcc2d0;
+}
+
+.healupLanding .search-bar.search-bar-error {
+  border: 1.5px solid #ef4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.18), 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+.healupLanding .search-input.search-input-error {
+  outline: none;
+}
+
+.healupLanding .search-error-message {
+  margin-top: 8px;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+@keyframes searchShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.healupLanding .btn-search.btn-search-shake {
+  animation: searchShake 0.5s ease-in-out;
+}
+
+.healupLanding .search-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.healupLanding .location-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.healupLanding .btn-search {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  background: var(--blue);
+  border: none;
+  cursor: pointer;
+  padding: 12px 28px;
+  border-radius: 10px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.healupLanding .btn-search:hover {
+  background: var(--blue-dark);
+}
+
+/* Prescription upload */
+.healupLanding .prescription-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  max-width: 340px;
+}
+
+.healupLanding .prescription-btn:hover {
+  border-color: var(--blue);
+  box-shadow: 0 2px 12px rgba(26, 79, 160, 0.08);
+}
+
+.healupLanding .prescription-icon {
+  background: var(--blue-light);
+  color: var(--blue);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.healupLanding .prescription-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.healupLanding .prescription-text span {
+  font-size: 11px;
+  color: var(--subtext);
+}
+
+/* Hero badges row */
+.healupLanding .hero-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.healupLanding .hero-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--subtext);
+}
+
+.healupLanding .hero-badge-item svg {
+  color: var(--blue);
+}
+
+/* ─── HOW IT WORKS ─── */
+.healupLanding .section {
+  padding: 80px 30px;
+}
+
+.healupLanding .section-center {
+  text-align: center;
+}
+
+.healupLanding .section h2 {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.healupLanding .section p.section-sub {
+  font-size: 14px;
+  color: var(--subtext);
+  margin-bottom: 50px;
+  line-height: 1.8;
+}
+
+.healupLanding .steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.healupLanding .step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.healupLanding .step-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: #f0f2f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+
+.healupLanding .step h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.healupLanding .step p {
+  font-size: 13px;
+  color: var(--subtext);
+  line-height: 1.8;
+}
+
+/* ─── WHY HEALUP ─── */
+.healupLanding .why-section {
+  background: var(--gray-bg);
+  padding: 70px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.healupLanding .why-content h2 {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 30px;
+  text-align: right;
+}
+
+.healupLanding .why-features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 36px;
+}
+
+.healupLanding .why-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex-direction: row;
+}
+
+.healupLanding .why-feature-icon {
+  background: var(--blue);
+  color: white;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.healupLanding .why-feature-text {
+  text-align: right;
+  flex: 1;
+}
+
+.healupLanding .why-feature-text strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.healupLanding .why-feature-text span {
+  font-size: 12px;
+  color: var(--subtext);
+  line-height: 1.7;
+}
+
+.healupLanding .btn-start {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  background: var(--blue);
+  border: none;
+  cursor: pointer;
+  padding: 14px 32px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.healupLanding .btn-start:hover {
+  background: var(--blue-dark);
+}
+
+.healupLanding .why-image-col {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.healupLanding .why-image-wrap {
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #c9daf0 0%, #e8f2fb 100%);
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 4 / 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.healupLanding .why-image-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 79, 160, 0) 48%,
+    rgba(26, 79, 160, 0.35) 78%,
+    rgba(26, 79, 160, 0.55) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.healupLanding .why-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  position: relative;
+  z-index: 0;
+}
+
+.healupLanding .why-card-overlay {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  background: white;
+  border-radius: 14px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  direction: rtl;
+  z-index: 2;
+}
+
+.healupLanding .why-card-overlay-icon {
+  background: var(--blue);
+  color: white;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.healupLanding .why-card-overlay-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.healupLanding .why-card-overlay-text span {
+  font-size: 12px;
+  color: var(--subtext);
+}
+
+/* ─── STATS ─── */
+.healupLanding .stats-section {
+  background: var(--blue);
+  padding: 50px 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  text-align: center;
+}
+
+.healupLanding .stat-number {
+  font-size: 36px;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 6px;
+}
+
+.healupLanding .stat-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ─── FOOTER ─── */
+.healupLanding footer {
+  background: #111827;
+  color: white;
+  padding: 60px 80px 30px;
+}
+
+.healupLanding .footer-top {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  margin-bottom: 48px;
+}
+
+.healupLanding .footer-brand {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.healupLanding .footer-brand .footer-logo {
+  justify-content: flex-end;
+}
+
+.healupLanding .footer-brand .footer-social {
+  justify-content: flex-end;
+}
+
+.healupLanding .footer-col {
+  text-align: center;
+}
+
+.healupLanding .footer-col ul {
+  align-items: center;
+}
+
+.healupLanding .footer-col.footer-newsletter {
+  text-align: right;
+}
+
+.healupLanding .footer-col.footer-newsletter .newsletter-form {
+  justify-content: flex-end;
+  flex-direction: row;
+}
+
+.healupLanding .footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  text-decoration: none;
+  margin-bottom: 16px;
+  direction: ltr;
+}
+
+.healupLanding .footer-logo-icon {
+  background: var(--blue);
+  color: white;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.healupLanding .footer-brand p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.healupLanding .footer-social {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.healupLanding .social-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.healupLanding .social-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.healupLanding .footer-col h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.healupLanding .footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.healupLanding .footer-col ul li a {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.healupLanding .footer-col ul li a:hover {
+  color: white;
+}
+
+.healupLanding .footer-newsletter h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.healupLanding .footer-newsletter p {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 16px;
+  line-height: 1.7;
+}
+
+.healupLanding .newsletter-form {
+  display: flex;
+  gap: 8px;
+  flex-direction: row-reverse;
+}
+
+.healupLanding .newsletter-input {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: white;
+  outline: none;
+  text-align: right;
+  direction: rtl;
+}
+
+.healupLanding .newsletter-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.healupLanding .newsletter-btn {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  background: var(--blue);
+  border: none;
+  cursor: pointer;
+  padding: 10px 18px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.healupLanding .newsletter-btn:hover {
+  background: var(--blue-dark);
+}
+
+.healupLanding .footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .healupLanding .why-section {
+    grid-template-columns: 1fr;
+    padding: 50px 20px;
+  }
+  .healupLanding .why-image-wrap {
+    max-width: 100%;
+  }
+  .healupLanding .hero {
+    padding: 50px 20px 40px;
+  }
+  .healupLanding .steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .healupLanding .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 30px 20px;
+  }
+  .healupLanding .footer-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+

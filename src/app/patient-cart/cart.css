@@ -1,0 +1,810 @@
+/* Patient Cart - سلة المشتريات */
+.healupCart,
+.healupCart *,
+.healupCart *::before,
+.healupCart *::after {
+  box-sizing: border-box;
+}
+
+.healupCart {
+  --blue: #1a56db;
+  --blue-dark: #1444b8;
+  --blue-light: #e8effc;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --bg: #f1f5f9;
+  --white: #ffffff;
+  --red: #ef4444;
+  --green: #16a34a;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NAVBAR */
+.healupCart nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.healupCart .nav-right,
+.healupCart .nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.healupCart .nav-logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: -0.5px;
+}
+
+.healupCart .nav-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.healupCart .nav-logo-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--blue);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.healupCart .nav-logo-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.healupCart .nav-cart-btn {
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.healupCart .nav-cart-btn:hover {
+  background: var(--blue-dark);
+}
+
+.healupCart .bell-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 18px;
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.healupCart .bell-btn:hover {
+  background: var(--bg);
+}
+
+
+.healupCart .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 15px;
+}
+
+/* BREADCRUMB */
+.healupCart .breadcrumb-wrap {
+  padding: 16px 32px 0;
+}
+
+.healupCart .breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+  direction: rtl;
+}
+
+.healupCart .breadcrumb a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.healupCart .breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.healupCart .breadcrumb-sep {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* MAIN */
+.healupCart .main {
+  flex: 1;
+  padding: 20px 32px 40px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* ORDER SUMMARY CARD */
+.healupCart .summary-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  align-self: start;
+}
+
+.healupCart .summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.healupCart .summary-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.healupCart .summary-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.healupCart .summary-icon-doc {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.healupCart .summary-icon-doc svg {
+  width: 28px;
+  height: 36px;
+}
+
+.healupCart .summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.healupCart .summary-row .val {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.healupCart .free {
+  color: var(--green) !important;
+  font-weight: 700 !important;
+}
+
+.healupCart .total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 18px;
+}
+
+.healupCart .total-label {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.healupCart .total-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--blue);
+}
+
+.healupCart .btn-checkout {
+  width: 100%;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.15s;
+  margin-bottom: 10px;
+}
+
+.healupCart .btn-checkout:hover {
+  background: var(--blue-dark);
+  transform: translateY(-1px);
+}
+
+.healupCart .btn-continue {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.healupCart .btn-continue:hover {
+  background: #e2e8f0;
+}
+
+.healupCart .coupon-section {
+  margin-top: 20px;
+}
+
+.healupCart .coupon-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-align: right;
+}
+
+.healupCart .coupon-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.healupCart .coupon-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text-muted);
+  outline: none;
+  transition: border-color 0.2s;
+  text-align: right;
+  direction: rtl;
+}
+
+.healupCart .coupon-input:focus {
+  border-color: var(--blue);
+}
+
+.healupCart .coupon-input.error {
+  border-color: var(--red);
+}
+
+.healupCart .btn-apply {
+  background: var(--blue-light);
+  color: var(--blue);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.healupCart .btn-apply:hover {
+  background: #d0e2fb;
+}
+
+.healupCart .secure-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* CART RIGHT SIDE */
+.healupCart .cart-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.healupCart .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.healupCart .section-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.healupCart .badge {
+  background: #e8f0fd;
+  color: var(--blue);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+}
+
+/* PRODUCT CARD */
+.healupCart .product-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 16px;
+  transition: box-shadow 0.2s, transform 0.15s;
+  animation: cartSlideIn 0.3s ease forwards;
+}
+
+.healupCart .product-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+@keyframes cartSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.healupCart .product-img-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.healupCart .product-info {
+  flex: 1;
+  text-align: right;
+}
+
+.healupCart .product-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.healupCart .product-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.healupCart .product-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--blue);
+}
+
+.healupCart .product-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.healupCart .qty-control {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.healupCart .qty-btn {
+  background: none;
+  border: none;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  transition: background 0.15s;
+}
+
+.healupCart .qty-btn:hover {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+.healupCart .qty-value {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  border-left: 1.5px solid var(--border);
+  border-right: 1.5px solid var(--border);
+  color: var(--text);
+}
+
+.healupCart .delete-btn {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.healupCart .delete-btn:hover {
+  background: #fee2e2;
+}
+
+/* ADD MORE CARD */
+.healupCart .add-more-card {
+  background: var(--blue-light);
+  border: 2px dashed #93c5fd;
+  border-radius: 16px;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.healupCart .add-more-card:hover {
+  background: #dbeafe;
+}
+
+/* Prescription card */
+.healupCart .prescription-card {
+  flex-direction: row-reverse;
+}
+
+.healupCart .prescription-img-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.healupCart .prescription-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.healupCart .add-more-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+.healupCart .add-more-text {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.healupCart .btn-add-drug {
+  background: white;
+  color: var(--text);
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  padding: 10px 24px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: box-shadow 0.2s;
+}
+
+.healupCart .btn-add-drug:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* MODAL */
+.healupCart .add-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.healupCart .add-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  direction: rtl;
+}
+
+.healupCart .add-modal h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1e293b;
+}
+
+.healupCart .add-modal label {
+  font-size: 13px;
+  color: #64748b;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.healupCart .add-modal input[type="text"],
+.healupCart .add-modal input[type="number"] {
+  width: 100%;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  direction: rtl;
+}
+
+.healupCart .add-modal input:focus {
+  border-color: #1a56db;
+}
+
+.healupCart .add-modal input.error {
+  border-color: #ef4444;
+}
+
+.healupCart .add-modal .drug-type-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.healupCart .add-modal .drug-type-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.healupCart .add-modal-drug-name-wrap input {
+  margin-bottom: 0;
+}
+
+.healupCart .add-modal-autocomplete {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  margin-top: 4px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 10;
+  border: 1px solid var(--border);
+}
+
+.healupCart .add-modal-autocomplete-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: right;
+  direction: rtl;
+  transition: background 0.15s;
+}
+
+.healupCart .add-modal-autocomplete-item:hover {
+  background: var(--blue-light);
+}
+
+.healupCart .add-modal-autocomplete-empty {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.healupCart .add-modal .drug-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.healupCart .add-modal .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.healupCart .add-modal .modal-actions button {
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.healupCart .add-modal .modal-btn-cancel {
+  background: #f1f5f9;
+}
+
+.healupCart .add-modal .modal-btn-add {
+  background: #1a56db;
+  color: white;
+  font-weight: 700;
+}
+
+.healupCart .add-modal .modal-btn-add:hover {
+  background: #1444b8;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.healupCart .btn-apply.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* FOOTER */
+.healupCart footer {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 20px 32px;
+  text-align: center;
+}
+
+.healupCart .footer-icons {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 10px;
+}
+
+.healupCart .footer-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 17px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.healupCart .footer-icon:hover {
+  background: var(--bg);
+  color: var(--blue);
+}
+
+.healupCart .footer-copy {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.healupCart .footer-copy span {
+  color: var(--blue);
+  font-weight: 700;
+}

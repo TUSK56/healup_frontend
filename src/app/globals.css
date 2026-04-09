@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --healup-primary: #0d9488;
+  --healup-secondary: #0f766e;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+@layer components {
+  .btn-healup {
+    @apply rounded-lg bg-healup-primary px-4 py-2 font-medium text-white shadow-sm transition hover:bg-healup-secondary focus:outline-none focus:ring-2 focus:ring-healup-primary focus:ring-offset-2;
+  }
+  .card-healup {
+    @apply rounded-xl border border-slate-200 bg-white p-6 shadow-sm;
+  }
+}
