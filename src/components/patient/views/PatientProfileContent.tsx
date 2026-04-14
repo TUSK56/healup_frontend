@@ -13,6 +13,7 @@ import {
   Lock,
   CheckCircle2,
   Camera,
+  type LucideIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ const SectionHeader = ({
   title,
   action,
 }: {
-  icon: React.ComponentType<{ size?: number }>;
+  icon: LucideIcon;
   title: string;
   action?: React.ReactNode;
 }) => (
@@ -56,7 +57,7 @@ const InputField = ({
 }: {
   label: string;
   value: string;
-  icon?: React.ComponentType<{ size?: number }>;
+  icon?: LucideIcon;
   type?: string;
   placeholder?: string;
 }) => (
