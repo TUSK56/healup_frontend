@@ -15,6 +15,7 @@ import {
   LogOut,
   Users,
   Shield,
+  FileText,
 } from 'lucide-react';
 import { authService } from '@/services/authService';
 
@@ -34,20 +35,21 @@ const pharmacyLinks = [
 const adminLinks = [
   { href: '/admin/dashboard', label: 'HealUp Admin', icon: Shield },
   { href: '/admin/pharmacies', label: 'Pharmacy Approvals', icon: Building2 },
-  { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/patients', label: 'Patients', icon: Users },
   { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
+  { href: '/admin/financial', label: 'Financial Reports', icon: FileText },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const path = pathname ?? '';
   const guard = authService.getGuard();
 
-  const links =
-    pathname.startsWith('/admin')
-      ? adminLinks
-      : pathname.startsWith('/pharmacy')
-        ? pharmacyLinks
-        : patientLinks;
+  const links = path.startsWith('/admin')
+    ? adminLinks
+    : path.startsWith('/pharmacy')
+      ? pharmacyLinks
+      : patientLinks;
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-slate-200 bg-white">
@@ -62,7 +64,7 @@ export default function Sidebar() {
             key={href}
             href={href}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-              pathname === href ? 'bg-healup-primary text-white' : 'text-slate-600 hover:bg-slate-100'
+              path === href ? 'bg-healup-primary text-white' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <Icon className="h-5 w-5" />

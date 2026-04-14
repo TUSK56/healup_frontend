@@ -1,6 +1,6 @@
 "use client";
 
-
+import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -14,11 +14,46 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [terms, setTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For demo, just redirect
-    router.push("/patient-login");
+    setError(null);
+
+    if (!terms) {
+      setError("يجب الموافقة على شروط الاستخدام وسياسة الخصوصية.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("كلمتا المرور غير متطابقتين.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (accountType === "patient") {
+        const res = await authService.registerPatient({
+          name: fullName,
+          email,
+          phone: phone || undefined,
+          password,
+          passwordConfirmation: confirmPassword,
+        });
+
+        authService.setSession(res, "user");
+        // Keep post-signup patient UI identical to direct guest-style patient-home render.
+        window.location.assign("/patient-home");
+        return;
+      }
+
+      router.push("/pharmacy-signup");
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err, "فشل إنشاء الحساب. تأكد من البيانات وحاول مرة أخرى."));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return (
     <html lang="ar" dir="rtl">
@@ -46,7 +81,7 @@ export default function SignupPage() {
               <a href="#" style={{ fontSize: 14, fontWeight: 600, color: '#1a2e4a', textDecoration: 'none' }}>خدماتنا</a>
               <a href="#" style={{ fontSize: 14, fontWeight: 600, color: '#1a2e4a', textDecoration: 'none' }}>الرئيسية</a>
             </div>
-            <button style={{ background: '#2356c8', color: 'white', border: 'none', borderRadius: 25, padding: '10px 22px', fontFamily: 'Cairo, sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s' }}>تسجيل الدخول</button>
+            <button type="button" onClick={() => router.push("/patient-login")} style={{ background: '#2356c8', color: 'white', border: 'none', borderRadius: 25, padding: '10px 22px', fontFamily: 'Cairo, sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s' }}>تسجيل الدخول</button>
           </div>
         </nav>
         {/* MAIN */}
@@ -134,8 +169,13 @@ export default function SignupPage() {
               <label htmlFor="terms" style={{ fontSize: 13, color: '#1a2e4a', fontWeight: 500, cursor: 'pointer', order: 1, direction: 'rtl' }}>أوافق على <a href="#" style={{ color: '#2356c8', textDecoration: 'none', fontWeight: 700 }}>شروط الاستخدام</a> و <a href="#" style={{ color: '#2356c8', textDecoration: 'none', fontWeight: 700 }}>سياسة الخصوصية</a></label>
               <input type="checkbox" id="terms" checked={terms} onChange={e => setTerms(e.target.checked)} style={{ width: 16, height: 16, accentColor: '#2356c8', cursor: 'pointer', flexShrink: 0, order: 2 }} />
             </div>
+            {error ? (
+              <div style={{ marginBottom: 14, fontSize: 13, fontWeight: 600, color: '#b91c1c', textAlign: 'right' }}>
+                {error}
+              </div>
+            ) : null}
             {/* Submit */}
-            <button type="submit" style={{ width: '100%', padding: 16, background: '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 20 }}>إنشاء حساب</button>
+            <button type="submit" disabled={isSubmitting} style={{ width: '100%', padding: 16, background: isSubmitting ? '#6b88de' : '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 20 }}>{isSubmitting ? 'جاري إنشاء الحساب...' : 'إنشاء حساب'}</button>
             {/* Login link */}
             <div style={{ textAlign: 'center', fontSize: 13.5, color: '#9aa3b0', fontWeight: 500 }}>
               لديك حساب بالفعل؟ <a href="/patient-login" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none' }}>تسجيل الدخول</a>

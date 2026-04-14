@@ -1,6 +1,7 @@
 import api from './apiService';
+import { AxiosError } from 'axios';
 
-export type Guard = 'user' | 'pharmacy';
+export type Guard = 'user' | 'pharmacy' | 'admin';
 
 export interface PatientRegister {
   name: string;
@@ -29,13 +30,34 @@ export interface LoginPayload {
   guard: Guard;
 }
 
+export interface OtpSendPayload {
+  identifier: string;
+}
+
+export interface OtpVerifyPayload {
+  identifier: string;
+  otp: string;
+}
+
+export interface OtpResponse {
+  message: string;
+  identifier: string;
+  otp?: string;
+  verified?: boolean;
+}
+
 export interface AuthResponse {
   message: string;
   user?: Record<string, unknown>;
   pharmacy?: Record<string, unknown>;
   token: string;
   token_type: string;
-  expires_in: number;
+  expires_in?: number;
+}
+
+interface ApiErrorPayload {
+  message?: string;
+  errors?: Record<string, string[]>;
 }
 
 export const authService = {
@@ -50,12 +72,29 @@ export const authService = {
   },
 
   async login(data: LoginPayload) {
-    const res = await api.post<AuthResponse>('/login', data);
+    const guard =
+      data.guard === 'user' ? 'patient' : data.guard === 'pharmacy' ? 'pharmacy' : 'admin';
+    const res = await api.post<AuthResponse>('/login', {
+      email: data.email,
+      password: data.password,
+      guard,
+    });
+    return res.data;
+  },
+
+  async sendOtp(data: OtpSendPayload) {
+    const res = await api.post<OtpResponse>('/otp/send', data);
+    return res.data;
+  },
+
+  async verifyOtp(data: OtpVerifyPayload) {
+    const res = await api.post<OtpResponse>('/otp/verify', data);
     return res.data;
   },
 
   setSession(data: AuthResponse, guard: Guard) {
     if (typeof window === 'undefined') return;
+    localStorage.removeItem('healup_guest');
     localStorage.setItem('healup_token', data.token);
     localStorage.setItem('healup_guard', guard);
     const entity = guard === 'pharmacy' ? data.pharmacy : data.user;
@@ -67,6 +106,20 @@ export const authService = {
     localStorage.removeItem('healup_token');
     localStorage.removeItem('healup_user');
     localStorage.removeItem('healup_guard');
+    localStorage.removeItem('healup_guest');
+  },
+
+  setGuestSession() {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem('healup_token');
+    localStorage.removeItem('healup_user');
+    localStorage.removeItem('healup_guard');
+    localStorage.setItem('healup_guest', 'true');
+  },
+
+  isGuest(): boolean {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('healup_guest') === 'true';
   },
 
   getToken(): string | null {
@@ -89,3 +142,26 @@ export const authService = {
     return !!this.getToken();
   },
 };
+
+export function getAuthErrorMessage(error: unknown, fallbackMessage: string): string {
+  const axiosError = error as AxiosError<ApiErrorPayload>;
+  if (!axiosError.response && axiosError.message === 'Network Error') {
+    return 'تعذر الاتصال بالخادم. تأكد من تشغيل واجهة HealUp API وإعداد NEXT_PUBLIC_API_URL.';
+  }
+  const payload = axiosError.response?.data;
+
+  if (payload?.errors && typeof payload.errors === 'object') {
+    const firstFieldErrors = Object.values(payload.errors).find(
+      (messages) => Array.isArray(messages) && messages.length > 0
+    );
+    if (firstFieldErrors?.[0]) {
+      return firstFieldErrors[0];
+    }
+  }
+
+  if (payload?.message) {
+    return payload.message;
+  }
+
+  return fallbackMessage;
+}

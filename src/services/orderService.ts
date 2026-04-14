@@ -33,8 +33,18 @@ export const orderService = {
     return res.data;
   },
 
+  async getById(orderId: number) {
+    const res = await api.get<Order>(`/orders/${orderId}`);
+    return res.data;
+  },
+
   async updateStatus(orderId: number, status: string) {
     const res = await api.patch<{ message: string; order: Order }>('/orders/status', { order_id: orderId, status });
+    return res.data;
+  },
+
+  async patientConfirm(orderId: number) {
+    const res = await api.patch<{ message: string; order: Order }>(`/orders/${orderId}/patient-confirm`);
     return res.data;
   },
 };

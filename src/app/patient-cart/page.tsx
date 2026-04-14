@@ -2,6 +2,9 @@
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authService, getAuthErrorMessage } from "@/services/authService";
+import PatientShell from "@/components/patient/PatientShell";
 import {
   getCart,
   setCart,
@@ -78,6 +81,7 @@ function buildDrinkDesc(drinkType: string, volume: string): string {
 }
 
 export default function PatientCartPage() {
+  const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
   const [prescription, setPrescriptionState] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -124,6 +128,11 @@ export default function PatientCartPage() {
   const [couponError, setCouponError] = useState(false);
   const [couponShake, setCouponShake] = useState(false);
   const [showDrugSuggestions, setShowDrugSuggestions] = useState(false);
+  const [loginPromptOpen, setLoginPromptOpen] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoginSubmitting, setIsLoginSubmitting] = useState(false);
   const drugNameInputRef = useRef<HTMLInputElement>(null);
   const modalPrescriptionInputRef = useRef<HTMLInputElement>(null);
 
@@ -281,7 +290,38 @@ export default function PatientCartPage() {
     if (e.target === e.currentTarget) closeModal();
   };
 
+  const isUserLoggedIn = authService.getGuard() === "user" && !!authService.getToken();
+
+  const handleCheckout = useCallback(() => {
+    if (isUserLoggedIn) {
+      router.push("/patient-order-confirmation");
+      return;
+    }
+    setLoginPromptOpen(true);
+    setLoginError(null);
+  }, [isUserLoggedIn, router]);
+
+  const handleCheckoutLogin = useCallback(async () => {
+    setLoginError(null);
+    setIsLoginSubmitting(true);
+    try {
+      const res = await authService.login({
+        email: loginEmail,
+        password: loginPassword,
+        guard: "user",
+      });
+      authService.setSession(res, "user");
+      setLoginPromptOpen(false);
+      router.push("/patient-order-confirmation");
+    } catch (e: unknown) {
+      setLoginError(getAuthErrorMessage(e, "فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى."));
+    } finally {
+      setIsLoginSubmitting(false);
+    }
+  }, [loginEmail, loginPassword, router]);
+
   return (
+    <PatientShell active="cart">
     <div className="healupCart">
       {/* NAVBAR */}
       <nav>
@@ -320,15 +360,6 @@ export default function PatientCartPage() {
           <div className="avatar">E</div>
         </div>
       </nav>
-
-      {/* BREADCRUMB */}
-      <div className="breadcrumb-wrap">
-        <nav className="breadcrumb">
-          <Link href="/patient-home">الرئيسية</Link>
-          <span className="breadcrumb-sep">›</span>
-          <span>سلة المشتريات</span>
-        </nav>
-      </div>
 
       {/* MAIN */}
       <div className="main">
@@ -663,7 +694,11 @@ export default function PatientCartPage() {
             <span className="total-value">{total.toFixed(2)} ج.م</span>
           </div>
 
-          <button type="button" className="btn-checkout">
+          <button
+            type="button"
+            className="btn-checkout"
+            onClick={handleCheckout}
+          >
             <svg
               width="16"
               height="16"
@@ -729,6 +764,45 @@ export default function PatientCartPage() {
         </div>
       </div>
 
+      {loginPromptOpen ? (
+        <div className="add-modal-overlay" onClick={() => setLoginPromptOpen(false)} role="dialog" aria-modal="true">
+          <div className="add-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>يجب تسجيل الدخول لإتمام الطلب</h3>
+            <label htmlFor="checkout-login-email">البريد الإلكتروني</label>
+            <input
+              id="checkout-login-email"
+              type="text"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              placeholder="example@mail.com"
+            />
+            <label htmlFor="checkout-login-password">كلمة المرور</label>
+            <input
+              id="checkout-login-password"
+              type="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+            {loginError ? <p style={{ color: "#b91c1c", fontSize: 13, marginBottom: 8 }}>{loginError}</p> : null}
+            <div className="modal-actions">
+              <button type="button" className="modal-btn-cancel" onClick={() => setLoginPromptOpen(false)}>
+                إلغاء
+              </button>
+              <button type="button" className="modal-btn-add" onClick={handleCheckoutLogin} disabled={isLoginSubmitting}>
+                {isLoginSubmitting ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+              </button>
+            </div>
+            <p style={{ marginTop: 10, fontSize: 13, textAlign: "center" }}>
+              ليس لديك حساب؟{" "}
+              <Link href="/signup" style={{ color: "#1a56db", fontWeight: 700 }}>
+                إنشاء حساب جديد
+              </Link>
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       {/* FOOTER */}
       <footer>
         <div className="footer-icons">
@@ -753,6 +827,7 @@ export default function PatientCartPage() {
         </p>
       </footer>
     </div>
+    </PatientShell>
   );
 }
 

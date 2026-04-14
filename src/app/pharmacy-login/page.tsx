@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authService } from "@/services/authService";
+import { authService, getAuthErrorMessage } from "@/services/authService";
 
 export default function PharmacyLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,7 +11,8 @@ export default function PharmacyLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  async function handleLogin() {
+  async function handleLogin(event?: React.FormEvent) {
+    event?.preventDefault();
     setError(null);
     setIsSubmitting(true);
     try {
@@ -24,32 +25,24 @@ export default function PharmacyLoginPage() {
       authService.setSession(res, "pharmacy");
       router.push("/pharmacy-dashboard");
     } catch (e: unknown) {
-      setError("فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى.");
+      setError(getAuthErrorMessage(e, "فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى."));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <title>تسجيل دخول الصيدلية - Healup</title>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap"
-          rel="stylesheet"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body
-        style={{
-          fontFamily: "Cairo, sans-serif",
-          background: "#eef1f6",
-          color: "#1a2e4a",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+    <div
+      dir="rtl"
+      style={{
+        fontFamily: "Cairo, sans-serif",
+        background: "#eef1f6",
+        color: "#1a2e4a",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
         {/* NAVBAR */}
         <nav
           style={{
@@ -147,7 +140,7 @@ export default function PharmacyLoginPage() {
             padding: "40px 20px",
           }}
         >
-          <div
+          <form onSubmit={handleLogin}
             style={{
               background: "#fff",
               borderRadius: 18,
@@ -323,7 +316,7 @@ export default function PharmacyLoginPage() {
 
               {/* Submit */}
               <button
-                onClick={handleLogin}
+                type="submit"
                 disabled={isSubmitting}
                 style={{
                   width: "100%",
@@ -351,7 +344,7 @@ export default function PharmacyLoginPage() {
                 </a>
               </div>
             </div>
-          </div>
+          </form>
         </main>
 
         {/* FOOTER */}
@@ -367,8 +360,7 @@ export default function PharmacyLoginPage() {
         >
           © 2024 Healup. جميع الحقوق محفوظة للنظام الطبي المتكامل.
         </footer>
-      </body>
-    </html>
+    </div>
   );
 }
 

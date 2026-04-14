@@ -1,0 +1,342 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 200;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 220px;
+  height: 100vh;
+  background: #fff;
+  border-left: 1px solid #e2e8f0;
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  box-shadow: none;
+}
+
+.dynamicPanel {
+  top: 0;
+  height: 100vh;
+  border-top: none;
+}
+
+.header {
+  height: 60px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a56db;
+  line-height: 1;
+}
+
+.closeBtn {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  margin-inline-start: auto;
+}
+
+.nav {
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item {
+  display: block;
+  position: relative;
+  text-decoration: none;
+  color: #64748b;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.15s ease, color 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.item:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.active {
+  background: #1a56db;
+  color: #fff;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.logout {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fee2e2;
+  color: #b91c1c;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.logout:hover {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.logoBtn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: #1a56db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.brandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #1a56db;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.shell {
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.shellMain {
+  margin-right: 220px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 60px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 120;
+}
+
+.topbarNav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.topbarLink {
+  text-decoration: none;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.topbarLinkActive {
+  color: #1a56db;
+  font-weight: 800;
+  border-bottom: 2px solid #1a56db;
+  padding-bottom: 2px;
+}
+
+.topbarBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #1a56db;
+  font-weight: 800;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.topbarBrandBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: #1a56db;
+  color: #fff;
+  font-weight: 700;
+}
+
+.content {
+  flex: 1;
+}
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbarActions {
+  justify-content: flex-start;
+}
+
+.topbarIconBtn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: #eceff4;
+  color: #1f2937;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.topbarDot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ef4444;
+}
+
+.topbarIconBtnActive {
+  border-radius: 999px;
+  background: #e9f0ff;
+  color: #1a56db;
+  border: 2px solid #bfdbfe;
+}
+
+.withTopbar :global(.content) {
+  min-height: 0;
+}
+
+/* Remove duplicated top bars from embedded patient pages */
+.withTopbar :global(.healupCart > nav),
+.withTopbar :global(.min-h-screen > header),
+.withTopbar :global(.min-h-screen > nav),
+.withTopbar :global(.healupLanding > nav) {
+  display: none !important;
+}
+
+/* Let page content use full available width beside sidebar */
+.shellMain :global(.healupCart .main),
+.shellMain :global(.min-h-screen > main) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* Remove inner max-width constraints from imported templates */
+.shellMain :global(.max-w-4xl),
+.shellMain :global(.max-w-6xl),
+.shellMain :global(.max-w-7xl),
+.shellMain :global(.mx-auto) {
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Remove artificial right offset used when old sidebar didn't exist */
+.shellMain :global(.pr-48) {
+  padding-right: 0 !important;
+}
+
+/* Restore original card sizing on patient-review-orders */
+.shellMain :global(.patient-review-orders-original-size .max-w-6xl) {
+  max-width: 72rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.icon {
+  width: 22px;
+  text-align: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.badge {
+  margin-inline-start: auto;
+  background: #ef4444;
+  color: #fff;
+  border-radius: 999px;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.active .badge {
+  background: #fff;
+  color: #1a56db;
+}
+
+.loginLink {
+  display: block;
+  text-decoration: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  text-align: right;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.loginLink:hover {
+  background: #eaf2ff;
+  border-color: #bfdbfe;
+  color: #1a56db;
+}

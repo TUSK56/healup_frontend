@@ -1,12 +1,49 @@
 "use client";
 import React from "react";
+import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function PharmacySignupPage() {
   const router = useRouter();
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [managerName, setManagerName] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [governorate, setGovernorate] = useState("");
+  const [district, setDistrict] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/pharmacy-login");
+    setError(null);
+
+    if (password !== confirmPassword) {
+      setError("كلمتا المرور غير متطابقتين.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await authService.registerPharmacy({
+        name: name || managerName,
+        email,
+        phone: phone || undefined,
+        licenseNumber: licenseNumber || undefined,
+        password,
+        passwordConfirmation: confirmPassword,
+      });
+
+      router.push("/pharmacy-login");
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err, "فشل إنشاء حساب الصيدلية. تأكد من البيانات وحاول مرة أخرى."));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return (
     <html lang="ar" dir="rtl">
@@ -41,7 +78,7 @@ export default function PharmacySignupPage() {
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>اسم الصيدلية</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="text" placeholder="أدخل اسم الصيدلية الكامل" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="أدخل اسم الصيدلية الكامل" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
                   <span style={{ position: 'absolute', right: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
                   </span>
@@ -50,7 +87,7 @@ export default function PharmacySignupPage() {
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>اسم الصيدلي المسؤول</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="text" placeholder="الاسم كما هو في الهوية" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="text" value={managerName} onChange={(e) => setManagerName(e.target.value)} placeholder="الاسم كما هو في الهوية" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
                   <span style={{ position: 'absolute', right: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                   </span>
@@ -62,7 +99,7 @@ export default function PharmacySignupPage() {
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>رقم الترخيص التجاري</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="text" placeholder="رقم السجل التجاري" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="text" value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} placeholder="رقم السجل التجاري" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
                   <span style={{ position: 'absolute', right: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
                   </span>
@@ -71,7 +108,7 @@ export default function PharmacySignupPage() {
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>البريد الإلكتروني</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="email" placeholder="example@pharmacy.com" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@pharmacy.com" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
                   <span style={{ position: 'absolute', right: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                   </span>
@@ -83,7 +120,7 @@ export default function PharmacySignupPage() {
               <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>رقم الهاتف (مصر)</span>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1 }}>
-                  <input type="tel" placeholder="01X XXXX XXXX" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01X XXXX XXXX" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
                   <span style={{ position: 'absolute', right: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M6.62 10.79a15.15 15.15 0 0 0 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.02l-2.21 2.2z"/></svg>
                   </span>
@@ -96,7 +133,7 @@ export default function PharmacySignupPage() {
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>كلمة المرور</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="password" placeholder="••••••••" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
                   <button type="button" style={{ position: 'absolute', right: 12, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
                   </button>
@@ -105,7 +142,7 @@ export default function PharmacySignupPage() {
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>تأكيد كلمة المرور</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="password" placeholder="••••••••" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
                   <button type="button" style={{ position: 'absolute', right: 12, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                   </button>
@@ -118,17 +155,22 @@ export default function PharmacySignupPage() {
               <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#2356c8' }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             </div>
             <div style={{ display: 'flex', gap: 14, marginBottom: 12 }}>
-              <select style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#9aa3b0', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', appearance: 'none', cursor: 'pointer' }} defaultValue="">
+              <select value={governorate} onChange={(e) => setGovernorate(e.target.value)} style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#9aa3b0', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', appearance: 'none', cursor: 'pointer' }}>
                 <option value="" disabled>اختر المحافظة</option>
                 <option>القاهرة</option>
                 <option>الجيزة</option>
                 <option>الإسكندرية</option>
                 <option>الشرقية</option>
               </select>
-              <select style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#9aa3b0', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', appearance: 'none', cursor: 'pointer' }} defaultValue="">
+              <select value={district} onChange={(e) => setDistrict(e.target.value)} style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#9aa3b0', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', appearance: 'none', cursor: 'pointer' }}>
                 <option value="" disabled>اختر الحي / المنطقة</option>
               </select>
             </div>
+            {error ? (
+              <div style={{ marginBottom: 14, fontSize: 13, fontWeight: 600, color: '#b91c1c', textAlign: 'right' }}>
+                {error}
+              </div>
+            ) : null}
             {/* Map placeholder */}
             <div style={{ position: 'relative', marginBottom: 22 }}>
               <div style={{ width: '100%', height: 160, borderRadius: 12, background: '#e8ecf4', border: '1.5px solid #dde3ed', position: 'relative', zIndex: 0 }} />
@@ -137,13 +179,13 @@ export default function PharmacySignupPage() {
               </div>
             </div>
             {/* Submit */}
-            <button type="submit" style={{ width: '100%', padding: 16, background: '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, direction: 'rtl' }}>
-              إنشاء حساب جديد للصيدلية
+            <button type="submit" disabled={isSubmitting} style={{ width: '100%', padding: 16, background: isSubmitting ? '#6b88de' : '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, direction: 'rtl' }}>
+              {isSubmitting ? 'جاري إنشاء الحساب...' : 'إنشاء حساب جديد للصيدلية'}
               <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: 'white' }}><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
             </button>
             {/* Login link */}
             <div style={{ textAlign: 'center', fontSize: 13, color: '#9aa3b0', fontWeight: 500, marginBottom: 24 }}>
-              لديك حساب بالفعل؟ <a href="#" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none' }}>سجل دخولك هنا</a>
+              لديك حساب بالفعل؟ <a href="/pharmacy-login" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none' }}>سجل دخولك هنا</a>
             </div>
           </form>
         </div>

@@ -3,6 +3,8 @@
 import React, { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { authService } from "@/services/authService";
+import PatientShell from "@/components/patient/PatientShell";
 import { searchDrugs, getDrugPrice } from "@/lib/drugs";
 import { getCart, setCart, setPrescription, type CartItemData } from "@/lib/cartStorage";
 import "./landing.css";
@@ -26,6 +28,7 @@ export default function PatientHomePage() {
   const [searchShake, setSearchShake] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const prescriptionInputRef = useRef<HTMLInputElement>(null);
+  const isLoggedIn = authService.getGuard() === "user" && !!authService.getToken();
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const q = e.target.value;
@@ -85,43 +88,33 @@ export default function PatientHomePage() {
     e.target.value = "";
   }, []);
 
+  const scrollToSection = useCallback((id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   return (
+    <PatientShell active="home">
     <div className="healupLanding">
       {/* ─── NAVBAR ─── */}
       <nav>
-        <Link href="/patient-home" className="nav-logo">
-          Healup
-          <span className="nav-logo-icon">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 3h6v3H9z" />
-              <path d="M3 7h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
-              <line x1="12" y1="11" x2="12" y2="17" />
-              <line x1="9" y1="14" x2="15" y2="14" />
-            </svg>
-          </span>
-        </Link>
-
         <ul className="nav-links">
           <li>
             <Link href="/patient-home">الرئيسية</Link>
           </li>
           <li>
-            <a href="#how">كيف يعمل</a>
+            <button type="button" className="nav-link-btn" onClick={() => scrollToSection("how")}>
+              كيف يعمل
+            </button>
           </li>
           <li>
-            <a href="#pharmacies">الصيدليات</a>
+            <button type="button" className="nav-link-btn" onClick={() => scrollToSection("pharmacies")}>
+              الصيدليات
+            </button>
           </li>
           <li>
-            <a href="#contact">اتصل بنا</a>
+            <button type="button" className="nav-link-btn" onClick={() => scrollToSection("contact")}>
+              اتصل بنا
+            </button>
           </li>
         </ul>
 
@@ -134,12 +127,27 @@ export default function PatientHomePage() {
             </svg>
             السلة
           </Link>
-          <a className="btn-login-nav" href="/patient-login">
-            تسجيل الدخول
-          </a>
-          <a className="btn-cta-nav" href="/signup">
-            انضم إلينا
-          </a>
+          {!isLoggedIn ? (
+            <>
+              <a className="btn-login-nav" href="/patient-login">
+                تسجيل الدخول
+              </a>
+              <a className="btn-cta-nav" href="/signup">
+                انضم إلينا
+              </a>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="btn-login-nav"
+              onClick={() => {
+                authService.logout();
+                router.refresh();
+              }}
+            >
+              تسجيل الخروج
+            </button>
+          )}
         </div>
       </nav>
 
@@ -532,6 +540,7 @@ export default function PatientHomePage() {
         <div className="footer-bottom">© Healup 2024. جميع الحقوق محفوظة.</div>
       </footer>
     </div>
+    </PatientShell>
   );
 }
 

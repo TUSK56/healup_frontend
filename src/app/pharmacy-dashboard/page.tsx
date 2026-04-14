@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Link from "next/link";
 import "./cart.css";
 
 export default function PharmacyDashboardPage() {
@@ -19,7 +20,7 @@ export default function PharmacyDashboardPage() {
         </div>
 
         <nav className="sidebar-nav">
-          <a className="nav-item active" href="#">
+          <Link className="nav-item active" href="/pharmacy-dashboard">
             <div className="nav-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
                 <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -29,9 +30,9 @@ export default function PharmacyDashboardPage() {
               </svg>
             </div>
             <span>الرئيسية</span>
-          </a>
+          </Link>
 
-          <a className="nav-item" style={{ justifyContent: "space-between" }} href="#">
+          <Link className="nav-item" style={{ justifyContent: "space-between" }} href="/pharmacy-dashboard/new-orders">
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div className="nav-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
@@ -41,43 +42,44 @@ export default function PharmacyDashboardPage() {
               <span>طلبات جديدة</span>
             </div>
             <span className="nav-badge">12</span>
-          </a>
+          </Link>
 
-          <a className="nav-item" href="#">
+          <Link className="nav-item" href="/pharmacy-dashboard/current-orders">
             <div className="nav-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5v5.25l4.5 2.67-.75 1.23L11 13V7h1.5z" />
               </svg>
             </div>
             <span>الطلبات الحالية</span>
-          </a>
+          </Link>
 
-          <a className="nav-item" href="#">
+          <Link className="nav-item" href="/pharmacy-dashboard/completed-orders">
             <div className="nav-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z" />
               </svg>
             </div>
             <span>الطلبات المكتملة</span>
-          </a>
+          </Link>
 
-          <a className="nav-item" href="#">
+          <Link className="nav-item" href="/pharmacy-dashboard/analytics">
             <div className="nav-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
                 <path d="M5 20h2v-8H5v8zm4 0h2V4H9v16zm4 0h2v-5h-2v5zm4 0h2v-11h-2v11z" />
               </svg>
             </div>
             <span>التحليلات</span>
-          </a>
+          </Link>
+
         </nav>
 
         <div className="sidebar-footer">
-          <div className="settings-item">
+          <Link href="/pharmacy-dashboard/profile-settings" className="settings-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
               <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a6.93 6.93 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
             </svg>
             <span>الإعدادات</span>
-          </div>
+          </Link>
         </div>
       </aside>
 
@@ -115,13 +117,13 @@ export default function PharmacyDashboardPage() {
 
             <div style={{ width: 1, height: 32, background: "var(--border)", margin: "0 4px" }} />
 
-            <div className="profile">
+            <Link href="/pharmacy-dashboard/profile-settings" className="profile">
               <div className="profile-info">
                 <div className="profile-name">صيدلية النهدي</div>
                 <div className="profile-role">مدير الصيدلية</div>
               </div>
               <div className="profile-avatar">👨‍⚕️</div>
-            </div>
+            </Link>
           </div>
         </header>
 

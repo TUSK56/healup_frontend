@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { authService } from "@/services/authService";
+import { authService, getAuthErrorMessage } from "@/services/authService";
 
 export default function PatientLogin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,9 +8,9 @@ export default function PatientLogin() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
-  async function handleLogin() {
+  async function handleLogin(event?: React.FormEvent) {
+    event?.preventDefault();
     setError(null);
     setIsSubmitting(true);
     try {
@@ -21,22 +20,17 @@ export default function PatientLogin() {
         guard: "user",
       });
       authService.setSession(res, "user");
-      router.push("/patient-home");
+      // Force full reload so logged-in view uses the exact guest page styling baseline.
+      window.location.assign("/patient-home");
     } catch (e: unknown) {
-      setError("فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى.");
+      setError(getAuthErrorMessage(e, "فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى."));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <title>تسجيل الدخول - Healup</title>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body style={{ fontFamily: 'Cairo, sans-serif', background: '#eef1f6', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div dir="rtl" style={{ fontFamily: 'Cairo, sans-serif', background: '#eef1f6', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         {/* NAVBAR */}
         <nav style={{ background: '#fff', padding: '12px 30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -61,7 +55,7 @@ export default function PatientLogin() {
         </nav>
         {/* MAIN */}
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
-          <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 480, boxShadow: '0 4px 28px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+          <form onSubmit={handleLogin} style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 480, boxShadow: '0 4px 28px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
             {/* Top Image */}
             <div style={{ padding: '20px 20px 0 20px' }}>
               <div style={{ width: '100%', height: 180, borderRadius: 12, overflow: 'hidden', position: 'relative', background: '#b8d4e8' }}>
@@ -125,24 +119,33 @@ export default function PatientLogin() {
               ) : null}
               {/* Submit */}
               <button
-                onClick={handleLogin}
+                type="submit"
                 disabled={isSubmitting}
                 style={{ width: '100%', padding: 16, background: isSubmitting ? '#6b88de' : '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 22 }}
               >
                 {isSubmitting ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  authService.setGuestSession();
+                  window.location.assign("/patient-home");
+                }}
+                style={{ width: '100%', padding: 14, background: '#eef4ff', color: '#2356c8', border: '1px solid #cfe0ff', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 14 }}
+              >
+                الدخول كضيف
               </button>
               {/* Register link */}
               <div style={{ textAlign: 'center', fontSize: 13.5, color: '#9aa3b0', fontWeight: 500 }}>
                 ليس لديك حساب؟ <a href="/signup" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none' }}>إنشاء حساب جديد</a>
               </div>
             </div>
-          </div>
+          </form>
         </main>
         {/* FOOTER */}
         <footer style={{ textAlign: 'center', padding: 18, fontSize: 12.5, color: '#9aa3b0', fontWeight: 500, direction: 'ltr' }}>
           © 2024 Healup. جميع الحقوق محفوظة للنظام الطبي المتكامل.
         </footer>
-      </body>
-    </html>
+    </div>
   );
 }

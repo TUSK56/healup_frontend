@@ -21,6 +21,7 @@
 
   background: var(--white);
   color: var(--text);
+  font-family: "Cairo", sans-serif;
   direction: rtl;
   overflow-x: hidden;
   min-height: 100vh;
@@ -34,7 +35,7 @@
 .healupLanding nav {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 40px;
   height: 60px;
   background: var(--white);
@@ -57,6 +58,26 @@
   right: 40px;
 }
 
+.healupLanding .nav-right-cluster {
+  position: absolute;
+  right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.healupLanding .patient-sidebar-toggle {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
 .healupLanding .nav-logo-icon {
   background: var(--blue);
   color: white;
@@ -74,6 +95,7 @@
   align-items: center;
   gap: 32px;
   list-style: none;
+  margin-right: 0;
 }
 
 .healupLanding .nav-links a {
@@ -85,6 +107,21 @@
 }
 
 .healupLanding .nav-links a:hover {
+  color: var(--blue);
+}
+
+.healupLanding .nav-link-btn {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+
+.healupLanding .nav-link-btn:hover {
   color: var(--blue);
 }
 
@@ -127,6 +164,7 @@
 .healupLanding .btn-cta-nav:hover {
   background: var(--blue-dark);
 }
+
 
 /* ─── HERO ─── */
 .healupLanding .hero {

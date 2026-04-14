@@ -1,8 +1,11 @@
 
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { authService, getAuthErrorMessage } from "@/services/authService";
 
 export default function AdminLogin() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -10,19 +13,23 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    // TODO: Replace with real authentication logic
-    setTimeout(() => {
-      if (username === "admin@healup.com" && password === "admin123") {
-        setError("");
-      } else {
-        setError("بيانات الدخول غير صحيحة");
-      }
+    try {
+      const res = await authService.login({
+        email: username,
+        password,
+        guard: "admin",
+      });
+      authService.setSession(res, "admin");
+      router.push("/admin/dashboard");
+    } catch (e: unknown) {
+      setError(getAuthErrorMessage(e, "بيانات الدخول غير صحيحة"));
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (

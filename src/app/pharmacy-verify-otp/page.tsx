@@ -1,12 +1,15 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authService, getAuthErrorMessage } from "@/services/authService";
 
 export default function PharmacyVerifyOtpPage() {
   const router = useRouter();
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const [timer, setTimer] = useState(59);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
   React.useEffect(() => {
@@ -34,12 +37,21 @@ export default function PharmacyVerifyOtpPage() {
   };
 
   // Handle submit
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.join("") === "0000") {
+    const identifier = typeof window !== "undefined" ? localStorage.getItem("healup_reset_identifier") : null;
+    if (!identifier) {
+      setError("لا يوجد معرف استرجاع. أعد طلب كود جديد.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await authService.verifyOtp({ identifier, otp: otp.join("") });
       router.push("/pharmacy-reset-password");
-    } else {
-      setError("رمز التحقق غير صحيح. جرب 0000 للاختبار.");
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err, "رمز التحقق غير صحيح."));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,14 +92,14 @@ export default function PharmacyVerifyOtpPage() {
               ))}
             </div>
             {error && <div style={{ color: '#e74c3c', fontSize: 13, marginBottom: 10 }}>{error}</div>}
-            <button type="submit" className="btn-submit" style={{ width: '100%', padding: 16, background: '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+            <button disabled={isSubmitting} type="submit" className="btn-submit" style={{ width: '100%', padding: 16, background: isSubmitting ? '#6b88de' : '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
               تحقق الان
               <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: 'white' }}><path d="M12 2L4 5v6c0 5.25 3.4 10.15 8 11.35C16.6 21.15 20 16.25 20 11V5l-8-3z"/></svg>
             </button>
           </form>
           {/* Resend */}
           <div style={{ fontSize: 13, color: '#9aa3b0', marginBottom: 10, direction: 'rtl' }}>
-            لم يصلك الكود؟ <a href="#" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none', cursor: 'pointer' }} onClick={e => { e.preventDefault(); setTimer(59); }}>إعادة إرسال</a>
+            لم يصلك الكود؟ <a href="#" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none', cursor: isResending ? 'not-allowed' : 'pointer', opacity: isResending ? 0.7 : 1 }} onClick={async (e) => { e.preventDefault(); const identifier = typeof window !== "undefined" ? localStorage.getItem("healup_reset_identifier") : null; if (!identifier) { setError("لا يوجد معرف استرجاع."); return; } setIsResending(true); setError(""); try { await authService.sendOtp({ identifier }); setTimer(59); } catch (err: unknown) { setError(getAuthErrorMessage(err, "تعذر إعادة إرسال الكود.")); } finally { setIsResending(false); } }}>إعادة إرسال</a>
           </div>
           {/* Timer */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12.5, color: '#9aa3b0', direction: 'ltr' }}>

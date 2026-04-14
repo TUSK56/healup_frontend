@@ -5,6 +5,8 @@
 :root {
   --healup-primary: #0d9488;
   --healup-secondary: #0f766e;
+  --color-brand-primary: #0041aa;
+  --color-brand-secondary: #0456ae;
 }
 
 body {
