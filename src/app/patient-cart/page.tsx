@@ -4,7 +4,6 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authService, getAuthErrorMessage } from "@/services/authService";
-import { requestService } from "@/services/requestService";
 import PatientShell from "@/components/patient/PatientShell";
 import {
   getCart,
@@ -134,9 +133,6 @@ export default function PatientCartPage() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoginSubmitting, setIsLoginSubmitting] = useState(false);
-  const [requestSubmitting, setRequestSubmitting] = useState(false);
-  const [requestSuccess, setRequestSuccess] = useState<{ open: boolean; requestId?: number }>({ open: false });
-  const [requestSubmitError, setRequestSubmitError] = useState<string | null>(null);
   const drugNameInputRef = useRef<HTMLInputElement>(null);
   const modalPrescriptionInputRef = useRef<HTMLInputElement>(null);
 
@@ -296,45 +292,14 @@ export default function PatientCartPage() {
 
   const isUserLoggedIn = authService.getGuard() === "user" && !!authService.getToken();
 
-  const submitMedicineRequest = useCallback(async () => {
-    if (items.length === 0 && !prescription) {
-      setRequestSubmitError("أضف دواءً على الأقل أو ارفع روشتة.");
-      return;
-    }
-    setRequestSubmitError(null);
-    setRequestSubmitting(true);
-    try {
-      const medicines = items.map((it) => ({
-        medicine_name: it.name,
-        quantity: it.qty,
-      }));
-      const prescriptionUrl =
-        prescription && prescription.startsWith("data:") ? prescription : undefined;
-      const res = await requestService.create(
-        { medicines, prescription_url: prescriptionUrl },
-        undefined
-      );
-      setCart([]);
-      clearPrescription();
-      setItems([]);
-      setPrescriptionState(null);
-      setRequestSuccess({ open: true, requestId: res.request.id });
-      window.dispatchEvent(new Event("healup:notification"));
-    } catch (e: unknown) {
-      setRequestSubmitError(getAuthErrorMessage(e, "تعذر إرسال الطلب. حاول مرة أخرى."));
-    } finally {
-      setRequestSubmitting(false);
-    }
-  }, [items, prescription]);
-
   const handleCheckout = useCallback(() => {
     if (isUserLoggedIn) {
-      void submitMedicineRequest();
+      router.push("/patient-order-confirmation");
       return;
     }
     setLoginPromptOpen(true);
     setLoginError(null);
-  }, [isUserLoggedIn, submitMedicineRequest]);
+  }, [isUserLoggedIn, router]);
 
   const handleCheckoutLogin = useCallback(async () => {
     setLoginError(null);
@@ -729,14 +694,10 @@ export default function PatientCartPage() {
             <span className="total-value">{total.toFixed(2)} ج.م</span>
           </div>
 
-          {requestSubmitError ? (
-            <p style={{ color: "#b91c1c", fontSize: 13, marginBottom: 10, fontWeight: 600 }}>{requestSubmitError}</p>
-          ) : null}
           <button
             type="button"
             className="btn-checkout"
             onClick={handleCheckout}
-            disabled={requestSubmitting}
           >
             <svg
               width="16"
@@ -750,7 +711,7 @@ export default function PatientCartPage() {
               <circle cx="20" cy="21" r="1" />
               <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
             </svg>
-            {requestSubmitting ? "جاري الإرسال…" : "إتمام الطلب"}
+            إتمام الطلب
           </button>
           <button type="button" className="btn-continue" onClick={openModal}>
             متابعة التسوق
@@ -802,44 +763,6 @@ export default function PatientCartPage() {
           </div>
         </div>
       </div>
-
-      {requestSuccess.open ? (
-        <div className="add-modal-overlay" role="dialog" aria-modal="true">
-          <div className="add-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginBottom: 12 }}>تم إرسال طلبك</h3>
-            <p style={{ fontSize: 15, lineHeight: 1.7, color: "#475569", marginBottom: 18 }}>
-              طلبك وصل إلى <strong>جميع الصيدليات المعتمدة</strong>. ستتم مراجعة العروض قريباً، وستصلك إشعارات عند
-              توفر عروض أسعار. بعد اختيار عرض، يمكن للصيدلية الموافقة على الطلب ثم تؤكّد أنت الطلب من صفحة التأكيد.
-            </p>
-            <div className="modal-actions" style={{ flexDirection: "column", gap: 10 }}>
-              {requestSuccess.requestId ? (
-                <button
-                  type="button"
-                  className="modal-btn-add"
-                  style={{ width: "100%" }}
-                  onClick={() => {
-                    setRequestSuccess({ open: false });
-                    router.push(`/patient-offers?requestId=${requestSuccess.requestId}`);
-                  }}
-                >
-                  عرض العروض من الصيدليات
-                </button>
-              ) : null}
-              <button
-                type="button"
-                className="modal-btn-cancel"
-                style={{ width: "100%" }}
-                onClick={() => {
-                  setRequestSuccess({ open: false });
-                  router.push("/patient-review-orders");
-                }}
-              >
-                الانتقال لطلباتي
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
 
       {loginPromptOpen ? (
         <div className="add-modal-overlay" onClick={() => setLoginPromptOpen(false)} role="dialog" aria-modal="true">

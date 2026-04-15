@@ -1,1 +1,263 @@
-產敳挠楬湥≴਻椊灭牯⁴⁻獵䍥污扬捡Ⱬ甠敳晅敦瑣‬獵䵥浥Ɐ甠敳瑓瑡⁥⁽牦浯∠敲捡≴਻浩潰瑲笠䄠牲睯敌瑦‬桃癥潲䑮睯Ɱ䌠潬正‬慍偰湩‬楐汬素映潲⁭氢捵摩ⵥ敲捡≴਻浩潰瑲笠漠摲牥敓癲捩ⱥ琠灹⁥牏敤⁲⁽牦浯∠⽀敳癲捩獥漯摲牥敓癲捩≥਻浩潰瑲笠映牯慭剴汥瑡癩呥浩䅥⁲⁽牦浯∠⽀楬⽢潦浲瑡敒慬楴敶牁㬢ਊ祴数传摲牥慔⁢‽愢汬•⁼瀢潲散獳湩≧簠∠畯⵴潦⵲敤楬敶祲•⁼挢浯汰瑥摥㬢ਊ畦据楴湯琠噯獩慵卬慴畴⡳瑳瑡獵›瑳楲杮㨩∠牰捯獥楳杮•⁼漢瑵昭牯搭汥癩牥≹簠∠潣灭敬整≤笠 椠⁦猨慴畴⁳㴽‽漢瑵晟牯摟汥癩牥≹ 敲畴湲∠畯⵴潦⵲敤楬敶祲㬢 椠⁦猨慴畴⁳㴽‽挢浯汰瑥摥⤢爠瑥牵⁮挢浯汰瑥摥㬢 爠瑥牵⁮瀢潲散獳湩≧਻੽昊湵瑣潩⁮敮瑸捁楴湯漨›牏敤⥲›⁻慬敢㩬猠牴湩㭧猠慴畴㩳猠牴湩⁧⁽⁼畮汬笠 猠楷捴⁨漨献慴畴⥳笠 †挠獡⁥瀢敲慰楲杮㨢 ††爠瑥牵⁮⁻慬敢㩬∠㼿‿㼿㼿㼿∿‬瑳瑡獵›漢瑵晟牯摟汥癩牥≹素਻††慣敳∠畯彴潦彲敤楬敶祲㨢 †挠獡⁥爢慥祤晟牯灟捩畫≰਺†††敲畴湲笠氠扡汥›㼢㼿㼿㼠㼿㼿Ⱒ猠慴畴㩳∠潣灭敬整≤素਻††慣敳∠潣普物敭≤਺†††敲畴湲笠氠扡汥›㼢㼿㼠㼿㼿㼿Ⱒ猠慴畴㩳∠牰灥牡湩≧素਻††敤慦汵㩴 ††爠瑥牵⁮畮汬਻†੽੽昊湵瑣潩⁮瑳瑡獵慌敢⡬瑳瑡獵›瑳楲杮 ੻†晩⠠瑳瑡獵㴠㴽∠畯彴潦彲敤楬敶祲⤢爠瑥牵⁮㼢㼿㼠㼿㼿㼿㬢 椠⁦猨慴畴⁳㴽‽挢浯汰瑥摥⤢爠瑥牵⁮㼢㼿㼿㬢 椠⁦猨慴畴⁳㴽‽爢慥祤晟牯灟捩畫≰ 敲畴湲∠㼿㼿㼠㼿㼿㼿∿਻†晩⠠瑳瑡獵㴠㴽∠潣普物敭≤ 敲畴湲∠㼿㼿㼿‿㼿㼿㼿㬢 爠瑥牵⁮㼢㼿‿㼿㼿㼿∿਻੽攊灸牯⁴敤慦汵⁴畦据楴湯䄠灰⤨笠 挠湯瑳嬠牯敤獲‬敳佴摲牥嵳㴠甠敳瑓瑡㱥牏敤孲㹝嬨⥝਻†潣獮⁴慛瑣癩呥扡‬敳䅴瑣癩呥扡⁝‽獵卥慴整似摲牥慔㹢∨污≬㬩 挠湯瑳嬠畢祳牏敤䥲Ɽ猠瑥畂祳牏敤䥲嵤㴠甠敳瑓瑡㱥畮扭牥簠渠汵㹬渨汵⥬਻ 挠湯瑳氠慯⁤‽獵䍥污扬捡⡫獡湹⁣⤨㴠‾੻††牴⁹੻†††潣獮⁴慤慴㴠愠慷瑩漠摲牥敓癲捩⹥楬瑳⤨਻†††敳佴摲牥⡳慤慴搮瑡⥡਻††⁽慣捴⁨੻†††敳佴摲牥⡳嵛㬩 †素 素‬嵛㬩ਊ†獵䕥晦捥⡴⤨㴠‾੻††潶摩氠慯⡤㬩 †挠湯瑳漠⁮‽⤨㴠‾潶摩氠慯⡤㬩 †眠湩潤⹷摡䕤敶瑮楌瑳湥牥∨敨污灵渺瑯晩捩瑡潩≮‬湯㬩 †爠瑥牵⁮⤨㴠‾楷摮睯爮浥癯䕥敶瑮楌瑳湥牥∨敨污灵渺瑯晩捩瑡潩≮‬湯㬩 素‬汛慯嵤㬩ਊ†潣獮⁴楤灳慬⁹‽獵䵥浥⡯⤨㴠‾੻††潣獮⁴楬瑳㴠漠摲牥⹳楦瑬牥⠨⥯㴠ਾ†††≛潣普物敭≤‬瀢敲慰楲杮Ⱒ∠敲摡役潦彲楰正灵Ⱒ∠畯彴潦彲敤楬敶祲Ⱒ∠潣灭敬整≤⹝湩汣摵獥漨献慴畴⥳ †⤠਻††晩⠠捡楴敶慔⁢㴽‽愢汬⤢爠瑥牵⁮楬瑳਻††晩⠠捡楴敶慔⁢㴽‽挢浯汰瑥摥⤢爠瑥牵⁮楬瑳昮汩整⡲漨 㸽琠噯獩慵卬慴畴⡳⹯瑳瑡獵 㴽‽挢浯汰瑥摥⤢਻††敲畴湲氠獩⹴楦瑬牥⠨⥯㴠‾潴楖畳污瑓瑡獵漨献慴畴⥳㴠㴽愠瑣癩呥扡㬩 素‬潛摲牥ⱳ愠瑣癩呥扡⥝਻ 挠湯瑳猠慴獴㴠甠敳敍潭⠨ 㸽笠 †挠湯瑳爠汥癥湡⁴‽牯敤獲昮汩整⡲漨 㸽 ††嬠挢湯楦浲摥Ⱒ∠牰灥牡湩≧‬爢慥祤晟牯灟捩畫≰‬漢瑵晟牯摟汥癩牥≹‬挢浯汰瑥摥崢椮据畬敤⡳⹯瑳瑡獵਩††㬩 †爠瑥牵⁮੻†††污㩬爠汥癥湡⹴敬杮桴ਬ†††牰捯獥楳杮›敲敬慶瑮昮汩整⡲漨 㸽琠噯獩慵卬慴畴⡳⹯瑳瑡獵 㴽‽瀢潲散獳湩≧⸩敬杮桴ਬ†††敤楬敶祲›敲敬慶瑮昮汩整⡲漨 㸽琠噯獩慵卬慴畴⡳⹯瑳瑡獵 㴽‽漢瑵昭牯搭汥癩牥≹⸩敬杮桴ਬ††㭽 素‬潛摲牥嵳㬩ਊ†潣獮⁴慨摮敬捁楴湯㴠愠祳据⠠牯敤䥲㩤渠浵敢Ⱳ猠慴畴㩳猠牴湩⥧㴠‾੻††敳䉴獵佹摲牥摉漨摲牥摉㬩 †琠祲笠 ††愠慷瑩漠摲牥敓癲捩⹥灵慤整瑓瑡獵漨摲牥摉‬瑳瑡獵㬩 ††愠慷瑩氠慯⡤㬩 ††眠湩潤⹷楤灳瑡档癅湥⡴敮⁷癅湥⡴栢慥畬㩰潮楴楦慣楴湯⤢㬩 †素映湩污祬笠 ††猠瑥畂祳牏敤䥲⡤畮汬㬩 †素 素਻ 爠瑥牵⁮ਨ††搼癩挠慬獳慎敭∽潦瑮猭湡≳搠物∽瑲≬ਾ†††洼楡⁮汣獡乳浡㵥眢昭汵⁬硰㐭洠㩤硰㘭瀠⵹∶ਾ††††搼癩挠慬獳慎敭∽扭㠭琠硥⵴散瑮牥洠㩤整瑸爭杩瑨㸢 ††††㰠ㅨ挠慬獳慎敭∽整瑸㐭汸映湯⵴汢捡⁫整瑸猭慬整㤭〰洠ⵢ∳㼾㼿㼿㼿㼠㼿㼿㼿⼼ㅨਾ†††††瀼挠慬獳慎敭∽整瑸猭慬整㔭〰琠硥⵴杬㸢㼿㼿㼠㼿‿㼿㼿‿㼿㼿㼿‿㼿㼿㼿‿㼿㼿㼿‿㼿㼿㼿㰿瀯ਾ††††⼼楤㹶ਊ††††搼癩挠慬獳慎敭∽扭㠭映敬⁸汦硥眭慲⁰番瑳晩⵹散瑮牥洠㩤番瑳晩⵹瑳牡⁴瑩浥⵳散瑮牥朠灡㈭戠牯敤⵲⁢潢摲牥猭慬整ㄭ〰瀠ⵢ硰㸢 ††††㰠畢瑴湯漠䍮楬正笽⤨㴠‾敳䅴瑣癩呥扡∨污≬紩挠慬獳慎敭笽灠⵸‶祰㐭琠硥⵴浳映湯⵴潢摬琠慲獮瑩潩⵮污⁬敲慬楴敶␠慻瑣癩呥扡㴠㴽∠污≬㼠∠整瑸嬭〣㔴䄶嵅戠牯敤⵲ⵢ′潢摲牥嬭〣㔴䄶嵅•›琢硥⵴汳瑡ⵥ〴‰潨敶㩲整瑸猭慬整㘭〰索絠ਾ††††††㼿㼿⠠獻慴獴愮汬⥽ ††††㰠戯瑵潴㹮 ††††㰠畢瑴湯漠䍮楬正笽⤨㴠‾敳䅴瑣癩呥扡∨牰捯獥楳杮⤢⁽汣獡乳浡㵥恻硰㘭瀠⵹‴整瑸猭⁭潦瑮戭汯⁤牴湡楳楴湯愭汬爠汥瑡癩⁥笤捡楴敶慔⁢㴽‽瀢潲散獳湩≧㼠∠整瑸嬭〣㔴䄶嵅戠牯敤⵲ⵢ′潢摲牥嬭〣㔴䄶嵅•›琢硥⵴汳瑡ⵥ〴‰潨敶㩲整瑸猭慬整㘭〰索絠ਾ††††††㼿㼿㼠㼿㼿㼿⠠獻慴獴瀮潲散獳湩絧਩†††††⼼畢瑴湯ਾ†††††戼瑵潴⁮湯汃捩㵫⡻ 㸽猠瑥捁楴敶慔⡢漢瑵昭牯搭汥癩牥≹紩挠慬獳慎敭笽灠⵸‶祰㐭琠硥⵴浳映湯⵴潢摬琠慲獮瑩潩⵮污⁬敲慬楴敶␠慻瑣癩呥扡㴠㴽∠畯⵴潦⵲敤楬敶祲•‿琢硥⵴⍛㐰㘵䕁⁝潢摲牥戭㈭戠牯敤⵲⍛㐰㘵䕁≝㨠∠整瑸猭慬整㐭〰栠癯牥琺硥⵴汳瑡ⵥ〶∰恽㹽 †††††㼠㼿㼠㼿㼿㼿⠠獻慴獴搮汥癩牥絹਩†††††⼼畢瑴湯ਾ†††††戼瑵潴⁮湯汃捩㵫⡻ 㸽猠瑥捁楴敶慔⡢挢浯汰瑥摥⤢⁽汣獡乳浡㵥恻硰㘭瀠⵹‴整瑸猭⁭潦瑮戭汯⁤牴湡楳楴湯愭汬爠汥瑡癩⁥笤捡楴敶慔⁢㴽‽挢浯汰瑥摥•‿琢硥⵴⍛㐰㘵䕁⁝潢摲牥戭㈭戠牯敤⵲⍛㐰㘵䕁≝㨠∠整瑸猭慬整㐭〰栠癯牥琺硥⵴汳瑡ⵥ〶∰恽㹽 †††††㼠㼿㼿㼿ਿ†††††⼼畢瑴湯ਾ††††⼼楤㹶ਊ††††搼癩挠慬獳慎敭∽牧摩朠楲ⵤ潣獬ㄭ洠㩤牧摩挭汯⵳′慧⵰∶ਾ†††††摻獩汰祡洮灡⠨牯敤⥲㴠‾੻††††††潣獮⁴楶畳污瑓瑡獵㴠琠噯獩慵卬慴畴⡳牯敤⹲瑳瑡獵㬩 †††††挠湯瑳愠瑣潩⁮‽敮瑸捁楴湯漨摲牥㬩 †††††爠瑥牵⁮ਨ†††††††搼癩欠祥笽牯敤⹲摩⁽汣獡乳浡㵥戢ⵧ桷瑩⁥潲湵敤ⵤ砲⁬潢摲牥戠牯敤⵲汳瑡ⵥ〱‰桳摡睯猭⁭潨敶㩲桳摡睯洭⁤牴湡楳楴湯愭汬搠牵瑡潩⵮〳‰癯牥汦睯栭摩敤⁮汦硥映敬⵸潣≬ਾ††††††††搼癩挠慬獳慎敭∽⵰‶汦硥ㄭ㸢 ††††††††㰠楤⁶汣獡乳浡㵥昢敬⁸番瑳晩⵹敢睴敥⁮瑩浥⵳瑳牡⁴扭㐭㸢 †††††††††㰠楤⁶汣獡乳浡㵥昢敬⁸汦硥挭汯朠灡㈭㸢 ††††††††††㰠楤⁶汣獡乳浡㵥戢ⵧ⍛㙅䙅㝆⁝整瑸嬭〣㐰䅂嵂瀠⵸⸲‵祰ㄭ爠畯摮摥氭⁧⵷楦≴ਾ††††††††††††猼慰⁮汣獡乳浡㵥琢硥⵴獸映湯⵴潢摬琠慲正湩ⵧ楷敤≲䠾偌笭牯敤⹲摩㱽猯慰㹮 ††††††††††㰠搯癩ਾ†††††††††††格″汣獡乳浡㵥琢硥⵴杬映湯⵴潢摬琠硥⵴汳瑡ⵥ〸∰笾牯敤⹲慰楴湥㽴渮浡⁥㼿∠㼿㼿索⼼㍨ਾ††††††††††⼼楤㹶ਊ††††††††††搼癩挠慬獳慎敭笽灠⵸″祰ㄭ爠畯摮摥昭汵⁬整瑸砭⁳潦瑮戭汯⁤汦硥椠整獭挭湥整⁲慧⵰⸱‵笤楶畳污瑓瑡獵㴠㴽∠牰捯獥楳杮•‿戢ⵧ⍛䕆㍆㝃⁝整瑸愭扭牥㘭〰•›楶畳污瑓瑡獵㴠㴽∠畯⵴潦⵲敤楬敶祲•‿戢ⵧ⍛䉄䅅䕆⁝整瑸戭畬ⵥ〶∰㨠∠杢攭敭慲摬㔭‰整瑸攭敭慲摬㘭〰索絠ਾ†††††††††††搼癩挠慬獳慎敭笽睠ㄭ㔮栠ㄭ㔮爠畯摮摥昭汵⁬笤楶畳污瑓瑡獵㴠㴽∠牰捯獥楳杮•‿戢ⵧ浡敢⵲〵∰㨠瘠獩慵卬慴畴⁳㴽‽漢瑵昭牯搭汥癩牥≹㼠∠杢戭畬ⵥ〵∰㨠∠杢攭敭慲摬㔭〰索絠⼠ਾ†††††††††††獻慴畴䱳扡汥漨摲牥献慴畴⥳੽††††††††††⼼楤㹶 ††††††††㰠搯癩ਾ ††††††††㰠楤⁶汣獡乳浡㵥猢慰散礭㌭㸢 †††††††††㰠楤⁶汣獡乳浡㵥昢敬⁸瑩浥⵳散瑮牥朠灡㌭琠硥⵴汳瑡ⵥ〶∰ਾ†††††††††††搼癩挠慬獳慎敭∽⵰′杢猭慬整㔭‰潲湵敤ⵤ杬㸢值汩⁬楳敺笽㘱⁽汣獡乳浡㵥琢硥⵴汳瑡ⵥ〴∰⼠㰾搯癩ਾ†††††††††††猼慰⁮汣獡乳浡㵥琢硥⵴浳映湯⵴敭楤浵㸢潻摲牥椮整獭⸿慭⡰椨 㸽怠笤⹩敭楤楣敮湟浡絥휠笤⹩畱湡楴祴恽⸩潪湩∨‬⤢㼠‿㼢索⼼灳湡ਾ††††††††††⼼楤㹶ਊ††††††††††搼癩挠慬獳慎敭∽汦硥椠整獭挭湥整⁲慧⵰″整瑸猭慬整㔭〰㸢 ††††††††††㰠楤⁶汣獡乳浡㵥瀢㈭戠ⵧ汳瑡ⵥ〵爠畯摮摥氭≧笾楶畳污瑓瑡獵㴠㴽∠畯⵴潦⵲敤楬敶祲•‿䴼灡楐⁮楳敺笽㘱⁽汣獡乳浡㵥琢硥⵴汳瑡ⵥ〴∰⼠‾›䌼潬正猠穩㵥ㅻ紶挠慬獳慎敭∽整瑸猭慬整㐭〰•㸯㱽搯癩ਾ†††††††††††猼慰⁮汣獡乳浡㵥琢硥⵴浳㸢晻牯慭剴汥瑡癩呥浩䅥⡲牯敤⹲牣慥整彤瑡紩⼼灳湡ਾ††††††††††⼼楤㹶 ††††††††㰠搯癩ਾ††††††††⼼楤㹶ਊ††††††††戼瑵潴੮†††††††††祴数∽畢瑴湯ਢ†††††††††楤慳汢摥笽愡瑣潩⁮籼戠獵佹摲牥摉㴠㴽漠摲牥椮絤 ††††††††漠䍮楬正笽⤨㴠‾捡楴湯☠…潶摩栠湡汤䅥瑣潩⡮牯敤⹲摩‬捡楴湯献慴畴⥳੽†††††††††汣獡乳浡㵥眢昭汵⁬祰㐭戠ⵧ⍛㐰㘵䕁⁝潨敶㩲杢嬭〣㐰㤴崴搠獩扡敬㩤灯捡瑩⵹〶琠硥⵴桷瑩⁥潦瑮戭汯⁤整瑸猭⁭牴湡楳楴湯挭汯牯⁳汦硥椠整獭挭湥整⁲番瑳晩⵹散瑮牥朠灡㈭朠潲灵ਢ††††††††ਾ†††††††††猼慰㹮慻瑣潩⁮‿捡楴湯氮扡汥㨠∠㼿‿㼿㼿㼿㼿索⼼灳湡ਾ†††††††††䄼牲睯敌瑦猠穩㵥ㅻ紶挠慬獳慎敭∽牧畯⵰潨敶㩲琭慲獮慬整砭ㄭ琠慲獮瑩潩⵮牴湡晳牯≭⼠ਾ††††††††⼼畢瑴湯ਾ†††††††⼼楤㹶 †††††⤠਻†††††⥽੽††††⼼楤㹶ਊ††††摻獩汰祡氮湥瑧⁨㴽‽‰‿ਨ†††††瀼挠慬獳慎敭∽整瑸挭湥整⁲整瑸猭慬整㔭〰洠⵴〱㸢㼿㼠㼿‿㼿㼿‿㼿㼠㼿㼠㼿㼿㰮瀯ਾ†††† ›畮汬੽ †††㰠楤⁶汣獡乳浡㵥洢⵴〱映敬⁸番瑳晩⵹散瑮牥㸢 ††††㰠灳湡挠慬獳慎敭∽汦硥椠整獭挭湥整⁲慧⵰′整瑸嬭〣㔴䄶嵅映湯⵴潢摬漠慰楣祴㜭∰ਾ††††††猼慰㹮㼿㼿‿㼿㼿㼿㼠‿㼿㼿㼿㰿猯慰㹮 †††††㰠桃癥潲䑮睯⁮楳敺笽〲⁽㸯 ††††㰠猯慰㹮 †††㰠搯癩ਾ†††⼼慭湩ਾ††⼼楤㹶 ⤠਻੽
+import React, { useState } from 'react';
+import { 
+  Bell, 
+  User, 
+  LayoutDashboard, 
+  Pill, 
+  MapPin, 
+  Clock, 
+  ArrowLeft,
+  ChevronDown,
+  Search,
+  CheckCircle2
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+
+// Types
+type OrderStatus = 'all' | 'processing' | 'out-for-delivery' | 'completed';
+
+interface Order {
+  id: string;
+  customer: string;
+  status: 'processing' | 'out-for-delivery' | 'completed';
+  medicine: string;
+  time: string;
+  driver?: string;
+}
+
+// Mock Data
+const MOCK_ORDERS: Order[] = [
+  {
+    id: "HLP-12845",
+    customer: "أحمد محمد عبد الله",
+    status: "processing",
+    medicine: "أوميبرازول (٤٠ ملجم) - ٢ علبة",
+    time: "منذ ١٥ دقيقة",
+  },
+  {
+    id: "HLP-12846",
+    customer: "سارة أحمد علي",
+    status: "out-for-delivery",
+    medicine: "بانادول إكسترا - ١ علبة",
+    time: "على بعد ٢.٥ كم - السائق: خالد",
+  },
+  {
+    id: "HLP-12847",
+    customer: "محمود ياسين",
+    status: "processing",
+    medicine: "أوجمنتين (١ جم) - ٣ علب",
+    time: "منذ ٥ دقائق",
+  },
+  {
+    id: "HLP-12848",
+    customer: "ليلى إبراهيم",
+    status: "out-for-delivery",
+    medicine: "فولتارين جل - ٢ أنبوب",
+    time: "على بعد ٠.٨ كم - السائق: سامي",
+  }
+];
+
+const OrderCard = ({ order }: { order: Order; key?: string }) => {
+  const isProcessing = order.status === 'processing';
+  const isOutForDelivery = order.status === 'out-for-delivery';
+  const isCompleted = order.status === 'completed';
+
+  return (
+    <motion.div 
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
+    >
+      <div className="p-6 flex-1">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex flex-col gap-2">
+            <div className="bg-[#E6EFF7] text-[#004BAB] px-2.5 py-1 rounded-lg w-fit">
+              <span className="text-xs font-bold tracking-wider">{order.id}</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-800">{order.customer}</h3>
+          </div>
+          
+          <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
+            isProcessing ? 'bg-[#FEF3C7] text-amber-600' : 
+            isOutForDelivery ? 'bg-[#DBEAFE] text-blue-600' : 
+            'bg-emerald-50 text-emerald-600'
+          }`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${
+              isProcessing ? 'bg-amber-500' : 
+              isOutForDelivery ? 'bg-blue-500' : 
+              'bg-emerald-500'
+            }`} />
+            {isProcessing ? 'جاري التجهيز' : isOutForDelivery ? 'خرج للتوصيل' : 'مكتمل'}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 text-slate-600">
+            <div className="p-2 bg-slate-50 rounded-lg">
+              <Pill size={16} className="text-slate-400" />
+            </div>
+            <span className="text-sm font-medium">{order.medicine}</span>
+          </div>
+          
+          <div className="flex items-center gap-3 text-slate-500">
+            <div className="p-2 bg-slate-50 rounded-lg">
+              {isOutForDelivery ? <MapPin size={16} className="text-slate-400" /> : <Clock size={16} className="text-slate-400" />}
+            </div>
+            <span className="text-sm">{order.time}</span>
+          </div>
+        </div>
+      </div>
+
+      <button className="w-full py-4 bg-[#0456AE] hover:bg-[#004494] text-white font-bold text-sm transition-colors flex items-center justify-center gap-2 group">
+        <span>عرض التفاصيل</span>
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+      </button>
+    </motion.div>
+  );
+};
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState<OrderStatus>('all');
+
+  const filteredOrders = MOCK_ORDERS.filter(order => 
+    activeTab === 'all' ? true : order.status === activeTab
+  );
+
+  const stats = {
+    all: MOCK_ORDERS.length,
+    processing: MOCK_ORDERS.filter(o => o.status === 'processing').length,
+    delivery: MOCK_ORDERS.filter(o => o.status === 'out-for-delivery').length,
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col font-sans">
+      {/* Header */}
+      <header className="bg-white border-bottom border-slate-100 sticky top-0 z-50 px-4 md:px-8 py-4">
+        <div className="w-full flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-black text-[#0456AE] tracking-tight">Healup</span>
+              <div className="w-10 h-10 bg-[#0456AE] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <Pill size={24} />
+              </div>
+              <a href="#" className="text-[#0456AE] font-bold text-xs hover:underline">لوحة التحكم</a>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-[#0456AE] hover:bg-blue-50 rounded-xl transition-all relative">
+              <Bell size={20} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+            </button>
+            <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-[#0456AE] hover:bg-blue-50 rounded-xl transition-all">
+              <User size={20} />
+            </button>
+            <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-slate-100">
+              <img 
+                src="https://picsum.photos/seed/pharmacist/100/100" 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 py-8 md:py-12">
+        <div className="mb-12 text-center md:text-right">
+          <h1 className="text-4xl font-black text-slate-900 mb-3">الطلبات الحالية</h1>
+          <p className="text-slate-500 text-lg">تابع حالة طلبات الأدوية الجارية وتفاصيل التوصيل</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-10 flex flex-wrap justify-center md:justify-start items-center gap-2 border-b border-slate-100 pb-px">
+          <button 
+            onClick={() => setActiveTab('all')}
+            className={`px-6 py-4 text-sm font-bold transition-all relative ${
+              activeTab === 'all' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            الكل ({stats.all})
+            {activeTab === 'all' && (
+              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
+            )}
+          </button>
+          <button 
+            onClick={() => setActiveTab('processing')}
+            className={`px-6 py-4 text-sm font-bold transition-all relative ${
+              activeTab === 'processing' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            جاري التجهيز ({stats.processing})
+            {activeTab === 'processing' && (
+              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
+            )}
+          </button>
+          <button 
+            onClick={() => setActiveTab('out-for-delivery')}
+            className={`px-6 py-4 text-sm font-bold transition-all relative ${
+              activeTab === 'out-for-delivery' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            خرج للتوصيل ({stats.delivery})
+            {activeTab === 'out-for-delivery' && (
+              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
+            )}
+          </button>
+          <button 
+            onClick={() => setActiveTab('completed')}
+            className={`px-6 py-4 text-sm font-bold transition-all relative ${
+              activeTab === 'completed' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            المكتملة
+            {activeTab === 'completed' && (
+              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
+            )}
+          </button>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filteredOrders.map((order) => (
+              <OrderCard key={order.id} order={order} />
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Load More */}
+        <div className="mt-12 flex justify-center">
+          <button className="flex items-center gap-2 text-[#0456AE] font-bold hover:underline transition-all">
+            <span>تحميل المزيد من الطلبات</span>
+            <ChevronDown size={20} />
+          </button>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-slate-100 py-8 px-4 md:px-8 mt-auto">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 text-slate-400 text-sm">
+            <CheckCircle2 size={18} className="text-blue-500" />
+            <span>Healup - منصة إدارة الصيدليات والطلبات الطبية</span>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-slate-500">
+            <a href="#" className="hover:text-[#0456AE] transition-colors">سياسة الخصوصية</a>
+            <a href="#" className="hover:text-[#0456AE] transition-colors">الدعم الفني</a>
+            <a href="#" className="hover:text-[#0456AE] transition-colors">اتصل بنا</a>
+          </div>
+
+          <div className="flex items-center gap-2 text-slate-400 text-sm">
+            <span>© 2024 Healup Platform</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

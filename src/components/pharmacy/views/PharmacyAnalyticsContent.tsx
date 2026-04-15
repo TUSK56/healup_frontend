@@ -1,7 +1,7 @@
 "use client";
 
-import PharmacyAnalyticsLive from "./PharmacyAnalyticsLive";
+import Dashboard from "./PharmacyAnalyticsSource";
 
 export default function PharmacyAnalyticsContent() {
-  return <PharmacyAnalyticsLive />;
+  return <Dashboard />;
 }

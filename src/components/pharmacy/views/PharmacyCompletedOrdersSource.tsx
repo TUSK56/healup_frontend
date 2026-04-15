@@ -1,1 +1,194 @@
-產敳挠楬湥≴਻椊灭牯⁴⁻獵䍥污扬捡Ⱬ甠敳晅敦瑣‬獵䵥浥Ɐ甠敳瑓瑡⁥⁽牦浯∠敲捡≴਻浩潰瑲笠䌠敨正楃捲敬ⰲ䌠敨牶湯潄湷‬楆敬敔瑸‬敓牡档‬獕牥素映潲⁭氢捵摩ⵥ敲捡≴਻浩潰瑲笠漠摲牥敓癲捩ⱥ琠灹⁥牏敤⁲⁽牦浯∠⽀敳癲捩獥漯摲牥敓癲捩≥਻琊灹⁥慄整慔⁢‽㼢㼿∿簠∠㼿㼿∿簠∠㼿‿㼿㼿㼿∿簠∠㼿‿㼿㼿∿਻昊湵瑣潩⁮潦浲瑡流畯瑮渨›畮扭牥 ੻†敲畴湲怠笤⹮潴楆數⡤⤲⁽⸿怿਻੽攊灸牯⁴敤慦汵⁴畦据楴湯䄠灰⤨笠 挠湯瑳嬠牯敤獲‬敳佴摲牥嵳㴠甠敳瑓瑡㱥牏敤孲㹝嬨⥝਻†潣獮⁴瑛扡‬敳呴扡⁝‽獵卥慴整䐼瑡呥扡⠾㼢㼿∿㬩 挠湯瑳嬠ⱱ猠瑥嵑㴠甠敳瑓瑡⡥∢㬩ਊ†潣獮⁴潬摡㴠甠敳慃汬慢正愨祳据⠠ 㸽笠 †琠祲笠 ††挠湯瑳搠瑡⁡‽睡楡⁴牯敤卲牥楶散氮獩⡴㬩 ††猠瑥牏敤獲搨瑡⹡慤慴㬩 †素挠瑡档笠 ††猠瑥牏敤獲嬨⥝਻††੽†ⱽ嬠⥝਻ 甠敳晅敦瑣⠨ 㸽笠 †瘠楯⁤潬摡⤨਻††潣獮⁴湯㴠⠠ 㸽瘠楯⁤潬摡⤨਻††楷摮睯愮摤癅湥䱴獩整敮⡲栢慥畬㩰潮楴楦慣楴湯Ⱒ漠⥮਻††敲畴湲⠠ 㸽眠湩潤⹷敲潭敶癅湥䱴獩整敮⡲栢慥畬㩰潮楴楦慣楴湯Ⱒ漠⥮਻†ⱽ嬠潬摡⥝਻ 挠湯瑳搠湯⁥‽獵䵥浥⡯⤨㴠‾牯敤獲昮汩整⡲漨 㸽漠献慴畴⁳㴽‽挢浯汰瑥摥⤢‬潛摲牥嵳㬩ਊ†潣獮⁴楦瑬牥摥㴠甠敳敍潭⠨ 㸽笠 †挠湯瑳渠睯㴠渠睥䐠瑡⡥㬩 †挠湯瑳猠慴瑲潔慤⁹‽敮⁷慄整渨睯㬩 †猠慴瑲潔慤⹹敳䡴畯獲〨‬ⰰ〠‬⤰਻ †挠湯瑳猠慴瑲敗步㴠渠睥䐠瑡⡥瑳牡呴摯祡㬩 †猠慴瑲敗步献瑥慄整猨慴瑲敗步朮瑥慄整⤨ⴠ猠慴瑲敗步朮瑥慄⡹⤩਻ †挠湯瑳猠慴瑲潍瑮⁨‽敮⁷慄整渨睯朮瑥畆汬教牡⤨‬潮⹷敧䵴湯桴⤨‬⤱਻ †爠瑥牵⁮潤敮 ††⸠楦瑬牥⠨⥯㴠‾੻††††潣獮⁴瑤㴠渠睥䐠瑡⡥⹯牣慥整彤瑡㬩 †††椠⁦琨扡㴠㴽∠㼿㼿∿ 敲畴湲搠⁴㴾猠慴瑲潔慤㭹 †††椠⁦琨扡㴠㴽∠㼿‿㼿㼿㼿∿ 敲畴湲搠⁴㴾猠慴瑲敗步਻††††晩⠠慴⁢㴽‽㼢㼿㼠㼿㼿⤢爠瑥牵⁮瑤㸠‽瑳牡䵴湯桴਻††††敲畴湲琠畲㭥 ††素਩†††昮汩整⡲漨 㸽笠 †††椠⁦ℨ⹱牴浩⤨ 敲畴湲琠畲㭥 †††挠湯瑳焠敵祲㴠焠琮楲⡭⸩潴潌敷䍲獡⡥㬩 †††挠湯瑳瀠瑡敩瑮㴠⠠⹯慰楴湥㽴渮浡⁥㼿∠⤢琮䱯睯牥慃敳⤨਻††††潣獮⁴摩㴠怠汨⵰笤⹯摩恽琮䱯睯牥慃敳⤨਻††††敲畴湲瀠瑡敩瑮椮据畬敤⡳畱牥⥹簠⁼摩椮据畬敤⡳畱牥⥹਻†††⥽਻†ⱽ嬠潤敮‬慴Ɫ焠⥝਻ 爠瑥牵⁮ਨ††搼癩挠慬獳慎敭∽杢戭慲摮戭⁧扰㠭•楤㵲爢汴㸢 ††㰠慭湩挠慬獳慎敭∽⵷畦汬瀠⵸‴瑭㘭㸢 †††㰠ㅨ挠慬獳慎敭∽整瑸㈭汸映湯⵴潢摬琠硥⵴汳瑡ⵥ〹‰扭㘭㸢㼿㼿㼿‿㼿㼿㼿㼿⼼ㅨਾ †††㰠楤⁶汣獡乳浡㵥爢汥瑡癩⁥扭㘭㸢 ††††㰠湩異ੴ††††††祴数∽整瑸ਢ††††††慶畬㵥煻੽††††††湯桃湡敧笽攨 㸽猠瑥⡑⹥慴杲瑥瘮污敵紩 †††††瀠慬散潨摬牥∽㼿㼿‿㼿㼿㼠㼿㼿㼠‿㼿‿㼿㼿㼿⸮∮ †††††挠慬獳慎敭∽⵷畦汬戠ⵧ桷瑩⁥潢摲牥戠牯敤⵲汳瑡ⵥ〲‰潲湵敤ⵤ汸瀠⵹″硰ㄭ′整瑸猭⁭潦畣㩳畯汴湩ⵥ潮敮映捯獵爺湩ⵧ′潦畣㩳楲杮戭慲摮戭畬⽥〲映捯獵戺牯敤⵲牢湡ⵤ汢敵琠慲獮瑩潩⵮污⁬桳摡睯猭≭ ††††⼠ਾ†††††匼慥捲⁨汣獡乳浡㵥愢獢汯瑵⁥楲桧⵴‴潴⵰⼱′琭慲獮慬整礭ㄭ㈯琠硥⵴汳瑡ⵥ〴∰猠穩㵥㉻細⼠ਾ††††⼼楤㹶ਊ††††搼癩挠慬獳慎敭∽杢眭楨整瀠ㄭ㔮爠畯摮摥砭⁬潢摲牥戠牯敤⵲汳瑡ⵥ〲‰汦硥洠ⵢ‸桳摡睯猭≭ਾ†††††⡻≛㼿㼿Ⱒ∠㼿㼿∿‬㼢㼿㼠㼿㼿㼿Ⱒ∠㼿‿㼿㼿∿⁝獡䐠瑡呥扡嵛⸩慭⡰欨祥 㸽⠠ †††††㰠畢瑴湯 ††††††欠祥笽敫絹 ††††††漠䍮楬正笽⤨㴠‾敳呴扡欨祥紩 ††††††挠慬獳慎敭笽晠敬⵸‱祰㈭㔮爠畯摮摥氭⁧整瑸猭⁭潦瑮洭摥畩⁭牴湡楳楴湯愭汬␠瑻扡㴠㴽欠祥㼠∠杢戭慲摮戭畬⁥整瑸眭楨整猠慨潤⵷摭•›琢硥⵴汳瑡ⵥ〵‰潨敶㩲杢猭慬整㔭∰恽੽††††††ਾ†††††††死祥੽††††††⼼畢瑴湯ਾ†††††⤩੽††††⼼楤㹶ਊ††††搼癩挠慬獳慎敭∽灳捡ⵥ⵹∴ਾ†††††晻汩整敲⹤慭⡰漨摲牥 㸽⠠ †††††㰠楤੶†††††††敫㵹潻摲牥椮絤 ††††††挠慬獳慎敭∽杢眭楨整爠畯摮摥㈭汸戠牯敤⁲潢摲牥猭慬整ㄭ〰瀠㔭映敬⁸瑩浥⵳瑳敲捴⁨慧⵰‶桳摡睯猭⁭潨敶㩲桳摡睯洭⁤牴湡楳楴湯猭慨潤≷ †††††㸠 ††††††㰠楤⁶汣獡乳浡㵥昢敬⁸瑩浥⵳散瑮牥樠獵楴祦挭湥整⁲牰㈭㸢 †††††††㰠楤⁶汣獡乳浡㵥眢ㄭ‶⵨㘱爠畯摮摥昭汵⁬杢戭慲摮氭杩瑨札敲湥映敬⁸瑩浥⵳散瑮牥樠獵楴祦挭湥整⁲整瑸戭慲摮札敲湥猠慨潤⵷湩敮≲ਾ†††††††††䌼敨正楃捲敬′楳敺笽㈳⁽㸯 †††††††㰠搯癩ਾ†††††††⼼楤㹶ਊ†††††††搼癩挠慬獳慎敭∽汦硥ㄭ映敬⁸汦硥挭汯樠獵楴祦戭瑥敷湥琠硥⵴楲桧≴ਾ††††††††搼癩挠慬獳慎敭∽汦硥椠整獭挭湥整⁲番瑳晩⵹敢睴敥⁮扭㐭㸢 ††††††††㰠楤⁶汣獡乳浡㵥昢敬⁸瑩浥⵳散瑮牥朠灡㈭㸢 †††††††††㰠灳湡挠慬獳慎敭∽整瑸戭慲摮戭畬⁥潦瑮戭汯⁤整瑸氭≧䠾偌笭牯敤⹲摩㱽猯慰㹮 †††††††††㰠灳湡挠慬獳慎敭∽杢戭慲摮氭杩瑨札敲湥琠硥⵴牢湡ⵤ牧敥⁮整瑸嬭〱硰⁝潦瑮戭汯⁤硰㈭瀠⵹⸰‵潲湵敤ⵤ摭㸢 ††††††††††㼠㼿㼿 †††††††††㰠猯慰㹮 ††††††††㰠搯癩ਾ†††††††††猼慰⁮汣獡乳浡㵥琢硥⵴汳瑡ⵥ〴‰整瑸砭≳ਾ††††††††††湻睥䐠瑡⡥牯敤⹲牣慥整彤瑡⸩潴潌慣敬慄整瑓楲杮∨牡䔭≇紩ⴠ≻∠੽††††††††††湻睥䐠瑡⡥牯敤⹲牣慥整彤瑡⸩潴潌慣敬楔敭瑓楲杮∨牡䔭≇‬⁻潨牵›㈢搭杩瑩Ⱒ洠湩瑵㩥∠ⴲ楤楧≴素紩 ††††††††㰠猯慰㹮 †††††††㰠搯癩ਾ †††††††㰠楤⁶汣獡乳浡㵥昢敬⁸瑩浥⵳散瑮牥樠獵楴祦戭瑥敷湥洠ⵢ∴ਾ†††††††††搼癩挠慬獳慎敭∽汦硥椠整獭挭湥整⁲慧⵰′整瑸猭慬整㜭〰映湯⵴潢摬㸢 †††††††††㰠獕牥猠穩㵥ㅻ紶挠慬獳慎敭∽整瑸猭慬整㐭〰•㸯 †††††††††㰠灳湡笾牯敤⹲慰楴湥㽴渮浡⁥㼿∠㼿㼿索⼼灳湡ਾ†††††††††⼼楤㹶 ††††††††㰠楤⁶汣獡乳浡㵥昢敬⁸瑩浥⵳散瑮牥朠灡㈭琠硥⵴汳瑡ⵥ〵‰整瑸砭⁳慭⵸⵷㙛┰⁝牴湵慣整㸢 †††††††††㰠灳湡笾牯敤⹲瑩浥㽳洮灡⠨⥩㴠‾①楻洮摥捩湩彥慮敭⁽ⓗ楻焮慵瑮瑩絹⥠樮楯⡮Ⱒ∠ 㼿∠∿㱽猯慰㹮 ††††††††㰠搯癩ਾ††††††††⼼楤㹶ਊ††††††††搼癩挠慬獳慎敭∽汦硥椠整獭挭湥整⁲番瑳晩⵹敢睴敥≮ਾ†††††††††搼癩挠慬獳慎敭∽汦硥椠整獭戭獡汥湩⁥慧⵰∲ਾ††††††††††猼慰⁮汣獡乳浡㵥琢硥⵴汳瑡ⵥ〴‰整瑸砭≳㼾㼿㼿㼿㨿⼼灳湡ਾ††††††††††猼慰⁮汣獡乳浡㵥琢硥⵴汳瑡ⵥ〹‰潦瑮戭汯⁤整瑸砭≬笾潦浲瑡流畯瑮漨摲牥琮瑯污灟楲散紩⼼灳湡ਾ†††††††††⼼楤㹶 ††††††††㰠畢瑴湯 †††††††††挠慬獳慎敭∽杢眭楨整戠牯敤⁲潢摲牥猭慬整ㄭ〰琠硥⵴汳瑡ⵥ〷‰硰㘭瀠⵹′潲湵敤ⵤ杬琠硥⵴獸映湯⵴潢摬映敬⁸瑩浥⵳散瑮牥朠灡㈭栠癯牥戺ⵧ汳瑡ⵥ〵琠慲獮瑩潩⵮潣潬獲猠慨潤⵷浳ਢ††††††††††祴数∽畢瑴湯ਢ†††††††††ਾ††††††††††䘼汩呥硥⁴楳敺笽㐱⁽㸯 †††††††††㰠灳湡㼾㼿㼠㼿㼿㼿㰿猯慰㹮 ††††††††㰠戯瑵潴㹮 †††††††㰠搯癩ਾ†††††††⼼楤㹶 †††††㰠搯癩ਾ†††††⤩੽††††⼼楤㹶ਊ††††晻汩整敲⹤敬杮桴㴠㴽〠㼠㰠⁰汣獡乳浡㵥琢硥⵴散瑮牥琠硥⵴汳瑡ⵥ〵‰祰ㄭ∰㼾‿㼿㼿㼠㼿㼿㼠㼿㼿⸿⼼㹰㨠渠汵絬ਊ††††搼癩挠慬獳慎敭∽瑭ㄭ‰汦硥樠獵楴祦挭湥整≲ਾ†††††猼慰⁮汣獡乳浡㵥戢牯敤⵲′潢摲牥戭慲摮戭畬⁥整瑸戭慲摮戭畬⁥硰㠭瀠⵹⸲‵潲湵敤ⵤ畦汬映湯⵴潢摬琠硥⵴浳映敬⁸瑩浥⵳散瑮牥朠灡㈭漠慰楣祴㜭∰ਾ††††††猼慰㹮㼿㼿‿㼿㼿㼿㼠‿㼿㼿㼿㰿猯慰㹮 †††††㰠桃癥潲䑮睯⁮楳敺笽㠱⁽㸯 ††††㰠猯慰㹮 †††㰠搯癩ਾ†††⼼慭湩ਾ††⼼楤㹶 ⤠਻੽
+import { useState } from 'react';
+import { 
+  Search, 
+  Eye, 
+  FileText, 
+  CheckCircle2, 
+  ChevronDown, 
+  User,
+  MapPin,
+  Pill
+} from 'lucide-react';
+import { motion } from 'motion/react';
+
+interface Order {
+  id: string;
+  patientName: string;
+  amount: string;
+  date: string;
+  time: string;
+  items: string[];
+}
+
+const orders: Order[] = [
+  {
+    id: 'HLP-12000',
+    patientName: 'أحمد محمد عبد الله',
+    amount: '145.50 ج.م',
+    date: '24 مايو 2024',
+    time: '10:30 صباحاً',
+    items: ['بانادول نايت', 'فيتامين سي (1000mg)', 'أوميبرازول']
+  },
+  {
+    id: 'HLP-11995',
+    patientName: 'سارة علي الشهري',
+    amount: '89.00 ج.م',
+    date: '23 مايو 2024',
+    time: '04:15 مساءً',
+    items: ['أومنيسيف شراب', 'بروفين للأطفال']
+  },
+  {
+    id: 'HLP-11880',
+    patientName: 'خالد بن فهد',
+    amount: '52.25 ج.م',
+    date: '22 مايو 2024',
+    time: '09:00 مساءً',
+    items: ['كريم ميبو', 'شاش معقم', 'لاصق جروح']
+  }
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('الكل');
+
+  return (
+    <div className="min-h-screen bg-brand-bg pb-12" dir="rtl">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-100 px-4 py-3 sticky top-0 z-50 shadow-sm">
+        <div className="w-full px-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-brand-blue font-bold text-xl">
+              <span>Healup</span>
+              <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center text-white">
+                <Pill size={20} />
+              </div>
+            </div>
+            <button className="text-brand-blue font-medium text-sm hover:opacity-80 transition-opacity">
+              <span>لوحة التحكم</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div>
+              <h2 className="text-sm font-bold text-slate-800">صيدلية الشفاء المركزية</h2>
+              <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                <MapPin size={10} />
+                <span>الفرع الرئيسي - الرياض</span>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+              <img 
+                src="https://picsum.photos/seed/pharmacist/100/100" 
+                alt="User" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 mt-8">
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">الطلبات المكتملة</h1>
+
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <input 
+            type="text" 
+            placeholder="البحث برقم الطلب أو اسم المريض..."
+            className="w-full bg-white border border-slate-200 rounded-xl py-3 px-12 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all shadow-sm"
+          />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white p-1.5 rounded-xl border border-slate-200 flex mb-8 shadow-sm">
+          {['الكل', 'اليوم', 'هذا الأسبوع', 'هذا الشهر'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab 
+                ? 'bg-brand-blue text-white shadow-md' 
+                : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Order List */}
+        <div className="space-y-4">
+          {orders.map((order, index) => (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              key={order.id}
+              className="bg-white rounded-2xl border border-slate-100 p-5 flex items-stretch gap-6 shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Right Section (Checkmark) */}
+              <div className="flex items-center justify-center pr-2">
+                <div className="w-16 h-16 rounded-full bg-brand-light-green flex items-center justify-center text-brand-green shadow-inner">
+                  <CheckCircle2 size={32} />
+                </div>
+              </div>
+
+              {/* Left Section (Content) */}
+              <div className="flex-1 flex flex-col justify-between text-right">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-brand-blue font-bold text-lg">{order.id}</span>
+                    <span className="bg-brand-light-green text-brand-green text-[10px] font-bold px-2 py-0.5 rounded-md">مكتمل</span>
+                  </div>
+                  <span className="text-slate-400 text-xs">{order.date} - {order.time}</span>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-slate-700 font-bold">
+                    <User size={16} className="text-slate-400" />
+                    <span>{order.patientName}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-500 text-xs">
+                    <Pill size={14} className="text-slate-300" />
+                    <span>{order.items.join('، ')}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-slate-400 text-xs">الإجمالي:</span>
+                    <span className="text-slate-900 font-bold text-xl">{order.amount}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button className="bg-white border border-slate-100 text-slate-700 px-6 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
+                      <FileText size={14} />
+                      <span>عرض الفاتورة</span>
+                    </button>
+                    <button className="bg-brand-blue text-white px-6 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-brand-blue/90 transition-colors">
+                      <Eye size={14} />
+                      <span>التفاصيل</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Load More */}
+        <div className="mt-10 flex justify-center">
+          <button className="border-2 border-brand-blue text-brand-blue px-8 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 hover:bg-brand-blue hover:text-white transition-all group">
+            <span>تحميل المزيد من الطلبات</span>
+            <ChevronDown size={18} className="group-hover:translate-y-0.5 transition-transform" />
+          </button>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="mt-16 text-center text-slate-400 text-[10px]">
+        <p>© 2024 منصة Healup الطبية - جميع الحقوق محفوظة</p>
+      </footer>
+    </div>
+  );
+}
