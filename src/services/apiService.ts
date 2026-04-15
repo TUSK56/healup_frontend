@@ -22,6 +22,11 @@ export const api: AxiosInstance = axios.create({
   },
 });
 
+function isGuestPatientSession(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('healup_guest') === 'true';
+}
+
 /** Do not run global "logout redirect" on 401 for these routes — wrong password must surface on the form. */
 function isUnauthenticatedAuthRequest(config: InternalAxiosRequestConfig | undefined): boolean {
   const url = config?.url ?? '';
@@ -47,11 +52,16 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !isUnauthenticatedAuthRequest(error.config)) {
+    if (
+      error.response?.status === 401 &&
+      !isUnauthenticatedAuthRequest(error.config) &&
+      !isGuestPatientSession()
+    ) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('healup_token');
         localStorage.removeItem('healup_user');
         localStorage.removeItem('healup_guard');
+        localStorage.removeItem('healup_guest');
         const currentPath = window.location.pathname;
         if (currentPath.startsWith('/admin')) {
           window.location.href = '/admin-login';

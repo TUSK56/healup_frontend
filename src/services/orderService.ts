@@ -17,8 +17,8 @@ export interface Order {
   total_price: number;
   status: string;
   created_at: string;
-  pharmacy?: { id: number; name: string };
-  patient?: { id: number; name: string };
+  pharmacy?: { id: number; name: string; latitude?: number | null; longitude?: number | null };
+  patient?: { id: number; name: string; latitude?: number | null; longitude?: number | null };
   items?: OrderItem[];
 }
 

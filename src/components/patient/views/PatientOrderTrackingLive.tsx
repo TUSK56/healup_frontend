@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { authService } from "@/services/authService";
 import { orderService, type Order } from "@/services/orderService";
+import { estimateDriveMinutes, haversineKm } from "@/lib/geo";
+
+const PatientDeliveryMap = dynamic(() => import("@/components/patient/PatientDeliveryMap"), { ssr: false });
 
 function statusLabel(s: string): string {
   const map: Record<string, string> = {
@@ -21,7 +25,7 @@ function statusLabel(s: string): string {
 
 export default function PatientOrderTrackingLive() {
   const searchParams = useSearchParams();
-  const idParam = searchParams?.get("id") ?? null;
+  const idParam = searchParams?.get("id") ?? searchParams?.get("orderId") ?? null;
   const [order, setOrder] = useState<Order | null>(null);
   const [missing, setMissing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -92,6 +96,23 @@ export default function PatientOrderTrackingLive() {
     );
   }
 
+  const plat = order.patient?.latitude;
+  const plng = order.patient?.longitude;
+  const phlat = order.pharmacy?.latitude;
+  const phlng = order.pharmacy?.longitude;
+  const hasMapCoords =
+    plat != null &&
+    plng != null &&
+    phlat != null &&
+    phlng != null &&
+    Number.isFinite(plat) &&
+    Number.isFinite(plng) &&
+    Number.isFinite(phlat) &&
+    Number.isFinite(phlng);
+
+  const distanceKm = hasMapCoords ? haversineKm(phlat!, phlng!, plat!, plng!) : null;
+  const etaMin = distanceKm != null ? estimateDriveMinutes(distanceKm) : null;
+
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir="rtl">
       <h1 className="mb-2 text-2xl font-black text-slate-900">تتبع الطلب #{order.id}</h1>
@@ -100,7 +121,27 @@ export default function PatientOrderTrackingLive() {
       <div className="mb-6 rounded-2xl bg-white p-6 shadow">
         <p className="mb-2 text-sm text-slate-500">الحالة</p>
         <p className="text-xl font-bold text-blue-700">{statusLabel(order.status)}</p>
+        {order.status === "out_for_delivery" && distanceKm != null && etaMin != null ? (
+          <p className="mt-3 text-sm text-slate-600">
+            المسافة التقريبية <strong>{distanceKm.toFixed(1)} كم</strong> — وقت التوصيل المقدَّر حوالي{" "}
+            <strong>{etaMin} دقيقة</strong> (وفقاً لموقعك وموقع الصيدلية).
+          </p>
+        ) : null}
       </div>
+
+      {hasMapCoords ? (
+        <PatientDeliveryMap
+          pharmacyLat={phlat!}
+          pharmacyLng={phlng!}
+          patientLat={plat!}
+          patientLng={plng!}
+          animateDelivery={order.status === "out_for_delivery"}
+        />
+      ) : (
+        <div className="mb-6 rounded-2xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">
+          لإظهار الخريطة والمسار، يحتاج حسابك وصيدليتك إلى إحداثيات موقع (خط العرض/الطول) في الملف الشخصي.
+        </div>
+      )}
 
       <div className="rounded-2xl bg-white p-6 shadow">
         <p className="mb-4 font-bold text-slate-800">الأصناف</p>

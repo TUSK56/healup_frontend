@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PharmacySidebar from "@/components/pharmacy/PharmacySidebar";
 import PharmacyTopNavbar from "@/components/pharmacy/PharmacyTopNavbar";
 import { orderService, type Order } from "@/services/orderService";
+import PharmacyIncomingRequestsSection from "@/components/pharmacy/PharmacyIncomingRequestsSection";
 
 export default function PharmacyNewOrdersPage() {
   const router = useRouter();
@@ -49,7 +50,11 @@ export default function PharmacyNewOrdersPage() {
         <PharmacyTopNavbar />
         <div className="pharmacy-content-shell">
           <div style={{ padding: 16 }}>
-            <h2 style={{ marginBottom: 12, fontWeight: 700 }}>طلبات جديدة ({pendingOrders.length})</h2>
+            <PharmacyIncomingRequestsSection />
+            <h2 style={{ marginBottom: 12, fontWeight: 700 }}>طلبات شراء بانتظار موافقتك ({pendingOrders.length})</h2>
+            <p style={{ marginBottom: 12, fontSize: 14, color: "#64748b" }}>
+              بعد أن يختار المريض عرض صيدليتك ويُنشئ طلباً، يظهر الطلب هنا للموافقة أو الرفض.
+            </p>
             <div className="section-card">
               <table className="orders-table" style={{ width: "100%" }}>
                 <thead>

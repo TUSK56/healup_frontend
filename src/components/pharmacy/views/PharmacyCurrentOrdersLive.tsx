@@ -53,7 +53,7 @@ export default function PharmacyCurrentOrdersLive() {
   const nextAction = (o: Order): { label: string; status: string } | null => {
     switch (o.status) {
       case "confirmed":
-        return { label: "بدء التجهيز", status: "preparing" };
+        return null;
       case "preparing":
         return { label: "خرج للتوصيل", status: "out_for_delivery" };
       case "out_for_delivery":

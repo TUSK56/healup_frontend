@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { authService } from "@/services/authService";
 import { orderService, type Order } from "@/services/orderService";
+import { requestService, type Request } from "@/services/requestService";
 
 const activeStatuses = new Set([
   "pending_pharmacy_confirmation",
@@ -28,6 +29,7 @@ function statusLabel(s: string): string {
 
 export default function PatientReviewOrdersLive() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [openMedicineRequests, setOpenMedicineRequests] = useState<Request[]>([]);
   const [tab, setTab] = useState<"all" | "active" | "done" | "rejected">("all");
 
   const load = useCallback(async () => {
@@ -39,13 +41,26 @@ export default function PatientReviewOrdersLive() {
     }
   }, []);
 
+  const loadRequests = useCallback(async () => {
+    try {
+      const data = await requestService.list();
+      setOpenMedicineRequests(data.data.filter((r) => r.status === "active"));
+    } catch {
+      setOpenMedicineRequests([]);
+    }
+  }, []);
+
   useEffect(() => {
     if (authService.getGuard() !== "user" || !authService.getToken()) return;
     load();
-    const on = () => load();
+    void loadRequests();
+    const on = () => {
+      load();
+      void loadRequests();
+    };
     window.addEventListener("healup:notification", on);
     return () => window.removeEventListener("healup:notification", on);
-  }, [load]);
+  }, [load, loadRequests]);
 
   const filtered = useMemo(() => {
     if (tab === "all") return orders;
@@ -66,6 +81,31 @@ export default function PatientReviewOrdersLive() {
     <div className="min-h-screen bg-[#F8FAFC] px-4 pb-16 pt-4 md:px-8" dir="rtl">
       <h1 className="mb-2 text-4xl font-black text-[#002B5B]">طلباتي</h1>
       <p className="mb-8 text-lg text-slate-400">تتبع وإدارة جميع طلبات الأدوية</p>
+
+      {openMedicineRequests.length > 0 ? (
+        <div className="mb-8 rounded-2xl border border-blue-100 bg-blue-50/80 p-5 shadow-sm">
+          <h2 className="mb-2 text-lg font-black text-[#002B5B]">طلبات دواء قيد استقبال العروض</h2>
+          <p className="mb-4 text-sm text-slate-600">
+            هذه الطلبات أُرسلت لجميع الصيدليات. عند وصول عروض، ستصلك إشعار — يمكنك فتح صفحة العروض واختيار أفضل سعر.
+          </p>
+          <ul className="space-y-3">
+            {openMedicineRequests.map((r) => (
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 shadow-sm"
+              >
+                <span className="font-bold text-slate-800">طلب دواء #{r.id}</span>
+                <Link
+                  href={`/patient-offers?requestId=${r.id}`}
+                  className="rounded-lg bg-[#0052CC] px-4 py-2 text-sm font-bold text-white"
+                >
+                  عرض العروض
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="mb-8 flex flex-wrap gap-2">
         {(

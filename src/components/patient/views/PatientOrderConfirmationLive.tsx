@@ -8,7 +8,7 @@ import { orderService, type Order } from "@/services/orderService";
 
 export default function PatientOrderConfirmationLive() {
   const searchParams = useSearchParams();
-  const idParam = searchParams?.get("id") ?? null;
+  const idParam = searchParams?.get("id") ?? searchParams?.get("orderId") ?? null;
   const [orders, setOrders] = useState<Order[]>([]);
   const [busy, setBusy] = useState<number | null>(null);
 

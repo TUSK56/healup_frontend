@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import PatientSidebar from "./PatientSidebar";
 import styles from "./PatientSidebar.module.css";
 import { notificationService, type AppNotification } from "@/services/notificationService";
+import { authService } from "@/services/authService";
 
 type ActiveKey = "home" | "cart" | "orders" | "history" | "profile";
 
@@ -22,6 +23,10 @@ export default function PatientShell({ children, active }: { children: ReactNode
 
   useEffect(() => {
     const load = async () => {
+      if (authService.isGuest() || authService.getGuard() !== "user" || !authService.getToken()) {
+        setNotifications([]);
+        return;
+      }
       try {
         const data = await notificationService.list();
         setNotifications(data.data);

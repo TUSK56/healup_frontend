@@ -18,6 +18,7 @@ export default function PatientReviewOrderHistoryLive() {
   const searchParams = useSearchParams();
   const idParam = searchParams?.get("id") ?? null;
   const [order, setOrder] = useState<Order | null>(null);
+  const [pastOrders, setPastOrders] = useState<Order[]>([]);
   const [missing, setMissing] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -38,9 +39,26 @@ export default function PatientReviewOrderHistoryLive() {
     }
   }, [idParam]);
 
+  const loadPast = useCallback(async () => {
+    if (idParam || !authService.getToken()) return;
+    setLoading(true);
+    try {
+      const data = await orderService.list();
+      setPastOrders(data.data.filter((o) => o.status === "completed" || o.status === "rejected"));
+    } catch {
+      setPastOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [idParam]);
+
   useEffect(() => {
-    load();
-  }, [load]);
+    if (idParam) {
+      void load();
+    } else {
+      void loadPast();
+    }
+  }, [idParam, load, loadPast]);
 
   if (authService.getGuard() !== "user" || !authService.getToken()) {
     return (
@@ -53,11 +71,45 @@ export default function PatientReviewOrderHistoryLive() {
   }
 
   if (!idParam) {
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-slate-50 p-8" dir="rtl">
+          <p className="text-slate-500">جاري التحميل...</p>
+        </div>
+      );
+    }
     return (
-      <div className="min-h-screen bg-slate-50 p-8" dir="rtl">
-        <p className="text-slate-600">مرر رقم الطلب في الرابط: ?id=</p>
-        <Link href="/patient-review-orders" className="mt-4 inline-block font-bold text-blue-600">
-          طلباتي
+      <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir="rtl">
+        <h1 className="mb-2 text-2xl font-black text-slate-900">تاريخ الطلبات</h1>
+        <p className="mb-8 text-slate-500">الطلبات المكتملة أو المرفوضة</p>
+        {pastOrders.length === 0 ? (
+          <p className="text-slate-600">لا يوجد طلبات منتهية بعد.</p>
+        ) : (
+          <ul className="space-y-3">
+            {pastOrders.map((o) => (
+              <li key={o.id}>
+                <Link
+                  href={`/patient-review-order-history?id=${o.id}`}
+                  className="flex flex-col rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-blue-200 md:flex-row md:items-center md:justify-between"
+                >
+                  <div>
+                    <span className="font-bold text-[#0456AE]">#{o.id}</span>
+                    <p className="font-bold text-slate-800">{o.pharmacy?.name ?? "—"}</p>
+                    <p className="text-xs text-slate-400">{new Date(o.created_at).toLocaleString("ar-EG")}</p>
+                  </div>
+                  <div className="mt-2 text-left md:mt-0 md:text-right">
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-700">
+                      {statusLabel(o.status)}
+                    </span>
+                    <p className="mt-1 text-lg font-black text-slate-900">{o.total_price.toFixed(2)} ج.م</p>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Link href="/patient-review-orders" className="mt-8 inline-block font-bold text-blue-600">
+          ← العودة لطلباتي النشطة
         </Link>
       </div>
     );
