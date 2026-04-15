@@ -141,4 +141,5 @@
 .pharmacyDashboard .pharmacy-content-shell {
   flex: 1;
   min-height: 0;
+  padding: 20px 24px 40px;
 }

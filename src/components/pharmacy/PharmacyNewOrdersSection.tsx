@@ -39,12 +39,18 @@ export default function PharmacyNewOrdersSection({
   const [offerPrices, setOfferPrices] = useState<Record<number, string>>({});
   const [offerBusy, setOfferBusy] = useState(false);
 
+  const [newOrdersSearch, setNewOrdersSearch] = useState("");
+  const [newOrdersFilter, setNewOrdersFilter] = useState<"all" | "urgent_sort" | "rx_only">("all");
+  const [newOrdersVisible, setNewOrdersVisible] = useState(12);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
+
   const loadAll = useCallback(async () => {
     setLoadError(null);
     try {
       const [o, r] = await Promise.all([orderService.list(), pharmacyPortalService.incomingRequests()]);
       setOrders(o.data);
       setIncoming(r.data);
+      setLastUpdatedAt(new Date());
     } catch {
       setLoadError("تعذر تحميل الطلبات. تأكد من تسجيل الدخول كصيدلية معتمدة.");
       setOrders([]);
@@ -59,6 +65,10 @@ export default function PharmacyNewOrdersSection({
     window.addEventListener("healup:notification", on);
     return () => window.removeEventListener("healup:notification", on);
   }, [loadAll]);
+
+  useEffect(() => {
+    setNewOrdersVisible(12);
+  }, [newOrdersFilter, newOrdersSearch]);
 
   const pendingPurchase = useMemo(
     () => orders.filter((x) => x.status === "pending_pharmacy_confirmation"),
@@ -76,6 +86,27 @@ export default function PharmacyNewOrdersSection({
     }
     return rows;
   }, [rows, variant, homePreviewRows]);
+
+  const pageDisplayRows = useMemo(() => {
+    if (variant !== "page") return rows;
+    let r = [...rows];
+    const q = newOrdersSearch.trim().toLowerCase();
+    if (q) {
+      r = r.filter(
+        (row) =>
+          row.patientName.toLowerCase().includes(q) || row.medicineLabel.toLowerCase().includes(q)
+      );
+    }
+    if (newOrdersFilter === "rx_only") {
+      r = r.filter((row) => row.kind === "medicine" && row.hasRx);
+    }
+    if (newOrdersFilter === "urgent_sort") {
+      r.sort((a, b) => new Date(a.timeIso).getTime() - new Date(b.timeIso).getTime());
+    } else {
+      r.sort((a, b) => new Date(b.timeIso).getTime() - new Date(a.timeIso).getTime());
+    }
+    return r;
+  }, [rows, variant, newOrdersSearch, newOrdersFilter]);
 
   const inProgress = useMemo(
     () =>
@@ -152,6 +183,96 @@ export default function PharmacyNewOrdersSection({
       setOfferBusy(false);
     }
   };
+
+  const OVERDUE_MS = 45 * 60 * 1000;
+
+  const renderOfferModal = () =>
+    offerOpen && offerRow ? (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(15,23,42,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 50,
+        }}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 16,
+            padding: 24,
+            maxWidth: 440,
+            width: "92%",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 style={{ marginBottom: 12 }}>إرسال عرض للطلب #{offerRow.request.id}</h3>
+          <label style={{ display: "block", marginBottom: 8 }}>رسوم التوصيل (ج.م)</label>
+          <input
+            type="number"
+            min={0}
+            value={offerDelivery}
+            onChange={(e) => setOfferDelivery(e.target.value)}
+            style={{ width: "100%", marginBottom: 16, padding: 10, borderRadius: 10, border: "1px solid #e2e8f0" }}
+          />
+          {offerRow.request.medicines.map((m) => (
+            <div key={m.id} style={{ marginBottom: 12 }}>
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                {m.medicine_name} ×{m.quantity}
+              </div>
+              <label style={{ fontSize: 12, color: "#64748b" }}>سعر الوحدة</label>
+              <input
+                type="number"
+                min={1}
+                step="0.01"
+                value={offerPrices[m.id] ?? ""}
+                onChange={(e) => setOfferPrices((p) => ({ ...p, [m.id]: e.target.value }))}
+                style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #e2e8f0" }}
+              />
+            </div>
+          ))}
+          <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+            <button
+              type="button"
+              style={{
+                flex: 1,
+                padding: 12,
+                borderRadius: 10,
+                border: "1px solid #e2e8f0",
+                background: "#f8fafc",
+                fontWeight: 700,
+              }}
+              onClick={() => setOfferOpen(false)}
+            >
+              إلغاء
+            </button>
+            <button
+              type="button"
+              style={{
+                flex: 1,
+                padding: 12,
+                borderRadius: 10,
+                border: "none",
+                background: "#1a56db",
+                color: "#fff",
+                fontWeight: 800,
+                opacity: offerBusy ? 0.7 : 1,
+              }}
+              disabled={offerBusy}
+              onClick={() => void submitOffer()}
+            >
+              {offerBusy ? "جاري الإرسال…" : "إرسال العرض"}
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : null;
 
   const renderRow = (row: UnifiedRow) =>
     row.kind === "medicine" ? (
@@ -258,6 +379,114 @@ export default function PharmacyNewOrdersSection({
       </tr>
     );
 
+  const renderPageOrderCard = (row: UnifiedRow) => {
+    const overdue = Date.now() - new Date(row.timeIso).getTime() > OVERDUE_MS;
+    if (row.kind === "medicine") {
+      const showRxImg = row.rxUrl?.startsWith("http") || row.rxUrl?.startsWith("data:");
+      return (
+        <article key={row.key} className={`pharmacy-new-order-card ${overdue ? "is-urgent" : ""}`}>
+          <div className="pharmacy-new-card-top">
+            <div className="pharmacy-new-card-med-icon" aria-hidden>
+              💊
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <span className="pharmacy-new-card-id">REQ-{row.requestId}</span>
+              <div className="pharmacy-new-card-name">{row.patientName}</div>
+              <div className="pharmacy-new-card-meta">
+                <span>{formatRelativeTimeAr(row.timeIso)}</span>
+                {row.hasRx ? <span className="pharmacy-new-urgent-tag">وصفة طبية</span> : null}
+                {overdue ? <span className="pharmacy-new-urgent-tag">بانتظار رد</span> : null}
+              </div>
+            </div>
+          </div>
+          <div className="pharmacy-new-card-med">
+            <div className="pharmacy-new-card-med-info">
+              <div className="pharmacy-new-card-med-name">{row.medicineLabel}</div>
+              <div className="pharmacy-new-card-med-qty">{row.medicines.length} صنف</div>
+              {row.hasRx && row.rxUrl?.startsWith("http") ? (
+                <a
+                  href={row.rxUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontSize: 11, color: "var(--blue)", fontWeight: 600, marginTop: 4, display: "inline-block" }}
+                >
+                  عرض الوصفة
+                </a>
+              ) : null}
+            </div>
+            <div className={`pharmacy-new-card-thumb ${row.hasRx ? "blue-bg" : ""}`}>
+              {showRxImg ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={row.rxUrl!} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : row.hasRx ? (
+                "📋"
+              ) : (
+                "💊"
+              )}
+            </div>
+          </div>
+          <div className="pharmacy-new-card-actions">
+            <button
+              type="button"
+              className="pharmacy-new-btn-available"
+              onClick={() => {
+                const full = incoming.find((i) => i.request.id === row.requestId);
+                if (full) openOffer(full);
+              }}
+            >
+              متوفر
+            </button>
+            <button type="button" className="pharmacy-new-btn-unavailable" onClick={() => dismissMedicine(row.requestId)}>
+              غير متوفر
+            </button>
+          </div>
+        </article>
+      );
+    }
+    return (
+      <article key={row.key} className={`pharmacy-new-order-card ${overdue ? "is-urgent" : ""}`}>
+        <div className="pharmacy-new-card-top">
+          <div className="pharmacy-new-card-med-icon" aria-hidden>
+            🧾
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <span className="pharmacy-new-card-id">ORD-{row.order.id}</span>
+            <div className="pharmacy-new-card-name">{row.patientName}</div>
+            <div className="pharmacy-new-card-meta">
+              <span>{formatRelativeTimeAr(row.timeIso)}</span>
+              {overdue ? <span className="pharmacy-new-urgent-tag">بانتظار رد</span> : null}
+            </div>
+          </div>
+        </div>
+        <div className="pharmacy-new-card-med">
+          <div className="pharmacy-new-card-med-info">
+            <div className="pharmacy-new-card-med-name">طلب شراء</div>
+            <div className="pharmacy-new-card-med-qty">{row.medicineLabel}</div>
+          </div>
+          <div className="pharmacy-new-card-thumb amber-bg">🧾</div>
+        </div>
+        <div className="pharmacy-new-card-actions">
+          <button
+            type="button"
+            className="pharmacy-new-btn-available"
+            disabled={busyOrderId === row.order.id}
+            onClick={() => void handlePurchase(row.order.id, "confirmed")}
+          >
+            موافقة
+          </button>
+          <button
+            type="button"
+            className="pharmacy-new-btn-unavailable"
+            disabled={busyOrderId === row.order.id}
+            onClick={() => void handlePurchase(row.order.id, "rejected")}
+          >
+            رفض
+          </button>
+        </div>
+      </article>
+    );
+  };
+
   const tableBlock = (
     <>
       {loadError ? <p style={{ color: "#b91c1c", fontWeight: 700, marginBottom: 16 }}>{loadError}</p> : null}
@@ -297,141 +526,101 @@ export default function PharmacyNewOrdersSection({
   );
 
   if (variant === "page") {
+    const visibleSlice = pageDisplayRows.slice(0, newOrdersVisible);
+    const updateLabel = lastUpdatedAt
+      ? lastUpdatedAt.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })
+      : "—";
+
     return (
       <>
-        <div className="stats-grid" style={{ marginBottom: 24 }}>
-          <div className="stat-card">
-            <div className="stat-top">
-              <div className="stat-icon icon-light">
-                <span style={{ fontSize: 11, fontWeight: 900, color: "#1a56db" }}>NEW</span>
-              </div>
-            </div>
-            <div className="stat-label">طلبات تحتاج رد</div>
-            <div className="stat-value">{incoming.length}</div>
+        <div className="pharmacy-new-page">
+          <div className="pharmacy-new-header">
+            <h1 className="pharmacy-new-title">الطلبات الجديدة</h1>
+            <p className="pharmacy-new-subtitle">
+              لديك <span>{rows.length}</span> {rows.length === 1 ? "طلب" : "طلبات"} بحاجة إلى رد سريع
+            </p>
           </div>
-          <div className="stat-card">
-            <div className="stat-top">
-              <div className="stat-icon icon-orange">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5">
-                  <path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8" />
-                  <path d="M21 3v5h-5" />
+
+          <div className="pharmacy-new-toolbar">
+            <div className="pharmacy-new-toolbar-left">
+              <div className="pharmacy-new-search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
                 </svg>
+                <input
+                  type="search"
+                  placeholder="ابحث عن مريض أو دواء..."
+                  value={newOrdersSearch}
+                  onChange={(e) => setNewOrdersSearch(e.target.value)}
+                  aria-label="بحث"
+                />
               </div>
             </div>
-            <div className="stat-label">طلبات شراء بانتظارك</div>
-            <div className="stat-value">{pendingPurchase.length}</div>
+            <button type="button" className="pharmacy-new-update-badge" onClick={() => void loadAll()}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M23 4v6h-6" />
+                <path d="M20.49 15a9 9 0 11-2-8L23 10" />
+              </svg>
+              آخر تحديث {updateLabel}
+            </button>
           </div>
-          <div className="stat-card">
-            <div className="stat-top">
-              <div className="stat-icon icon-green">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
-                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-              </div>
-            </div>
-            <div className="stat-label">مكتمل اليوم</div>
-            <div className="stat-value">{completedToday}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-top">
-              <div className="stat-icon icon-blue">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a56db" strokeWidth="2">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                </svg>
-              </div>
-            </div>
-            <div className="stat-label">قيد التنفيذ</div>
-            <div className="stat-value">{inProgress}</div>
-          </div>
-        </div>
-        {tableBlock}
-        {offerOpen && offerRow ? (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(15,23,42,0.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 50,
-            }}
-            role="dialog"
-            aria-modal="true"
-          >
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: 16,
-                padding: 24,
-                maxWidth: 440,
-                width: "92%",
-                boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
-              }}
-              onClick={(e) => e.stopPropagation()}
+
+          <div className="pharmacy-new-filter-row">
+            <button
+              type="button"
+              className={`pharmacy-new-filter-btn ${newOrdersFilter === "all" ? "active" : ""}`}
+              onClick={() => setNewOrdersFilter("all")}
             >
-              <h3 style={{ marginBottom: 12 }}>إرسال عرض للطلب #{offerRow.request.id}</h3>
-              <label style={{ display: "block", marginBottom: 8 }}>رسوم التوصيل (ج.م)</label>
-              <input
-                type="number"
-                min={0}
-                value={offerDelivery}
-                onChange={(e) => setOfferDelivery(e.target.value)}
-                style={{ width: "100%", marginBottom: 16, padding: 10, borderRadius: 10, border: "1px solid #e2e8f0" }}
-              />
-              {offerRow.request.medicines.map((m) => (
-                <div key={m.id} style={{ marginBottom: 12 }}>
-                  <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                    {m.medicine_name} ×{m.quantity}
-                  </div>
-                  <label style={{ fontSize: 12, color: "#64748b" }}>سعر الوحدة</label>
-                  <input
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    value={offerPrices[m.id] ?? ""}
-                    onChange={(e) => setOfferPrices((p) => ({ ...p, [m.id]: e.target.value }))}
-                    style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #e2e8f0" }}
-                  />
-                </div>
-              ))}
-              <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-                <button
-                  type="button"
-                  style={{
-                    flex: 1,
-                    padding: 12,
-                    borderRadius: 10,
-                    border: "1px solid #e2e8f0",
-                    background: "#f8fafc",
-                    fontWeight: 700,
-                  }}
-                  onClick={() => setOfferOpen(false)}
-                >
-                  إلغاء
-                </button>
-                <button
-                  type="button"
-                  style={{
-                    flex: 1,
-                    padding: 12,
-                    borderRadius: 10,
-                    border: "none",
-                    background: "#1a56db",
-                    color: "#fff",
-                    fontWeight: 800,
-                    opacity: offerBusy ? 0.7 : 1,
-                  }}
-                  disabled={offerBusy}
-                  onClick={() => void submitOffer()}
-                >
-                  {offerBusy ? "جاري الإرسال…" : "إرسال العرض"}
-                </button>
-              </div>
-            </div>
+              الكل
+            </button>
+            <button
+              type="button"
+              className={`pharmacy-new-filter-btn ${newOrdersFilter === "urgent_sort" ? "active" : ""}`}
+              onClick={() => setNewOrdersFilter("urgent_sort")}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+              عاجل أولاً
+            </button>
+            <button
+              type="button"
+              className={`pharmacy-new-filter-btn ${newOrdersFilter === "rx_only" ? "active" : ""}`}
+              onClick={() => setNewOrdersFilter("rx_only")}
+            >
+              بوصفة طبية
+            </button>
           </div>
-        ) : null}
+
+          {loadError ? <p style={{ color: "#b91c1c", fontWeight: 700, marginBottom: 16 }}>{loadError}</p> : null}
+
+          <div className="pharmacy-new-cards-grid">
+            {visibleSlice.length === 0 ? (
+              <p style={{ gridColumn: "1 / -1", textAlign: "center", padding: 32, color: "#64748b" }}>
+                {rows.length === 0 ? "لا توجد طلبات جديدة حالياً." : "لا توجد طلبات تطابق التصفية."}
+              </p>
+            ) : (
+              visibleSlice.map((row) => renderPageOrderCard(row))
+            )}
+          </div>
+
+          {pageDisplayRows.length > newOrdersVisible ? (
+            <div className="pharmacy-new-load-more-wrap">
+              <button
+                type="button"
+                className="pharmacy-new-load-more-btn"
+                onClick={() => setNewOrdersVisible((n) => n + 12)}
+              >
+                عرض المزيد من الطلبات
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+            </div>
+          ) : null}
+        </div>
+        {renderOfferModal()}
       </>
     );
   }
@@ -544,92 +733,7 @@ export default function PharmacyNewOrdersSection({
         </div>
       </div>
 
-      {offerOpen && offerRow ? (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(15,23,42,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-          }}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 16,
-              padding: 24,
-              maxWidth: 440,
-              width: "92%",
-              boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: 12 }}>إرسال عرض للطلب #{offerRow.request.id}</h3>
-            <label style={{ display: "block", marginBottom: 8 }}>رسوم التوصيل (ج.م)</label>
-            <input
-              type="number"
-              min={0}
-              value={offerDelivery}
-              onChange={(e) => setOfferDelivery(e.target.value)}
-              style={{ width: "100%", marginBottom: 16, padding: 10, borderRadius: 10, border: "1px solid #e2e8f0" }}
-            />
-            {offerRow.request.medicines.map((m) => (
-              <div key={m.id} style={{ marginBottom: 12 }}>
-                <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                  {m.medicine_name} ×{m.quantity}
-                </div>
-                <label style={{ fontSize: 12, color: "#64748b" }}>سعر الوحدة</label>
-                <input
-                  type="number"
-                  min={1}
-                  step="0.01"
-                  value={offerPrices[m.id] ?? ""}
-                  onChange={(e) => setOfferPrices((p) => ({ ...p, [m.id]: e.target.value }))}
-                  style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid #e2e8f0" }}
-                />
-              </div>
-            ))}
-            <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-              <button
-                type="button"
-                style={{
-                  flex: 1,
-                  padding: 12,
-                  borderRadius: 10,
-                  border: "1px solid #e2e8f0",
-                  background: "#f8fafc",
-                  fontWeight: 700,
-                }}
-                onClick={() => setOfferOpen(false)}
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                style={{
-                  flex: 1,
-                  padding: 12,
-                  borderRadius: 10,
-                  border: "none",
-                  background: "#1a56db",
-                  color: "#fff",
-                  fontWeight: 800,
-                  opacity: offerBusy ? 0.7 : 1,
-                }}
-                disabled={offerBusy}
-                onClick={() => void submitOffer()}
-              >
-                {offerBusy ? "جاري الإرسال…" : "إرسال العرض"}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {renderOfferModal()}
     </>
   );
 }

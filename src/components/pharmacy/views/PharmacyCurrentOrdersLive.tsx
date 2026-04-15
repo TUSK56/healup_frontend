@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { orderService, type Order } from "@/services/orderService";
+import { formatRelativeTimeAr } from "@/lib/formatRelativeAr";
 
 const activeStatuses = new Set([
   "confirmed",
@@ -9,6 +10,8 @@ const activeStatuses = new Set([
   "out_for_delivery",
   "ready_for_pickup",
 ]);
+
+type TabKey = "all" | "preparing" | "out_for_delivery" | "wait_pickup";
 
 function labelAr(status: string): string {
   switch (status) {
@@ -25,9 +28,25 @@ function labelAr(status: string): string {
   }
 }
 
+function statusPillClass(status: string): string {
+  switch (status) {
+    case "preparing":
+      return "preparing";
+    case "out_for_delivery":
+      return "delivery";
+    case "ready_for_pickup":
+      return "pickup";
+    case "confirmed":
+      return "waiting";
+    default:
+      return "waiting";
+  }
+}
+
 export default function PharmacyCurrentOrdersLive() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [busy, setBusy] = useState<number | null>(null);
+  const [tab, setTab] = useState<TabKey>("all");
 
   const load = useCallback(async () => {
     try {
@@ -49,6 +68,20 @@ export default function PharmacyCurrentOrdersLive() {
     () => orders.filter((o) => activeStatuses.has(o.status)),
     [orders]
   );
+
+  const counts = useMemo(() => {
+    const preparing = current.filter((o) => o.status === "preparing").length;
+    const out = current.filter((o) => o.status === "out_for_delivery").length;
+    const wait = current.filter((o) => o.status === "confirmed" || o.status === "ready_for_pickup").length;
+    return { preparing, out, wait };
+  }, [current]);
+
+  const filtered = useMemo(() => {
+    if (tab === "all") return current;
+    if (tab === "preparing") return current.filter((o) => o.status === "preparing");
+    if (tab === "out_for_delivery") return current.filter((o) => o.status === "out_for_delivery");
+    return current.filter((o) => o.status === "confirmed" || o.status === "ready_for_pickup");
+  }, [current, tab]);
 
   const nextAction = (o: Order): { label: string; status: string } | null => {
     switch (o.status) {
@@ -77,50 +110,117 @@ export default function PharmacyCurrentOrdersLive() {
     try {
       await orderService.updateStatus(orderId, status);
       await load();
+      window.dispatchEvent(new Event("healup:notification"));
     } finally {
       setBusy(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir="rtl">
-      <h1 className="mb-2 text-2xl font-black text-slate-900">الطلبات الحالية</h1>
-      <p className="mb-8 text-slate-500">الطلبات النشطة بعد التأكيد</p>
+    <div dir="rtl">
+      <header className="pharmacy-subpage-header">
+        <h1 className="pharmacy-subpage-title">الطلبات الحالية</h1>
+        <p className="pharmacy-subpage-desc">تابع حالة طلبات الأدوية الجارية وتفاصيل التوصيل</p>
+      </header>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {current.length === 0 ? (
-          <p className="text-slate-500">لا توجد طلبات حالية.</p>
+      <div className="pharmacy-current-tabs" role="tablist" aria-label="تصفية الطلبات">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "all"}
+          className={`pharmacy-current-tab ${tab === "all" ? "active" : ""}`}
+          onClick={() => setTab("all")}
+        >
+          الكل ({current.length})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "preparing"}
+          className={`pharmacy-current-tab ${tab === "preparing" ? "active" : ""}`}
+          onClick={() => setTab("preparing")}
+        >
+          جاري التجهيز ({counts.preparing})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "out_for_delivery"}
+          className={`pharmacy-current-tab ${tab === "out_for_delivery" ? "active" : ""}`}
+          onClick={() => setTab("out_for_delivery")}
+        >
+          خرج للتوصيل ({counts.out})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "wait_pickup"}
+          className={`pharmacy-current-tab ${tab === "wait_pickup" ? "active" : ""}`}
+          onClick={() => setTab("wait_pickup")}
+        >
+          جاهز / بانتظار ({counts.wait})
+        </button>
+      </div>
+
+      <div className="pharmacy-current-grid">
+        {filtered.length === 0 ? (
+          <p className="pharmacy-analytics-muted" style={{ gridColumn: "1 / -1" }}>
+            لا توجد طلبات في هذا القسم.
+          </p>
         ) : (
-          current.map((o) => {
+          filtered.map((o) => {
             const act = nextAction(o);
             const alt = alternate(o);
+            const pillClass = statusPillClass(o.status);
             return (
-              <div key={o.id} className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  <span className="rounded-lg bg-[#E6EFF7] px-2 py-1 text-xs font-bold text-[#004BAB]">#{o.id}</span>
-                  <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">{labelAr(o.status)}</span>
+              <div key={o.id} className="pharmacy-current-card">
+                <div className="pharmacy-current-card-top">
+                  <span className="pharmacy-current-id-pill">HLP-{o.id}</span>
+                  <span className={`pharmacy-current-status ${pillClass}`}>
+                    <span className="pharmacy-current-status-dot" aria-hidden />
+                    {labelAr(o.status)}
+                  </span>
                 </div>
-                <p className="mb-1 font-bold text-slate-800">{o.patient?.name ?? "مريض"}</p>
-                <p className="mb-1 text-sm text-slate-500">
-                  {o.items?.map((i) => `${i.medicine_name} ×${i.quantity}`).join("، ") ?? "—"}
-                </p>
-                <p className="mb-4 text-lg font-bold text-slate-900">{o.total_price.toFixed(2)} ج.م</p>
-                <div className="flex flex-wrap gap-2">
+                <h2 className="pharmacy-current-patient">{o.patient?.name ?? "مريض"}</h2>
+                <div className="pharmacy-current-lines">
+                  <div className="pharmacy-current-line">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                    </svg>
+                    <span>{o.items?.map((i) => `${i.medicine_name} ×${i.quantity}`).join("، ") ?? "—"}</span>
+                  </div>
+                  <div className="pharmacy-current-line">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 6v6l4 2" />
+                    </svg>
+                    <span>{formatRelativeTimeAr(o.created_at)}</span>
+                  </div>
+                </div>
+                <p className="pharmacy-current-price">{o.total_price.toFixed(2)} ج.م</p>
+                <div className="pharmacy-current-actions">
                   {act ? (
                     <button
                       type="button"
                       disabled={busy === o.id}
-                      className="rounded-lg bg-[#0456AE] px-4 py-2 text-sm font-bold text-white"
+                      className="pharmacy-current-btn-primary"
                       onClick={() => handle(o.id, act.status)}
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                      </svg>
                       {act.label}
                     </button>
-                  ) : null}
+                  ) : (
+                    <button type="button" className="pharmacy-current-btn-primary" disabled style={{ opacity: 0.85 }}>
+                      بانتظار إجراء المريض
+                    </button>
+                  )}
                   {alt ? (
                     <button
                       type="button"
                       disabled={busy === o.id}
-                      className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700"
+                      className="pharmacy-current-btn-secondary"
                       onClick={() => handle(o.id, alt.status)}
                     >
                       {alt.label}

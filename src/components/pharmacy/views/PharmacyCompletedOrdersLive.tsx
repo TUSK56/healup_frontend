@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { orderService, type Order } from "@/services/orderService";
+import { formatRelativeTimeAr } from "@/lib/formatRelativeAr";
 
 export default function PharmacyCompletedOrdersLive() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -25,30 +26,47 @@ export default function PharmacyCompletedOrdersLive() {
   const done = useMemo(() => orders.filter((o) => o.status === "completed"), [orders]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8" dir="rtl">
-      <h1 className="mb-8 text-2xl font-bold text-slate-900">الطلبات المكتملة</h1>
-      <div className="space-y-4">
+    <div dir="rtl">
+      <header className="pharmacy-subpage-header">
+        <h1 className="pharmacy-subpage-title">الطلبات المكتملة</h1>
+        <p className="pharmacy-subpage-desc">سجل الطلبات التي تم تسليمها بنجاح</p>
+      </header>
+
+      <div className="pharmacy-done-grid">
         {done.length === 0 ? (
-          <p className="text-slate-500">لا توجد طلبات مكتملة بعد.</p>
+          <p className="pharmacy-analytics-muted" style={{ gridColumn: "1 / -1" }}>
+            لا توجد طلبات مكتملة بعد.
+          </p>
         ) : (
           done.map((o) => (
-            <div
-              key={o.id}
-              className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between"
-            >
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="font-bold text-[#0456AE]">#{o.id}</span>
-                  <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">مكتمل</span>
-                </div>
-                <p className="font-bold text-slate-800">{o.patient?.name ?? "مريض"}</p>
-                <p className="text-sm text-slate-500">
-                  {o.items?.map((i) => `${i.medicine_name} ×${i.quantity}`).join("، ") ?? "—"}
-                </p>
+            <div key={o.id} className="pharmacy-done-card">
+              <div className="pharmacy-done-card-top">
+                <span className="pharmacy-current-id-pill">HLP-{o.id}</span>
+                <span className="pharmacy-done-badge">مكتمل</span>
               </div>
-              <div className="text-left md:text-right">
-                <p className="text-sm text-slate-400">{new Date(o.created_at).toLocaleString("ar-EG")}</p>
-                <p className="text-xl font-bold text-slate-900">{o.total_price.toFixed(2)} ج.م</p>
+              <h2 className="pharmacy-current-patient" style={{ fontSize: 17 }}>
+                {o.patient?.name ?? "مريض"}
+              </h2>
+              <div className="pharmacy-current-lines">
+                <div className="pharmacy-current-line">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                  </svg>
+                  <span>{o.items?.map((i) => `${i.medicine_name} ×${i.quantity}`).join("، ") ?? "—"}</span>
+                </div>
+              </div>
+              <div className="pharmacy-done-meta">
+                <div>
+                  <p className="pharmacy-analytics-muted" style={{ fontSize: 12, marginBottom: 4 }}>
+                    {formatRelativeTimeAr(o.created_at)}
+                  </p>
+                  <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                    {new Date(o.created_at).toLocaleString("ar-EG")}
+                  </p>
+                </div>
+                <p className="pharmacy-current-price" style={{ margin: 0 }}>
+                  {o.total_price.toFixed(2)} ج.م
+                </p>
               </div>
             </div>
           ))
