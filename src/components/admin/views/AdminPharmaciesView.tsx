@@ -1,18 +1,54 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Store, CheckCircle, Clock, Search, Filter, Eye, ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { motion } from "motion/react";
-import { adminService, type AdminPharmacyRow } from "@/services/adminService";
 
 type UiStatus = "active" | "inactive" | "pending";
 
-function mapStatus(api: string): UiStatus {
-  const s = api.toLowerCase();
-  if (s === "approved") return "active";
-  if (s === "pending") return "pending";
-  return "inactive";
+interface MockPharmacy {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  license: string;
+  region: string;
+  joinLabel: string;
+  status: UiStatus;
 }
+
+const MOCK_PHARMACIES: MockPharmacy[] = [
+  {
+    id: 1,
+    name: "صيدلية العزبي",
+    email: "ezaby@example.com",
+    phone: "01000000001",
+    license: "LIC-88291#",
+    region: "القاهرة",
+    joinLabel: "2024/03/01",
+    status: "active",
+  },
+  {
+    id: 2,
+    name: "صيدليات مصر",
+    email: "misr@example.com",
+    phone: "01000000002",
+    license: "LIC-44512#",
+    region: "الجيزة",
+    joinLabel: "2024/02/15",
+    status: "inactive",
+  },
+  {
+    id: 3,
+    name: "صيدلية 19011",
+    email: "19011@example.com",
+    phone: "01000000003",
+    license: "LIC-11982#",
+    region: "الإسكندرية",
+    joinLabel: "2024/01/20",
+    status: "pending",
+  },
+];
 
 function StatCard({
   title,
@@ -45,7 +81,7 @@ function StatCard({
         <h3 className="mb-1 text-3xl font-bold text-slate-800">{value}</h3>
         <div className="flex items-center gap-1">
           <span className={`text-xs font-bold ${change.startsWith("+") ? "text-emerald-600" : "text-slate-400"}`}>{change}</span>
-          <span className="text-[10px] font-medium text-slate-400">من قاعدة البيانات</span>
+          <span className="text-[10px] font-medium text-slate-400">عرض توضيحي</span>
         </div>
       </div>
     </motion.div>
@@ -69,72 +105,21 @@ function StatusBadge({ status }: { status: UiStatus }) {
 
 export default function AdminPharmaciesView() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [rows, setRows] = useState<AdminPharmacyRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<number | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await adminService.listPharmacies();
-      setRows(data.data);
-    } catch {
-      setError("تعذر تحميل الصيدليات. تأكد من تسجيل الدخول كمسؤول.");
-      setRows([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter(
+    if (!q) return MOCK_PHARMACIES;
+    return MOCK_PHARMACIES.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.email.toLowerCase().includes(q) ||
-        (p.license_number && p.license_number.toLowerCase().includes(q))
+        p.license.toLowerCase().includes(q)
     );
-  }, [rows, searchQuery]);
-
-  const stats = useMemo(() => {
-    const total = rows.length;
-    const active = rows.filter((p) => p.status.toLowerCase() === "approved").length;
-    const pending = rows.filter((p) => p.status.toLowerCase() === "pending").length;
-    return { total, active, pending };
-  }, [rows]);
+  }, [searchQuery]);
 
   const initials = (name: string) => {
     const t = name.trim();
     return t ? t.charAt(0) : "?";
-  };
-
-  const approve = async (id: number) => {
-    setBusyId(id);
-    try {
-      await adminService.approvePharmacy(id);
-      await load();
-      window.dispatchEvent(new Event("healup:notification"));
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const reject = async (id: number) => {
-    setBusyId(id);
-    try {
-      await adminService.disablePharmacy(id);
-      await load();
-      window.dispatchEvent(new Event("healup:notification"));
-    } finally {
-      setBusyId(null);
-    }
   };
 
   return (
@@ -142,32 +127,30 @@ export default function AdminPharmaciesView() {
       <main className="space-y-8 p-10">
         <section className="space-y-1">
           <h1 className="text-3xl font-bold text-[#0355AE]">إدارة الصيدليات</h1>
-          <p className="font-medium text-slate-500">قبول أو رفض طلبات الانضمام — بيانات مباشرة من الخادم</p>
+          <p className="font-medium text-slate-500">عرض توضيحي — الموافقة على الطلبات الجديدة تتم من لوحة القيادة</p>
         </section>
-
-        {error ? <p className="font-bold text-red-600">{error}</p> : null}
 
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <StatCard
             title="إجمالي الصيدليات"
-            value={loading ? "…" : String(stats.total)}
-            change="+0%"
+            value="1,250"
+            change="+5%"
             icon={Store}
             colorClass="text-brand"
             iconBgClass="bg-brand-light"
           />
           <StatCard
             title="صيدليات معتمدة"
-            value={loading ? "…" : String(stats.active)}
-            change="+0%"
+            value="1,180"
+            change="+2%"
             icon={CheckCircle}
             colorClass="text-emerald-600"
             iconBgClass="bg-emerald-50"
           />
           <StatCard
             title="بانتظار الموافقة"
-            value={loading ? "…" : String(stats.pending)}
-            change="+0%"
+            value="45"
+            change="+12%"
             icon={Clock}
             colorClass="text-amber-600"
             iconBgClass="bg-amber-50"
@@ -211,99 +194,58 @@ export default function AdminPharmaciesView() {
                   <th className="px-6 py-4">اسم الصيدلية</th>
                   <th className="px-6 py-4">رقم الترخيص</th>
                   <th className="px-6 py-4">البريد</th>
+                  <th className="px-6 py-4">المنطقة</th>
                   <th className="px-6 py-4">تاريخ التسجيل</th>
                   <th className="px-6 py-4 text-center">الحالة</th>
                   <th className="px-6 py-4 text-left">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-slate-500">
-                      جاري التحميل…
+                {filtered.map((pharmacy, idx) => (
+                  <motion.tr
+                    key={pharmacy.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: Math.min(idx * 0.03, 0.4) }}
+                    className="group transition-colors hover:bg-slate-50/50"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light text-lg font-bold text-brand">
+                          {initials(pharmacy.name)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-800">{pharmacy.name}</p>
+                          <p className="text-[10px] font-medium text-slate-400">{pharmacy.phone}</p>
+                        </div>
+                      </div>
                     </td>
-                  </tr>
-                ) : (
-                  filtered.map((pharmacy, idx) => {
-                    const ui = mapStatus(pharmacy.status);
-                    return (
-                      <motion.tr
-                        key={pharmacy.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: Math.min(idx * 0.03, 0.4) }}
-                        className="group transition-colors hover:bg-slate-50/50"
-                      >
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light text-lg font-bold text-brand">
-                              {initials(pharmacy.name)}
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-slate-800">{pharmacy.name}</p>
-                              <p className="text-[10px] font-medium text-slate-400">{pharmacy.phone ?? "—"}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-5 font-mono text-sm text-slate-500">{pharmacy.license_number ?? "—"}</td>
-                        <td className="px-6 py-5 text-sm text-slate-600">{pharmacy.email}</td>
-                        <td className="px-6 py-5 text-sm text-slate-500">
-                          {new Date(pharmacy.created_at).toLocaleDateString("ar-EG")}
-                        </td>
-                        <td className="px-6 py-5">
-                          <div className="flex items-center justify-center">
-                            <StatusBadge status={ui} />
-                          </div>
-                        </td>
-                        <td className="px-6 py-5">
-                          <div className="flex flex-wrap items-center justify-end gap-2">
-                            {ui === "pending" ? (
-                              <>
-                                <button
-                                  type="button"
-                                  disabled={busyId === pharmacy.id}
-                                  className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
-                                  onClick={() => void approve(pharmacy.id)}
-                                >
-                                  قبول
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={busyId === pharmacy.id}
-                                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold text-red-700 hover:bg-red-100 disabled:opacity-50"
-                                  onClick={() => void reject(pharmacy.id)}
-                                >
-                                  رفض
-                                </button>
-                              </>
-                            ) : ui === "active" ? (
-                              <button
-                                type="button"
-                                disabled={busyId === pharmacy.id}
-                                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                                onClick={() => void reject(pharmacy.id)}
-                              >
-                                تعطيل
-                              </button>
-                            ) : (
-                              <span className="text-xs text-slate-400">—</span>
-                            )}
-                            <button type="button" className="rounded-lg p-2 text-slate-400 hover:bg-brand-light hover:text-brand" title="عرض">
-                              <Eye className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    );
-                  })
-                )}
+                    <td className="px-6 py-5 font-mono text-sm text-slate-500">{pharmacy.license}</td>
+                    <td className="px-6 py-5 text-sm text-slate-600">{pharmacy.email}</td>
+                    <td className="px-6 py-5 text-sm text-slate-600">{pharmacy.region}</td>
+                    <td className="px-6 py-5 text-sm text-slate-500">{pharmacy.joinLabel}</td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center justify-center">
+                        <StatusBadge status={pharmacy.status} />
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <span className="text-xs text-slate-400">—</span>
+                        <button type="button" className="rounded-lg p-2 text-slate-400 hover:bg-brand-light hover:text-brand" title="عرض">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
               </tbody>
             </table>
           </div>
 
           <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-100 p-6 md:flex-row">
             <p className="text-sm font-medium text-slate-400">
-              عرض <span className="font-bold text-slate-800">{filtered.length}</span> صيدلية
+              عرض <span className="font-bold text-slate-800">{filtered.length}</span> صفوف (عرض توضيحي)
             </p>
             <div className="flex items-center gap-2 opacity-40">
               <ChevronRight className="h-4 w-4" />
@@ -314,7 +256,7 @@ export default function AdminPharmaciesView() {
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-100 px-10 py-8 text-center">
-        <p className="text-xs font-medium text-slate-400">© Healup — إدارة الصيدليات</p>
+        <p className="text-xs font-medium text-slate-400">© Healup — إدارة الصيدليات (بيانات تجريبية)</p>
       </footer>
     </div>
   );
