@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { authService } from "@/services/authService";
-import { orderService } from "@/services/orderService";
+import { orderService, type Order } from "@/services/orderService";
 import { pharmacyPortalService } from "@/services/pharmacyPortalService";
+import { countActionableNewOrders, readDismissed } from "@/components/pharmacy/pharmacyNewOrdersShared";
 
 type SidebarKey = "home" | "new-orders" | "current-orders" | "completed-orders" | "analytics" | "profile-settings";
 
@@ -20,12 +21,14 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
     const load = async () => {
       try {
         const [ordersRes, reqRes] = await Promise.all([
-          orderService.list().catch(() => ({ data: [] as { status: string }[] })),
+          orderService.list().catch(() => ({ data: [] as Order[] })),
           pharmacyPortalService.incomingRequests().catch(() => ({ data: [] })),
         ]);
-        const pendingOrders = ordersRes.data.filter((o) => o.status === "pending_pharmacy_confirmation").length;
-        const incoming = reqRes.data?.length ?? 0;
-        const n = pendingOrders + incoming;
+        const orders = ordersRes.data ?? [];
+        const incoming = reqRes.data ?? [];
+        const pendingPurchase = orders.filter((o) => o.status === "pending_pharmacy_confirmation");
+        const dismissed = readDismissed();
+        const n = countActionableNewOrders(incoming, pendingPurchase, dismissed);
         setNewBadge(n > 0 ? n : null);
       } catch {
         setNewBadge(null);

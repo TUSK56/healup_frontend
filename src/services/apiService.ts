@@ -39,6 +39,34 @@ function isUnauthenticatedAuthRequest(config: InternalAxiosRequestConfig | undef
   );
 }
 
+/** Avoid multiple parallel 401s each clearing storage and firing a full redirect (feels like "session drops on navigation"). */
+let authFailureRedirectInProgress = false;
+
+function safeRedirectToLogin(): void {
+  if (typeof window === 'undefined') return;
+  if (authFailureRedirectInProgress) return;
+  authFailureRedirectInProgress = true;
+  try {
+    localStorage.removeItem('healup_token');
+    localStorage.removeItem('healup_user');
+    localStorage.removeItem('healup_guard');
+    localStorage.removeItem('healup_guest');
+    localStorage.removeItem('healup_token_expires_at');
+    const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/admin')) {
+      window.location.href = '/admin-login';
+    } else if (currentPath.startsWith('/pharmacy')) {
+      window.location.href = '/pharmacy-login';
+    } else {
+      window.location.href = '/patient-login';
+    }
+  } finally {
+    window.setTimeout(() => {
+      authFailureRedirectInProgress = false;
+    }, 2000);
+  }
+}
+
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('healup_token');
@@ -57,20 +85,7 @@ api.interceptors.response.use(
       !isUnauthenticatedAuthRequest(error.config) &&
       !isGuestPatientSession()
     ) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('healup_token');
-        localStorage.removeItem('healup_user');
-        localStorage.removeItem('healup_guard');
-        localStorage.removeItem('healup_guest');
-        const currentPath = window.location.pathname;
-        if (currentPath.startsWith('/admin')) {
-          window.location.href = '/admin-login';
-        } else if (currentPath.startsWith('/pharmacy')) {
-          window.location.href = '/pharmacy-login';
-        } else {
-          window.location.href = '/patient-login';
-        }
-      }
+      safeRedirectToLogin();
     }
     return Promise.reject(error);
   }
