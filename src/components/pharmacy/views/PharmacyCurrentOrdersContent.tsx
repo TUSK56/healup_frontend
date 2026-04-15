@@ -1,7 +1,7 @@
 "use client";
 
-import App from "./PharmacyCurrentOrdersSource";
+import PharmacyCurrentOrdersLive from "./PharmacyCurrentOrdersLive";
 
 export default function PharmacyCurrentOrdersContent() {
-  return <App />;
+  return <PharmacyCurrentOrdersLive />;
 }
