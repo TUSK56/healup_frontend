@@ -2,6 +2,7 @@
 
 import PharmacySidebar from "@/components/pharmacy/PharmacySidebar";
 import PharmacyTopNavbar from "@/components/pharmacy/PharmacyTopNavbar";
+import PharmacyNewOrdersSection from "@/components/pharmacy/PharmacyNewOrdersSection";
 
 export default function PharmacyNewOrdersPage() {
   return (
@@ -10,7 +11,7 @@ export default function PharmacyNewOrdersPage() {
       <div className="main" style={{ padding: 0 }}>
         <PharmacyTopNavbar />
         <div className="pharmacy-content-shell">
-          <iframe src="/pharmacy_orders_1.html" title="Pharmacy Orders 1" className="h-full w-full border-0" />
+          <PharmacyNewOrdersSection variant="page" />
         </div>
       </div>
     </div>
