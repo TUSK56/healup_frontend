@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "@/components/pharmacy/pharmacy-sidebar.css";
 import "./cart.css";
-import "./pharmacy-pages.css";
 
 export const metadata: Metadata = {
   title: "Healup - ???? ????????",
