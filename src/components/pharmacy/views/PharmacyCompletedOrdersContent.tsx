@@ -1,7 +1,7 @@
 "use client";
 
-import App from "./PharmacyCompletedOrdersSource";
+import PharmacyCompletedOrdersLive from "./PharmacyCompletedOrdersLive";
 
 export default function PharmacyCompletedOrdersContent() {
-  return <App />;
+  return <PharmacyCompletedOrdersLive />;
 }

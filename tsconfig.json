@@ -16,5 +16,14 @@
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "standalone-exports", "pages", "legacy-pages-sources"]
+  "exclude": [
+    "node_modules",
+    "standalone-exports",
+    "pages",
+    "legacy-pages-sources",
+    "legacy-reference-pages",
+    "src/components/pharmacy/views/PharmacyCurrentOrdersSource.tsx",
+    "src/components/pharmacy/views/PharmacyCompletedOrdersSource.tsx",
+    "src/components/pharmacy/views/PharmacyAnalyticsSource.tsx"
+  ]
 }

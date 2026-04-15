@@ -1,0 +1,6 @@
+{
+  "name": "Healup Dashboard",
+  "description": "A pharmacy management dashboard for tracking and managing medicine orders in real-time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

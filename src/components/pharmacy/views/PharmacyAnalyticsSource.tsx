@@ -9,7 +9,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { pharmacyAnalyticsService, type PharmacyAnalytics } from "@/services/pharmacyAnalyticsService";
 
 function formatEgp(n: number) {
-  return `${n.toLocaleString("ar-EG", { maximumFractionDigits: 0 })} Ã.„`;
+  return `${n.toLocaleString("ar-EG", { maximumFractionDigits: 0 })} ?.?`;
 }
 
 export default function Dashboard() {
@@ -20,7 +20,7 @@ export default function Dashboard() {
     pharmacyAnalyticsService
       .get()
       .then(setData)
-      .catch(() => setError(" ⁄–—  Õ„Ì· «· Õ·Ì·« .  √ﬂœ „‰  ”ÃÌ· «·œŒÊ· ﬂ’Ìœ·Ì…."));
+      .catch(() => setError("???? ????? ?????????. ???? ?? ????? ?????? ???????."));
   }, []);
 
   const chart = useMemo(
@@ -29,7 +29,7 @@ export default function Dashboard() {
   );
 
   if (error) return <p className="text-red-600 font-bold">{error}</p>;
-  if (!data) return <p className="text-slate-500">Ã«—Ì «· Õ„Ì·...</p>;
+  if (!data) return <p className="text-slate-500">???? ???????...</p>;
 
   const topMax = Math.max(1, ...data.top_medicines.map((m) => m.orders));
 
@@ -37,25 +37,25 @@ export default function Dashboard() {
     <div className="bg-slate-50/50 font-sans" dir="rtl">
       <main className="w-full p-4 md:p-6 space-y-8">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-slate-900"> Õ·Ì·«  «·ÿ·»« </h1>
-          <p className="text-slate-500">‰Ÿ—… ⁄«„… ‘«„·… ⁄·Ï √œ«¡ „»Ì⁄«  «·’Ìœ·Ì…</p>
+          <h1 className="text-3xl font-bold text-slate-900">??????? ???????</h1>
+          <p className="text-slate-500">???? ???? ????? ??? ???? ?????? ????????</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">≈Ã„«·Ì «·≈Ì—«œ« </CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{formatEgp(data.total_revenue)}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+12%</Badge></CardContent></Card>
-          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">«·ÿ·»«  «·„ﬂ „·…</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{data.completed_total}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+5%</Badge></CardContent></Card>
-          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">„ Ê”ÿ ﬁÌ„… «·ÿ·»</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{formatEgp(data.average_order_value)}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+2%</Badge></CardContent></Card>
-          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">ÿ·»«  ÃœÌœ…</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{data.new_orders}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+1%</Badge></CardContent></Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">?????? ?????????</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{formatEgp(data.total_revenue)}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+12%</Badge></CardContent></Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">??????? ????????</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{data.completed_total}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+5%</Badge></CardContent></Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">????? ???? ?????</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{formatEgp(data.average_order_value)}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+2%</Badge></CardContent></Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">????? ?????</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{data.new_orders}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+1%</Badge></CardContent></Card>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2 border-none shadow-sm overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg">« Ã«Â«  «·≈Ì—«œ«  «·ÌÊ„Ì…</CardTitle>
+                <CardTitle className="text-lg">??????? ????????? ???????</CardTitle>
                 <div className="flex items-center gap-2 mt-1"><span className="text-2xl font-bold">{formatEgp(data.total_revenue)}</span></div>
               </div>
-              <Badge variant="outline" className="text-slate-500 font-normal">¬Œ— 7 √Ì«„</Badge>
+              <Badge variant="outline" className="text-slate-500 font-normal">??? 7 ????</Badge>
             </CardHeader>
             <CardContent className="p-0 pt-4">
               <div className="h-[300px] w-full">
@@ -74,11 +74,11 @@ export default function Dashboard() {
           </Card>
 
           <Card className="lg:col-span-1 border-none shadow-sm">
-            <CardHeader><CardTitle className="text-lg">√⁄·Ï 5 √œÊÌ… „ÿ·Ê»…</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">???? 5 ????? ??????</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               {data.top_medicines.slice(0, 5).map((med) => (
                 <div key={med.medicine_name} className="space-y-2">
-                  <div className="flex justify-between text-sm"><span className="font-medium text-slate-700">{med.medicine_name}</span><span className="text-slate-500">{med.orders} ÿ·»</span></div>
+                  <div className="flex justify-between text-sm"><span className="font-medium text-slate-700">{med.medicine_name}</span><span className="text-slate-500">{med.orders} ???</span></div>
                   <Progress value={(med.orders / topMax) * 100} className="h-2 bg-slate-100" indicatorClassName="bg-[#0456AE]" />
                 </div>
               ))}
@@ -87,15 +87,15 @@ export default function Dashboard() {
         </div>
 
         <Card className="border-none shadow-sm">
-          <CardHeader><CardTitle className="text-lg"> Ê“Ì⁄ «·ÿ·»«  Õ”» «·›∆…</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-lg">????? ??????? ??? ?????</CardTitle></CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="text-right text-[#5A6C85]">«·›∆…</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">⁄œœ «·ÿ·»« </TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">«·≈Ì—«œ« </TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">«·Õ«·…</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">?????</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">??? ???????</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">?????????</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">??????</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -104,7 +104,7 @@ export default function Dashboard() {
                     <TableCell className="font-medium text-primary">{cat.name}</TableCell>
                     <TableCell>{cat.orders}</TableCell>
                     <TableCell>{formatEgp(cat.revenue)}</TableCell>
-                    <TableCell><Badge className="bg-[#DBEAFE] text-[#1E40AF] border-none shadow-none font-medium">„” ﬁ—</Badge></TableCell>
+                    <TableCell><Badge className="bg-[#DBEAFE] text-[#1E40AF] border-none shadow-none font-medium">?????</Badge></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
