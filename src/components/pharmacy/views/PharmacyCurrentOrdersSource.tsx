@@ -1,263 +1,170 @@
-import React, { useState } from 'react';
-import { 
-  Bell, 
-  User, 
-  LayoutDashboard, 
-  Pill, 
-  MapPin, 
-  Clock, 
-  ArrowLeft,
-  ChevronDown,
-  Search,
-  CheckCircle2
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+"use client";
 
-// Types
-type OrderStatus = 'all' | 'processing' | 'out-for-delivery' | 'completed';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ChevronDown, Clock, MapPin, Pill } from "lucide-react";
+import { orderService, type Order } from "@/services/orderService";
+import { formatRelativeTimeAr } from "@/lib/formatRelativeAr";
 
-interface Order {
-  id: string;
-  customer: string;
-  status: 'processing' | 'out-for-delivery' | 'completed';
-  medicine: string;
-  time: string;
-  driver?: string;
+type OrderTab = "all" | "processing" | "out-for-delivery" | "completed";
+
+function toVisualStatus(status: string): "processing" | "out-for-delivery" | "completed" {
+  if (status === "out_for_delivery") return "out-for-delivery";
+  if (status === "completed") return "completed";
+  return "processing";
 }
 
-// Mock Data
-const MOCK_ORDERS: Order[] = [
-  {
-    id: "HLP-12845",
-    customer: "Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯ Ø¹Ø¨Ø¯ Ø§Ù„Ù„Ù‡",
-    status: "processing",
-    medicine: "Ø£ÙˆÙ…ÙŠØ¨Ø±Ø§Ø²ÙˆÙ„ (Ù¤Ù  Ù…Ù„Ø¬Ù…) - Ù¢ Ø¹Ù„Ø¨Ø©",
-    time: "Ù…Ù†Ø° Ù¡Ù¥ Ø¯Ù‚ÙŠÙ‚Ø©",
-  },
-  {
-    id: "HLP-12846",
-    customer: "Ø³Ø§Ø±Ø© Ø£Ø­Ù…Ø¯ Ø¹Ù„ÙŠ",
-    status: "out-for-delivery",
-    medicine: "Ø¨Ø§Ù†Ø§Ø¯ÙˆÙ„ Ø¥ÙƒØ³ØªØ±Ø§ - Ù¡ Ø¹Ù„Ø¨Ø©",
-    time: "Ø¹Ù„Ù‰ Ø¨Ø¹Ø¯ Ù¢.Ù¥ ÙƒÙ… - Ø§Ù„Ø³Ø§Ø¦Ù‚: Ø®Ø§Ù„Ø¯",
-  },
-  {
-    id: "HLP-12847",
-    customer: "Ù…Ø­Ù…ÙˆØ¯ ÙŠØ§Ø³ÙŠÙ†",
-    status: "processing",
-    medicine: "Ø£ÙˆØ¬Ù…Ù†ØªÙŠÙ† (Ù¡ Ø¬Ù…) - Ù£ Ø¹Ù„Ø¨",
-    time: "Ù…Ù†Ø° Ù¥ Ø¯Ù‚Ø§Ø¦Ù‚",
-  },
-  {
-    id: "HLP-12848",
-    customer: "Ù„ÙŠÙ„Ù‰ Ø¥Ø¨Ø±Ø§Ù‡ÙŠÙ…",
-    status: "out-for-delivery",
-    medicine: "ÙÙˆÙ„ØªØ§Ø±ÙŠÙ† Ø¬Ù„ - Ù¢ Ø£Ù†Ø¨ÙˆØ¨",
-    time: "Ø¹Ù„Ù‰ Ø¨Ø¹Ø¯ Ù .Ù¨ ÙƒÙ… - Ø§Ù„Ø³Ø§Ø¦Ù‚: Ø³Ø§Ù…ÙŠ",
+function nextAction(o: Order): { label: string; status: string } | null {
+  switch (o.status) {
+    case "preparing":
+      return { label: "ÎÑÌ ááÊæÕíá", status: "out_for_delivery" };
+    case "out_for_delivery":
+    case "ready_for_pickup":
+      return { label: "ÅßãÇá ÇáØáÈ", status: "completed" };
+    case "confirmed":
+      return { label: "ÈÏÁ ÇáÊÌåíÒ", status: "preparing" };
+    default:
+      return null;
   }
-];
+}
 
-const OrderCard = ({ order }: { order: Order; key?: string }) => {
-  const isProcessing = order.status === 'processing';
-  const isOutForDelivery = order.status === 'out-for-delivery';
-  const isCompleted = order.status === 'completed';
-
-  return (
-    <motion.div 
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
-    >
-      <div className="p-6 flex-1">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex flex-col gap-2">
-            <div className="bg-[#E6EFF7] text-[#004BAB] px-2.5 py-1 rounded-lg w-fit">
-              <span className="text-xs font-bold tracking-wider">{order.id}</span>
-            </div>
-            <h3 className="text-lg font-bold text-slate-800">{order.customer}</h3>
-          </div>
-          
-          <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
-            isProcessing ? 'bg-[#FEF3C7] text-amber-600' : 
-            isOutForDelivery ? 'bg-[#DBEAFE] text-blue-600' : 
-            'bg-emerald-50 text-emerald-600'
-          }`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${
-              isProcessing ? 'bg-amber-500' : 
-              isOutForDelivery ? 'bg-blue-500' : 
-              'bg-emerald-500'
-            }`} />
-            {isProcessing ? 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ¬Ù‡ÙŠØ²' : isOutForDelivery ? 'Ø®Ø±Ø¬ Ù„Ù„ØªÙˆØµÙŠÙ„' : 'Ù…ÙƒØªÙ…Ù„'}
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 text-slate-600">
-            <div className="p-2 bg-slate-50 rounded-lg">
-              <Pill size={16} className="text-slate-400" />
-            </div>
-            <span className="text-sm font-medium">{order.medicine}</span>
-          </div>
-          
-          <div className="flex items-center gap-3 text-slate-500">
-            <div className="p-2 bg-slate-50 rounded-lg">
-              {isOutForDelivery ? <MapPin size={16} className="text-slate-400" /> : <Clock size={16} className="text-slate-400" />}
-            </div>
-            <span className="text-sm">{order.time}</span>
-          </div>
-        </div>
-      </div>
-
-      <button className="w-full py-4 bg-[#0456AE] hover:bg-[#004494] text-white font-bold text-sm transition-colors flex items-center justify-center gap-2 group">
-        <span>Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„</span>
-        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-      </button>
-    </motion.div>
-  );
-};
+function statusLabel(status: string) {
+  if (status === "out_for_delivery") return "ÎÑÌ ááÊæÕíá";
+  if (status === "completed") return "ãßÊãá";
+  if (status === "ready_for_pickup") return "ÌÇåÒ ááÇÓÊáÇã";
+  if (status === "confirmed") return "ÈÇäÊÙÇÑ ÇáãÑíÖ";
+  return "ÌÇÑí ÇáÊÌåíÒ";
+}
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<OrderStatus>('all');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [activeTab, setActiveTab] = useState<OrderTab>("all");
+  const [busyOrderId, setBusyOrderId] = useState<number | null>(null);
 
-  const filteredOrders = MOCK_ORDERS.filter(order => 
-    activeTab === 'all' ? true : order.status === activeTab
-  );
+  const load = useCallback(async () => {
+    try {
+      const data = await orderService.list();
+      setOrders(data.data);
+    } catch {
+      setOrders([]);
+    }
+  }, []);
 
-  const stats = {
-    all: MOCK_ORDERS.length,
-    processing: MOCK_ORDERS.filter(o => o.status === 'processing').length,
-    delivery: MOCK_ORDERS.filter(o => o.status === 'out-for-delivery').length,
+  useEffect(() => {
+    void load();
+    const on = () => void load();
+    window.addEventListener("healup:notification", on);
+    return () => window.removeEventListener("healup:notification", on);
+  }, [load]);
+
+  const display = useMemo(() => {
+    const list = orders.filter((o) => ["confirmed", "preparing", "ready_for_pickup", "out_for_delivery", "completed"].includes(o.status));
+    if (activeTab === "all") return list;
+    if (activeTab === "completed") return list.filter((o) => toVisualStatus(o.status) === "completed");
+    return list.filter((o) => toVisualStatus(o.status) === activeTab);
+  }, [orders, activeTab]);
+
+  const stats = useMemo(() => {
+    const relevant = orders.filter((o) => ["confirmed", "preparing", "ready_for_pickup", "out_for_delivery", "completed"].includes(o.status));
+    return {
+      all: relevant.length,
+      processing: relevant.filter((o) => toVisualStatus(o.status) === "processing").length,
+      delivery: relevant.filter((o) => toVisualStatus(o.status) === "out-for-delivery").length,
+    };
+  }, [orders]);
+
+  const handleAction = async (orderId: number, status: string) => {
+    setBusyOrderId(orderId);
+    try {
+      await orderService.updateStatus(orderId, status);
+      await load();
+      window.dispatchEvent(new Event("healup:notification"));
+    } finally {
+      setBusyOrderId(null);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
-      {/* Header */}
-      <header className="bg-white border-bottom border-slate-100 sticky top-0 z-50 px-4 md:px-8 py-4">
-        <div className="w-full flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-[#0456AE] tracking-tight">Healup</span>
-              <div className="w-10 h-10 bg-[#0456AE] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
-                <Pill size={24} />
+    <div className="font-sans" dir="rtl">
+      <main className="w-full px-4 md:px-6 py-6">
+        <div className="mb-8 text-center md:text-right">
+          <h1 className="text-4xl font-black text-slate-900 mb-3">ÇáØáÈÇÊ ÇáÍÇáíÉ</h1>
+          <p className="text-slate-500 text-lg">ÊÇÈÚ ÍÇáÉ ØáÈÇÊ ÇáÃÏæíÉ ÇáÌÇÑíÉ æÊİÇÕíá ÇáÊæÕíá</p>
+        </div>
+
+        <div className="mb-8 flex flex-wrap justify-center md:justify-start items-center gap-2 border-b border-slate-100 pb-px">
+          <button onClick={() => setActiveTab("all")} className={`px-6 py-4 text-sm font-bold transition-all relative ${activeTab === "all" ? "text-[#0456AE] border-b-2 border-[#0456AE]" : "text-slate-400 hover:text-slate-600"}`}>
+            Çáßá ({stats.all})
+          </button>
+          <button onClick={() => setActiveTab("processing")} className={`px-6 py-4 text-sm font-bold transition-all relative ${activeTab === "processing" ? "text-[#0456AE] border-b-2 border-[#0456AE]" : "text-slate-400 hover:text-slate-600"}`}>
+            ÌÇÑí ÇáÊÌåíÒ ({stats.processing})
+          </button>
+          <button onClick={() => setActiveTab("out-for-delivery")} className={`px-6 py-4 text-sm font-bold transition-all relative ${activeTab === "out-for-delivery" ? "text-[#0456AE] border-b-2 border-[#0456AE]" : "text-slate-400 hover:text-slate-600"}`}>
+            ÎÑÌ ááÊæÕíá ({stats.delivery})
+          </button>
+          <button onClick={() => setActiveTab("completed")} className={`px-6 py-4 text-sm font-bold transition-all relative ${activeTab === "completed" ? "text-[#0456AE] border-b-2 border-[#0456AE]" : "text-slate-400 hover:text-slate-600"}`}>
+            ÇáãßÊãáÉ
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {display.map((order) => {
+            const visualStatus = toVisualStatus(order.status);
+            const action = nextAction(order);
+            return (
+              <div key={order.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col">
+                <div className="p-6 flex-1">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-col gap-2">
+                      <div className="bg-[#E6EFF7] text-[#004BAB] px-2.5 py-1 rounded-lg w-fit">
+                        <span className="text-xs font-bold tracking-wider">HLP-{order.id}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800">{order.patient?.name ?? "ãÑíÖ"}</h3>
+                    </div>
+
+                    <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${visualStatus === "processing" ? "bg-[#FEF3C7] text-amber-600" : visualStatus === "out-for-delivery" ? "bg-[#DBEAFE] text-blue-600" : "bg-emerald-50 text-emerald-600"}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${visualStatus === "processing" ? "bg-amber-500" : visualStatus === "out-for-delivery" ? "bg-blue-500" : "bg-emerald-500"}`} />
+                      {statusLabel(order.status)}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-slate-600">
+                      <div className="p-2 bg-slate-50 rounded-lg"><Pill size={16} className="text-slate-400" /></div>
+                      <span className="text-sm font-medium">{order.items?.map((i) => `${i.medicine_name} ×${i.quantity}`).join("¡ ") ?? "—"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-slate-500">
+                      <div className="p-2 bg-slate-50 rounded-lg">{visualStatus === "out-for-delivery" ? <MapPin size={16} className="text-slate-400" /> : <Clock size={16} className="text-slate-400" />}</div>
+                      <span className="text-sm">{formatRelativeTimeAr(order.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={!action || busyOrderId === order.id}
+                  onClick={() => action && void handleAction(order.id, action.status)}
+                  className="w-full py-4 bg-[#0456AE] hover:bg-[#004494] disabled:opacity-60 text-white font-bold text-sm transition-colors flex items-center justify-center gap-2 group"
+                >
+                  <span>{action ? action.label : "ÚÑÖ ÇáÊİÇÕíá"}</span>
+                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                </button>
               </div>
-              <a href="#" className="text-[#0456AE] font-bold text-xs hover:underline">Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…</a>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-[#0456AE] hover:bg-blue-50 rounded-xl transition-all relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-            <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-[#0456AE] hover:bg-blue-50 rounded-xl transition-all">
-              <User size={20} />
-            </button>
-            <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-slate-100">
-              <img 
-                src="https://picsum.photos/seed/pharmacist/100/100" 
-                alt="Profile" 
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 py-8 md:py-12">
-        <div className="mb-12 text-center md:text-right">
-          <h1 className="text-4xl font-black text-slate-900 mb-3">Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø­Ø§Ù„ÙŠØ©</h1>
-          <p className="text-slate-500 text-lg">ØªØ§Ø¨Ø¹ Ø­Ø§Ù„Ø© Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ø¬Ø§Ø±ÙŠØ© ÙˆØªÙØ§ØµÙŠÙ„ Ø§Ù„ØªÙˆØµÙŠÙ„</p>
+            );
+          })}
         </div>
 
-        {/* Tabs */}
-        <div className="mb-10 flex flex-wrap justify-center md:justify-start items-center gap-2 border-b border-slate-100 pb-px">
-          <button 
-            onClick={() => setActiveTab('all')}
-            className={`px-6 py-4 text-sm font-bold transition-all relative ${
-              activeTab === 'all' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Ø§Ù„ÙƒÙ„ ({stats.all})
-            {activeTab === 'all' && (
-              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
-            )}
-          </button>
-          <button 
-            onClick={() => setActiveTab('processing')}
-            className={`px-6 py-4 text-sm font-bold transition-all relative ${
-              activeTab === 'processing' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ¬Ù‡ÙŠØ² ({stats.processing})
-            {activeTab === 'processing' && (
-              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
-            )}
-          </button>
-          <button 
-            onClick={() => setActiveTab('out-for-delivery')}
-            className={`px-6 py-4 text-sm font-bold transition-all relative ${
-              activeTab === 'out-for-delivery' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Ø®Ø±Ø¬ Ù„Ù„ØªÙˆØµÙŠÙ„ ({stats.delivery})
-            {activeTab === 'out-for-delivery' && (
-              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
-            )}
-          </button>
-          <button 
-            onClick={() => setActiveTab('completed')}
-            className={`px-6 py-4 text-sm font-bold transition-all relative ${
-              activeTab === 'completed' ? 'text-[#0456AE]' : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Ø§Ù„Ù…ÙƒØªÙ…Ù„Ø©
-            {activeTab === 'completed' && (
-              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0456AE] rounded-t-full" />
-            )}
-          </button>
-        </div>
+        {display.length === 0 ? (
+          <p className="text-center text-slate-500 mt-10">áÇ ÊæÌÏ ØáÈÇÊ İí åĞÇ ÇáŞÓã.</p>
+        ) : null}
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filteredOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {/* Load More */}
-        <div className="mt-12 flex justify-center">
-          <button className="flex items-center gap-2 text-[#0456AE] font-bold hover:underline transition-all">
-            <span>ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø²ÙŠØ¯ Ù…Ù† Ø§Ù„Ø·Ù„Ø¨Ø§Øª</span>
+        <div className="mt-10 flex justify-center">
+          <span className="flex items-center gap-2 text-[#0456AE] font-bold opacity-70">
+            <span>ÊÍãíá ÇáãÒíÏ ãä ÇáØáÈÇÊ</span>
             <ChevronDown size={20} />
-          </button>
+          </span>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-100 py-8 px-4 md:px-8 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 text-slate-400 text-sm">
-            <CheckCircle2 size={18} className="text-blue-500" />
-            <span>Healup - Ù…Ù†ØµØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©</span>
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-slate-500">
-            <a href="#" className="hover:text-[#0456AE] transition-colors">Ø³ÙŠØ§Ø³Ø© Ø§Ù„Ø®ØµÙˆØµÙŠØ©</a>
-            <a href="#" className="hover:text-[#0456AE] transition-colors">Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ</a>
-            <a href="#" className="hover:text-[#0456AE] transition-colors">Ø§ØªØµÙ„ Ø¨Ù†Ø§</a>
-          </div>
-
-          <div className="flex items-center gap-2 text-slate-400 text-sm">
-            <span>Â© 2024 Healup Platform</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

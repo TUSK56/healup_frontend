@@ -1,266 +1,110 @@
-import React from 'react';
-import { 
-  Bell, 
-  Search, 
-  User, 
-  TrendingUp, 
-  TrendingDown, 
-  MoreHorizontal, 
-  PlusCircle,
-  Package,
-  Users,
-  ShoppingCart,
-  DollarSign
-} from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area
-} from 'recharts';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { pharmacyAnalyticsService, type PharmacyAnalytics } from "@/services/pharmacyAnalyticsService";
 
-const revenueData = [
-  { name: 'Ø§Ù„Ø³Ø¨Øª', value: 230000 },
-  { name: 'Ø§Ù„Ø£Ø­Ø¯', value: 280000 },
-  { name: 'Ø§Ù„Ø§Ø«Ù†ÙŠÙ†', value: 120000 },
-  { name: 'Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡', value: 210000 },
-  { name: 'Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡', value: 180000 },
-  { name: 'Ø§Ù„Ø®Ù…ÙŠØ³', value: 220000 },
-  { name: 'Ø§Ù„Ø¬Ù…Ø¹Ø©', value: 150000 },
-];
-
-const topMedicines = [
-  { name: 'Ø¨Ù†Ø¯ÙˆÙ„ Ø£ÙƒØ³ØªØ±Ø§', orders: 420, percentage: 85 },
-  { name: 'Ø£ÙˆØ¬Ù…Ù†ØªÙŠÙ† 1 Ø¬Ù…', orders: 310, percentage: 65 },
-  { name: 'ÙƒÙˆÙ†Ø¬Ø³ØªØ§Ù„', orders: 285, percentage: 55 },
-  { name: 'Ø¨Ø±ÙˆÙÙŠÙ† 400', orders: 190, percentage: 40 },
-  { name: 'ÙÙŠØªØ§Ù…ÙŠÙ† Ø³ÙŠ 1000', orders: 145, percentage: 30 },
-];
-
-const categories = [
-  { name: 'Ø§Ù„Ù…Ø³ÙƒÙ†Ø§Øª', orders: 450, revenue: '12,400 Ø¬.Ù…', growth: '+15%', status: 'Ù…Ø±ØªÙØ¹', statusColor: 'bg-[#DCFCE7] text-[#166534]', growthColor: 'text-[#07A041]' },
-  { name: 'Ø§Ù„Ù…Ø¶Ø§Ø¯Ø§Øª Ø§Ù„Ø­ÙŠÙˆÙŠØ©', orders: 320, revenue: '15,600 Ø¬.Ù…', growth: '+8%', status: 'Ù…Ø³ØªÙ‚Ø±', statusColor: 'bg-[#DBEAFE] text-[#1E40AF]', growthColor: 'text-[#33AD5D]' },
-  { name: 'Ø§Ù„ÙÙŠØªØ§Ù…ÙŠÙ†Ø§Øª', orders: 210, revenue: '8,200 Ø¬.Ù…', growth: '-2%', status: 'Ù…Ù†Ø®ÙØ¶', statusColor: 'bg-[#FEE2E2] text-[#991B1B]', growthColor: 'text-[#E35757]' },
-  { name: 'Ø£Ø¯ÙˆØ§Øª Ø§Ù„Ø¹Ù†Ø§ÙŠØ© Ø¨Ø§Ù„Ø¨Ø´Ø±Ø©', orders: 180, revenue: '5,800 Ø¬.Ù…', growth: '+22%', status: 'Ù…Ø±ØªÙØ¹', statusColor: 'bg-[#DCFCE7] text-[#166534]', growthColor: 'text-[#009D2F]' },
-  { name: 'Ø£Ø®Ø±Ù‰', orders: 90, revenue: '3,000 Ø¬.Ù…', growth: '0%', status: 'Ù…Ø³ØªÙ‚Ø±', statusColor: 'bg-[#F1F5F9] text-[#475569]', growthColor: 'text-[#607189]' },
-];
+function formatEgp(n: number) {
+  return `${n.toLocaleString("ar-EG", { maximumFractionDigits: 0 })} Ì.ã`;
+}
 
 export default function Dashboard() {
+  const [data, setData] = useState<PharmacyAnalytics | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    pharmacyAnalyticsService
+      .get()
+      .then(setData)
+      .catch(() => setError("ÊÚĞÑ ÊÍãíá ÇáÊÍáíáÇÊ. ÊÃßÏ ãä ÊÓÌíá ÇáÏÎæá ßÕíÏáíÉ."));
+  }, []);
+
+  const chart = useMemo(
+    () => data?.revenue_last_7_days.map((d) => ({ name: d.name, value: Number(d.value) })) ?? [],
+    [data]
+  );
+
+  if (error) return <p className="text-red-600 font-bold">{error}</p>;
+  if (!data) return <p className="text-slate-500">ÌÇÑí ÇáÊÍãíá...</p>;
+
+  const topMax = Math.max(1, ...data.top_medicines.map((m) => m.orders));
+
   return (
-    <div className="min-h-screen bg-slate-50/50 font-sans" dir="rtl">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-        <div className="flex h-16 items-center justify-between px-6 w-full">
-          <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
-              <PlusCircle className="h-6 w-6" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight text-primary">Healup</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
-              <Bell className="h-5 w-5 text-slate-500" />
-              <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-            </button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
-              <User className="h-5 w-5 text-slate-500" />
-            </button>
-            <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-1 ring-slate-200">
-              <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150" />
-              <AvatarFallback>UN</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto p-4 md:p-8 space-y-8">
-        {/* Title Section */}
+    <div className="bg-slate-50/50 font-sans" dir="rtl">
+      <main className="w-full p-4 md:p-6 space-y-8">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-slate-900">ØªØ­Ù„ÙŠÙ„Ø§Øª Ø§Ù„Ø·Ù„Ø¨Ø§Øª</h1>
-          <p className="text-slate-500">Ù†Ø¸Ø±Ø© Ø¹Ø§Ù…Ø© Ø´Ø§Ù…Ù„Ø© Ø¹Ù„Ù‰ Ø£Ø¯Ø§Ø¡ Ù…Ø¨ÙŠØ¹Ø§Øª Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ©</p>
+          <h1 className="text-3xl font-bold text-slate-900">ÊÍáíáÇÊ ÇáØáÈÇÊ</h1>
+          <p className="text-slate-500">äÙÑÉ ÚÇãÉ ÔÇãáÉ Úáì ÃÏÇÁ ãÈíÚÇÊ ÇáÕíÏáíÉ</p>
         </div>
 
-        {/* KPI Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-baseline justify-between">
-              <div className="text-2xl font-bold">45,000 Ø¬.Ù…</div>
-              <Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+12%</Badge>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ù…ÙƒØªÙ…Ù„Ø©</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-baseline justify-between">
-              <div className="text-2xl font-bold">1,250</div>
-              <Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+5%</Badge>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Ù…ØªÙˆØ³Ø· Ù‚ÙŠÙ…Ø© Ø§Ù„Ø·Ù„Ø¨</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-baseline justify-between">
-              <div className="text-2xl font-bold">85 Ø¬.Ù…</div>
-              <Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+2%</Badge>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Ø±Ø¶Ø§ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-baseline justify-between">
-              <div className="text-2xl font-bold">98%</div>
-              <Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+1%</Badge>
-            </CardContent>
-          </Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">ÅÌãÇáí ÇáÅíÑÇÏÇÊ</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{formatEgp(data.total_revenue)}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+12%</Badge></CardContent></Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">ÇáØáÈÇÊ ÇáãßÊãáÉ</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{data.completed_total}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+5%</Badge></CardContent></Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">ãÊæÓØ ŞíãÉ ÇáØáÈ</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{formatEgp(data.average_order_value)}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+2%</Badge></CardContent></Card>
+          <Card className="border-none shadow-sm"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-slate-500">ØáÈÇÊ ÌÏíÏÉ</CardTitle></CardHeader><CardContent className="flex items-baseline justify-between"><div className="text-2xl font-bold">{data.new_orders}</div><Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+1%</Badge></CardContent></Card>
         </div>
 
-        {/* Charts Section */}
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Revenue Trend */}
           <Card className="lg:col-span-2 border-none shadow-sm overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Ø§ØªØ¬Ø§Ù‡Ø§Øª Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª Ø§Ù„ÙŠÙˆÙ…ÙŠØ©</CardTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-2xl font-bold">315,000 Ø¬.Ù…</span>
-                  <span className="text-xs text-green-600 font-medium">Ø£Ø¹Ù„Ù‰ Ù…Ù† Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ø§Ù„Ù…Ø§Ø¶ÙŠ Ø¨Ù†Ø³Ø¨Ø© 8%</span>
-                </div>
+                <CardTitle className="text-lg">ÇÊÌÇåÇÊ ÇáÅíÑÇÏÇÊ ÇáíæãíÉ</CardTitle>
+                <div className="flex items-center gap-2 mt-1"><span className="text-2xl font-bold">{formatEgp(data.total_revenue)}</span></div>
               </div>
-              <Badge variant="outline" className="text-slate-500 font-normal">Ø¢Ø®Ø± 7 Ø£ÙŠØ§Ù…</Badge>
+              <Badge variant="outline" className="text-slate-500 font-normal">ÂÎÑ 7 ÃíÇã</Badge>
             </CardHeader>
             <CardContent className="p-0 pt-4">
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0456AE" stopOpacity={0.1}/>
-                        <stop offset="95%" stopColor="#0456AE" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
+                  <AreaChart data={chart} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <defs><linearGradient id="colorValueLive" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0456AE" stopOpacity={0.1}/><stop offset="95%" stopColor="#0456AE" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#94a3b8', fontSize: 12 }}
-                      dy={10}
-                      interval={0}
-                    />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} dy={10} interval={0} />
                     <YAxis hide />
-                    <Tooltip 
-                      contentStyle={{ 
-                        borderRadius: '12px', 
-                        border: 'none', 
-                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                        textAlign: 'right'
-                      }}
-                      labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
-                      cursor={{ stroke: '#0456AE', strokeWidth: 2, strokeDasharray: '5 5' }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#0456AE" 
-                      strokeWidth={3}
-                      fillOpacity={1} 
-                      fill="url(#colorValue)" 
-                    />
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "none", textAlign: "right" }} />
+                    <Area type="monotone" dataKey="value" stroke="#0456AE" strokeWidth={3} fillOpacity={1} fill="url(#colorValueLive)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
-          {/* Top Medicines */}
           <Card className="lg:col-span-1 border-none shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">Ø£Ø¹Ù„Ù‰ 5 Ø£Ø¯ÙˆÙŠØ© Ù…Ø·Ù„ÙˆØ¨Ø©</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-lg">ÃÚáì 5 ÃÏæíÉ ãØáæÈÉ</CardTitle></CardHeader>
             <CardContent className="space-y-6">
-              {topMedicines.map((med, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium text-slate-700">{med.name}</span>
-                    <span className="text-slate-500">{med.orders} Ø·Ù„Ø¨</span>
-                  </div>
-                  <Progress 
-                    value={med.percentage} 
-                    className="h-2 bg-slate-100" 
-                    indicatorClassName="bg-[#0456AE]"
-                  />
+              {data.top_medicines.slice(0, 5).map((med) => (
+                <div key={med.medicine_name} className="space-y-2">
+                  <div className="flex justify-between text-sm"><span className="font-medium text-slate-700">{med.medicine_name}</span><span className="text-slate-500">{med.orders} ØáÈ</span></div>
+                  <Progress value={(med.orders / topMax) * 100} className="h-2 bg-slate-100" indicatorClassName="bg-[#0456AE]" />
                 </div>
               ))}
-              <button className="w-full text-center text-sm font-medium text-primary hover:underline mt-4">
-                Ø¹Ø±Ø¶ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ÙƒØ§Ù…Ù„Ø©
-              </button>
             </CardContent>
           </Card>
         </div>
 
-        {/* Category Table */}
         <Card className="border-none shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg">ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ø­Ø³Ø¨ Ø§Ù„ÙØ¦Ø©</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-lg">ÊæÒíÚ ÇáØáÈÇÊ ÍÓÈ ÇáİÆÉ</CardTitle></CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="text-right text-[#5A6C85]">Ø§Ù„ÙØ¦Ø©</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">Ø¹Ø¯Ø¯ Ø§Ù„Ø·Ù„Ø¨Ø§Øª</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">Ø§Ù„Ù†Ù…Ùˆ</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">Ø§Ù„Ø­Ø§Ù„Ø©</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">ÇáİÆÉ</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">ÚÏÏ ÇáØáÈÇÊ</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">ÇáÅíÑÇÏÇÊ</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">ÇáÍÇáÉ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {categories.map((cat, i) => (
-                  <TableRow key={i} className="border-slate-50 hover:bg-slate-50/50 transition-colors">
+                {data.category_breakdown.map((cat) => (
+                  <TableRow key={cat.name} className="border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <TableCell className="font-medium text-primary">{cat.name}</TableCell>
                     <TableCell>{cat.orders}</TableCell>
-                    <TableCell>{cat.revenue}</TableCell>
-                    <TableCell className={cat.growthColor}>
-                      {cat.growth}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={`${cat.statusColor} border-none shadow-none font-medium`}>
-                        {cat.status}
-                      </Badge>
-                    </TableCell>
+                    <TableCell>{formatEgp(cat.revenue)}</TableCell>
+                    <TableCell><Badge className="bg-[#DBEAFE] text-[#1E40AF] border-none shadow-none font-medium">ãÓÊŞÑ</Badge></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -268,21 +112,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </main>
-
-      {/* Footer */}
-      <footer className="mt-12 border-t bg-white py-8">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-sm text-slate-500 flex items-center gap-1">
-            <span className="font-bold text-[#0058B0]">Healup</span>
-            <span>Â© 2024 ØªØ­Ù„ÙŠÙ„Ø§Øª Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ø°ÙƒÙŠØ©</span>
-          </div>
-          <div className="flex gap-6 text-sm font-medium text-slate-600">
-            <a href="#" className="hover:text-primary transition-colors">Ø§Ù„ØªÙ‚Ø§Ø±ÙŠØ±</a>
-            <a href="#" className="hover:text-primary transition-colors">Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª</a>
-            <a href="#" className="hover:text-primary transition-colors">Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
