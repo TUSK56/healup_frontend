@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
-import PatientProfileSource from "../../../../legacy-pages-sources/patient_profile_5/src/App";
+import PatientProfileLive from "./PatientProfileLive";
 
 export default function PatientProfileContent() {
-  return <PatientProfileSource />;
+  return <PatientProfileLive />;
 }

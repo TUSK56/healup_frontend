@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
-import PatientReviewOrderHistorySource from "../../../../legacy-pages-sources/patient_review_order_history_4/src/App";
+import PatientReviewOrderHistoryLive from "./PatientReviewOrderHistoryLive";
 
 export default function PatientReviewOrderHistoryContent() {
-  return <PatientReviewOrderHistorySource />;
+  return <PatientReviewOrderHistoryLive />;
 }

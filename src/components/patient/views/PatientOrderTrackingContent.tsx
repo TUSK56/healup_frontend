@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
-import PatientOrderTrackingSource from "../../../../legacy-pages-sources/patient-order-tracking_3/src/App";
+import PatientOrderTrackingLive from "./PatientOrderTrackingLive";
 
 export default function PatientOrderTrackingContent() {
-  return <PatientOrderTrackingSource />;
+  return <PatientOrderTrackingLive />;
 }
