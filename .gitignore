@@ -6,14 +6,3 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .DS_Store
-
-# Editor
-.vscode/
-
-# TypeScript
-tsconfig.tsbuildinfo
-
-# Legacy Vite copies (not part of Next.js app; break `next build` if tracked)
-legacy-pages-sources/
-pages/
-standalone-exports/

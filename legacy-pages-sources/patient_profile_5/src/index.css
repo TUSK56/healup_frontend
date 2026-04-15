@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Almarai", ui-sans-serif, system-ui, sans-serif;
+  --color-healup-blue: #0052cc;
+  --color-healup-light-blue: #e6f0ff;
+  --color-healup-bg: #f8fafc;
+}
+
+@layer base {
+  body {
+    @apply bg-healup-bg text-slate-900 antialiased;
+  }
+}
+
+.rtl {
+  direction: rtl;
+}

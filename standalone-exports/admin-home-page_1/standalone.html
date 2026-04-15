@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healup Admin Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- IBM Plex Sans Arabic Font -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Recharts -->
+    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: #F8FAFC;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { 
+            BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+            Tooltip, ResponsiveContainer, Cell 
+        } = Recharts;
+
+        // --- Simple Icon Component (SVG Paths) ---
+        const Icons = {
+            Dashboard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>,
+            Hospital: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 22V8a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"/><path d="M2 22h20"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/></svg>,
+            Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            Cart: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>,
+            File: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>,
+            Settings: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
+            Bell: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
+            Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+            Bag: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
+            Check: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>,
+            X: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            Wallet: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+        };
+
+        const SidebarItem = ({ icon: Icon, label, active = false }) => (
+            <div className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                active ? "bg-[#0055B3] text-white shadow-lg shadow-blue-900/20" : "text-slate-500 hover:bg-slate-100"
+            }`}>
+                <Icon />
+                <span className="font-medium">{label}</span>
+            </div>
+        );
+
+        const App = () => {
+            const stats = [
+                { title: 'إجمالي المرضى', value: '١٢,٤٥٠', change: '+١٢٪', icon: Icons.Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+                { title: 'الصيدليات المسجلة', value: '٨٤٢', change: '+٥٪', icon: Icons.Hospital, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                { title: 'طلبات اليوم', value: '١٥٦', change: '+٨٪', icon: Icons.File, color: 'text-sky-600', bg: 'bg-sky-50' },
+                { title: 'إجمالي الإيرادات', value: '٤٥,٠٠٠ ج.م', change: '+١٥٪', icon: Icons.Wallet, color: 'text-blue-700', bg: 'bg-blue-100' }
+            ];
+
+            const chartData = [
+                { name: 'السبت', value: 40 }, { name: 'الأحد', value: 65 }, { name: 'الاثنين', value: 50 },
+                { name: 'الثلاثاء', value: 80 }, { name: 'الأربعاء', value: 112 }, { name: 'الخميس', value: 75 }, { name: 'الجمعة', value: 60 }
+            ];
+
+            return (
+                <div className="flex min-h-screen bg-[#F8FAFC]">
+                    {/* Sidebar */}
+                    <aside className="w-72 bg-white border-l border-slate-200 flex flex-col p-6 sticky top-0 h-screen">
+                        <div className="flex items-center gap-3 mb-10 px-2">
+                            <div className="w-10 h-10 bg-[#0055B3] rounded-xl flex items-center justify-center text-white font-bold text-xl">+</div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-[#0055B3] leading-tight">Healup</h1>
+                                <p className="text-xs text-slate-400 font-medium">لوحة الإدارة</p>
+                            </div>
+                        </div>
+                        <nav className="flex-1 flex flex-col gap-2">
+                            <SidebarItem icon={Icons.Dashboard} label="لوحة القيادة" active />
+                            <SidebarItem icon={Icons.Hospital} label="إدارة الصيدليات" />
+                            <SidebarItem icon={Icons.Users} label="إدارة المرضى" />
+                            <SidebarItem icon={Icons.Cart} label="الطلبات" />
+                            <SidebarItem icon={Icons.File} label="التقارير" />
+                        </nav>
+                        <div className="pt-6 border-t border-slate-100">
+                            <SidebarItem icon={Icons.Settings} label="الإعدادات" />
+                        </div>
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="flex-1 flex flex-col min-w-0">
+                        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+                            <div className="relative w-96">
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></span>
+                                <input type="text" placeholder="البحث عن طلبات..." className="w-full bg-slate-50 border-none rounded-xl py-2.5 pr-11 pl-4 text-sm outline-none" />
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <div className="flex items-center gap-3 pr-6 border-r border-slate-200">
+                                    <div className="text-left">
+                                        <p className="text-sm font-bold text-slate-900">أحمد علي</p>
+                                        <p className="text-[10px] text-slate-400 font-medium">مدير النظام</p>
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full bg-orange-100 border-2 border-white shadow-sm overflow-hidden">
+                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed" alt="User" />
+                                    </div>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div className="p-8 space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {stats.map((stat, i) => (
+                                    <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className={`p-3 rounded-xl ${stat.bg}`}><stat.icon className={stat.color} /></div>
+                                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{stat.change}</span>
+                                        </div>
+                                        <p className="text-slate-500 text-sm font-medium mb-1">{stat.title}</p>
+                                        <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                <div className="lg:col-span-3 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                    <h3 className="font-bold text-slate-900 mb-8">اتجاهات الطلبات الأسبوعية</h3>
+                                    <div className="h-[400px] w-full">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={chartData}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
+                                                <YAxis hide />
+                                                <Tooltip cursor={{ fill: '#f8fafc' }} />
+                                                <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={40}>
+                                                    {chartData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.value > 100 ? '#0055B3' : '#E2E8F0'} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                                    <h3 className="font-bold text-slate-900 mb-6">أحدث الطلبات</h3>
+                                    <div className="space-y-4 flex-1">
+                                        {['ORD-1245#', 'ORD-1244#', 'ORD-1243#'].map((id, i) => (
+                                            <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-slate-50">
+                                                <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 font-bold">#</div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold text-slate-900">{id}</p>
+                                                    <p className="text-xs text-slate-400">منذ {i*5+5} دقائق</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

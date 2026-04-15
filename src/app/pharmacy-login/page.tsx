@@ -32,17 +32,25 @@ export default function PharmacyLoginPage() {
   }
 
   return (
-    <div
-      dir="rtl"
-      style={{
-        fontFamily: "Cairo, sans-serif",
-        background: "#eef1f6",
-        color: "#1a2e4a",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <html lang="ar" dir="rtl">
+      <head>
+        <title>تسجيل دخول الصيدلية - Healup</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap"
+          rel="stylesheet"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body
+        style={{
+          fontFamily: "Cairo, sans-serif",
+          background: "#eef1f6",
+          color: "#1a2e4a",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* NAVBAR */}
         <nav
           style={{
@@ -360,7 +368,8 @@ export default function PharmacyLoginPage() {
         >
           © 2024 Healup. جميع الحقوق محفوظة للنظام الطبي المتكامل.
         </footer>
-    </div>
+      </body>
+    </html>
   );
 }
 

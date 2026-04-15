@@ -72,13 +72,7 @@ export const authService = {
   },
 
   async login(data: LoginPayload) {
-    const guard =
-      data.guard === 'user' ? 'patient' : data.guard === 'pharmacy' ? 'pharmacy' : 'admin';
-    const res = await api.post<AuthResponse>('/login', {
-      email: data.email,
-      password: data.password,
-      guard,
-    });
+    const res = await api.post<AuthResponse>('/login', data);
     return res.data;
   },
 
@@ -99,12 +93,6 @@ export const authService = {
     localStorage.setItem('healup_guard', guard);
     const entity = guard === 'pharmacy' ? data.pharmacy : data.user;
     localStorage.setItem('healup_user', JSON.stringify(entity || {}));
-    const expMs = decodeJwtExpMs(data.token);
-    if (expMs != null) {
-      localStorage.setItem('healup_token_expires_at', String(expMs));
-    } else {
-      localStorage.removeItem('healup_token_expires_at');
-    }
   },
 
   logout() {
@@ -113,7 +101,6 @@ export const authService = {
     localStorage.removeItem('healup_user');
     localStorage.removeItem('healup_guard');
     localStorage.removeItem('healup_guest');
-    localStorage.removeItem('healup_token_expires_at');
   },
 
   setGuestSession() {
@@ -121,7 +108,6 @@ export const authService = {
     localStorage.removeItem('healup_token');
     localStorage.removeItem('healup_user');
     localStorage.removeItem('healup_guard');
-    localStorage.removeItem('healup_token_expires_at');
     localStorage.setItem('healup_guest', 'true');
   },
 
@@ -151,27 +137,8 @@ export const authService = {
   },
 };
 
-/** Client-side JWT `exp` (ms since epoch), for diagnostics / future refresh UX. */
-function decodeJwtExpMs(token: string): number | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length < 2) return null;
-    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const pad = base64.length % 4;
-    if (pad) base64 += '='.repeat(4 - pad);
-    const json = atob(base64);
-    const payload = JSON.parse(json) as { exp?: number };
-    return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
-  } catch {
-    return null;
-  }
-}
-
 export function getAuthErrorMessage(error: unknown, fallbackMessage: string): string {
   const axiosError = error as AxiosError<ApiErrorPayload>;
-  if (!axiosError.response && axiosError.message === 'Network Error') {
-    return 'تعذر الاتصال بالخادم. تأكد من تشغيل واجهة HealUp API وإعداد NEXT_PUBLIC_API_URL.';
-  }
   const payload = axiosError.response?.data;
 
   if (payload?.errors && typeof payload.errors === 'object') {

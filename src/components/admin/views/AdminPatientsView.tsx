@@ -158,8 +158,8 @@ export default function AdminPatientsView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {patients.map((patient) => (
-                  <tr key={patient.id} className="transition-colors hover:bg-slate-50/50">
+                {patients.map((patient, index) => (
+                  <tr key={index} className="transition-colors hover:bg-slate-50/50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <img

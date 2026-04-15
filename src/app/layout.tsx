@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Cairo } from 'next/font/google';
-import RealtimeBridge from '@/components/RealtimeBridge';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -22,10 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${cairo.className}`}>
-      <body>
-        <RealtimeBridge />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

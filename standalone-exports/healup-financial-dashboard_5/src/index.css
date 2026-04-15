@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-primary: #0041AA;
+  --color-brand-secondary: #0456AE;
+}
+
+@layer base {
+  body {
+    @apply bg-[#F8FAFC] text-[#1E293B] antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+  }
+}
+
+.rtl {
+  direction: rtl;
+}

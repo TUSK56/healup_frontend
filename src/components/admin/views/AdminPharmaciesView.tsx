@@ -1,52 +1,61 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Store, CheckCircle, Clock, Search, Filter, Eye, ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
+import React, { useState } from "react";
+import {
+  Store,
+  CheckCircle,
+  Clock,
+  Search,
+  Filter,
+  Eye,
+  Edit2,
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+} from "lucide-react";
 import { motion } from "motion/react";
 
-type UiStatus = "active" | "inactive" | "pending";
-
-interface MockPharmacy {
-  id: number;
+interface Pharmacy {
+  id: string;
   name: string;
-  email: string;
-  phone: string;
-  license: string;
+  subtitle: string;
+  licenseNumber: string;
   region: string;
-  joinLabel: string;
-  status: UiStatus;
+  joinDate: string;
+  status: "active" | "inactive" | "pending";
+  initials: string;
 }
 
-const MOCK_PHARMACIES: MockPharmacy[] = [
+const MOCK_PHARMACIES: Pharmacy[] = [
   {
-    id: 1,
+    id: "1",
     name: "صيدلية العزبي",
-    email: "ezaby@example.com",
-    phone: "01000000001",
-    license: "LIC-88291#",
+    subtitle: "فرع المعادي، القاهرة",
+    licenseNumber: "LIC-88291#",
     region: "القاهرة",
-    joinLabel: "2024/03/01",
+    joinDate: "12 مايو 2023",
     status: "active",
+    initials: "ع",
   },
   {
-    id: 2,
-    name: "صيدليات مصر",
-    email: "misr@example.com",
-    phone: "01000000002",
-    license: "LIC-44512#",
+    id: "2",
+    name: "صيدلية مصر",
+    subtitle: "شارع التحرير، الدقي",
+    licenseNumber: "LIC-44512#",
     region: "الجيزة",
-    joinLabel: "2024/02/15",
+    joinDate: "05 يونيو 2023",
     status: "inactive",
+    initials: "م",
   },
   {
-    id: 3,
+    id: "3",
     name: "صيدلية 19011",
-    email: "19011@example.com",
-    phone: "01000000003",
-    license: "LIC-11982#",
+    subtitle: "حي سموحة، الإسكندرية",
+    licenseNumber: "LIC-11902#",
     region: "الإسكندرية",
-    joinLabel: "2024/01/20",
+    joinDate: "21 أغسطس 2023",
     status: "pending",
+    initials: "ص",
   },
 ];
 
@@ -80,25 +89,43 @@ function StatCard({
       <div className="flex flex-col items-start text-left">
         <h3 className="mb-1 text-3xl font-bold text-slate-800">{value}</h3>
         <div className="flex items-center gap-1">
-          <span className={`text-xs font-bold ${change.startsWith("+") ? "text-emerald-600" : "text-slate-400"}`}>{change}</span>
-          <span className="text-[10px] font-medium text-slate-400">عرض توضيحي</span>
+          <span
+            className={`text-xs font-bold ${change.startsWith("+") ? "text-emerald-600" : "text-rose-500"}`}
+          >
+            {change}
+          </span>
+          <span className="text-[10px] font-medium text-slate-400">هذا الشهر</span>
         </div>
       </div>
     </motion.div>
   );
 }
 
-function StatusBadge({ status }: { status: UiStatus }) {
+function StatusBadge({ status }: { status: Pharmacy["status"] }) {
   const configs = {
-    active: { label: "معتمد", bg: "bg-success-light", text: "text-success", dot: "bg-success" },
-    inactive: { label: "موقوف", bg: "bg-slate-50", text: "text-slate-500", dot: "bg-slate-300" },
+    active: { label: "نشط", bg: "bg-success-light", text: "text-success", dot: "bg-success" },
+    inactive: { label: "غير نشط", bg: "bg-slate-50", text: "text-slate-500", dot: "bg-slate-300" },
     pending: { label: "قيد المراجعة", bg: "bg-warning-light", text: "text-warning", dot: "bg-warning" },
   };
   const config = configs[status];
   return (
-    <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${config.bg} ${config.text}`}>
+    <div
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${config.bg} ${config.text}`}
+    >
       <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
       {config.label}
+    </div>
+  );
+}
+
+function Toggle({ active }: { active: boolean }) {
+  return (
+    <div
+      className={`relative h-5 w-10 cursor-pointer rounded-full transition-colors ${active ? "bg-success" : "bg-slate-200"}`}
+    >
+      <div
+        className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${active ? "left-1" : "left-6"}`}
+      />
     </div>
   );
 }
@@ -106,28 +133,12 @@ function StatusBadge({ status }: { status: UiStatus }) {
 export default function AdminPharmaciesView() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return MOCK_PHARMACIES;
-    return MOCK_PHARMACIES.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.email.toLowerCase().includes(q) ||
-        p.license.toLowerCase().includes(q)
-    );
-  }, [searchQuery]);
-
-  const initials = (name: string) => {
-    const t = name.trim();
-    return t ? t.charAt(0) : "?";
-  };
-
   return (
     <div className="flex min-w-0 flex-1 flex-col bg-[#F8FAFC]">
       <main className="space-y-8 p-10">
         <section className="space-y-1">
           <h1 className="text-3xl font-bold text-[#0355AE]">إدارة الصيدليات</h1>
-          <p className="font-medium text-slate-500">عرض توضيحي — الموافقة على الطلبات الجديدة تتم من لوحة القيادة</p>
+          <p className="font-medium text-slate-500">متابعة وإدارة كافة الصيدليات المسجلة في منصة Healup</p>
         </section>
 
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -140,7 +151,7 @@ export default function AdminPharmaciesView() {
             iconBgClass="bg-brand-light"
           />
           <StatCard
-            title="صيدليات معتمدة"
+            title="صيدليات نشطة"
             value="1,180"
             change="+2%"
             icon={CheckCircle}
@@ -148,7 +159,7 @@ export default function AdminPharmaciesView() {
             iconBgClass="bg-emerald-50"
           />
           <StatCard
-            title="بانتظار الموافقة"
+            title="طلبات انضمام جديدة"
             value="45"
             change="+12%"
             icon={Clock}
@@ -163,13 +174,20 @@ export default function AdminPharmaciesView() {
               <Search className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="ابحث باسم الصيدلية، البريد، أو رقم الترخيص..."
+                placeholder="ابحث باسم الصيدلية، رقم الترخيص، أو المنطقة..."
                 className="w-full rounded-2xl border border-slate-100 bg-slate-50 py-3 pl-4 pr-12 text-sm transition-all focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <div className="flex w-full gap-3 md:w-auto">
+              <button
+                type="button"
+                className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none"
+              >
+                <span>كل المناطق</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
               <button
                 type="button"
                 className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none"
@@ -193,47 +211,54 @@ export default function AdminPharmaciesView() {
                 <tr className="bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
                   <th className="px-6 py-4">اسم الصيدلية</th>
                   <th className="px-6 py-4">رقم الترخيص</th>
-                  <th className="px-6 py-4">البريد</th>
                   <th className="px-6 py-4">المنطقة</th>
-                  <th className="px-6 py-4">تاريخ التسجيل</th>
+                  <th className="px-6 py-4">تاريخ الانضمام</th>
                   <th className="px-6 py-4 text-center">الحالة</th>
                   <th className="px-6 py-4 text-left">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filtered.map((pharmacy, idx) => (
+                {MOCK_PHARMACIES.map((pharmacy, idx) => (
                   <motion.tr
                     key={pharmacy.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: Math.min(idx * 0.03, 0.4) }}
+                    transition={{ delay: idx * 0.1 }}
                     className="group transition-colors hover:bg-slate-50/50"
                   >
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light text-lg font-bold text-brand">
-                          {initials(pharmacy.name)}
+                          {pharmacy.initials}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-800">{pharmacy.name}</p>
-                          <p className="text-[10px] font-medium text-slate-400">{pharmacy.phone}</p>
+                          <p className="text-[10px] font-medium text-slate-400">{pharmacy.subtitle}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5 font-mono text-sm text-slate-500">{pharmacy.license}</td>
-                    <td className="px-6 py-5 text-sm text-slate-600">{pharmacy.email}</td>
-                    <td className="px-6 py-5 text-sm text-slate-600">{pharmacy.region}</td>
-                    <td className="px-6 py-5 text-sm text-slate-500">{pharmacy.joinLabel}</td>
+                    <td className="px-6 py-5 font-mono text-sm text-slate-500">{pharmacy.licenseNumber}</td>
+                    <td className="px-6 py-5 text-sm font-medium text-slate-600">{pharmacy.region}</td>
+                    <td className="px-6 py-5 text-sm text-slate-500">{pharmacy.joinDate}</td>
                     <td className="px-6 py-5">
-                      <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-center gap-4">
+                        {pharmacy.status !== "pending" && <Toggle active={pharmacy.status === "active"} />}
                         <StatusBadge status={pharmacy.status} />
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <span className="text-xs text-slate-400">—</span>
-                        <button type="button" className="rounded-lg p-2 text-slate-400 hover:bg-brand-light hover:text-brand" title="عرض">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          className="rounded-lg p-2 text-slate-400 transition-all hover:bg-brand-light hover:text-brand"
+                        >
                           <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-lg p-2 text-slate-400 transition-all hover:bg-brand-light hover:text-brand"
+                        >
+                          <Edit2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
@@ -245,18 +270,48 @@ export default function AdminPharmaciesView() {
 
           <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-100 p-6 md:flex-row">
             <p className="text-sm font-medium text-slate-400">
-              عرض <span className="font-bold text-slate-800">{filtered.length}</span> صفوف (عرض توضيحي)
+              عرض <span className="font-bold text-slate-800">1-10</span> من أصل{" "}
+              <span className="font-bold text-slate-800">1,250</span> صيدلية
             </p>
-            <div className="flex items-center gap-2 opacity-40">
-              <ChevronRight className="h-4 w-4" />
-              <ChevronLeft className="h-4 w-4" />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, "...", 125].map((page, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
+                      page === 1
+                        ? "bg-brand text-white shadow-lg"
+                        : page === "..."
+                          ? "cursor-default text-slate-400"
+                          : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </section>
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-100 px-10 py-8 text-center">
-        <p className="text-xs font-medium text-slate-400">© Healup — إدارة الصيدليات (بيانات تجريبية)</p>
+        <p className="text-xs font-medium text-slate-400">
+          © 2024 Healup. جميع الحقوق محفوظة لنظام إدارة الخدمات الطبية.
+        </p>
       </footer>
     </div>
   );

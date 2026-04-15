@@ -276,11 +276,6 @@
   flex: 1;
 }
 
-.pharmacyDashboard .pharmacy-content-shell {
-  padding: 24px;
-  flex: 1;
-}
-
 /* STATS */
 .pharmacyDashboard .stats-grid {
   display: grid;

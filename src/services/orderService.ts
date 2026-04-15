@@ -17,8 +17,8 @@ export interface Order {
   total_price: number;
   status: string;
   created_at: string;
-  pharmacy?: { id: number; name: string; latitude?: number | null; longitude?: number | null };
-  patient?: { id: number; name: string; latitude?: number | null; longitude?: number | null };
+  pharmacy?: { id: number; name: string };
+  patient?: { id: number; name: string };
   items?: OrderItem[];
 }
 
@@ -33,18 +33,8 @@ export const orderService = {
     return res.data;
   },
 
-  async getById(orderId: number) {
-    const res = await api.get<Order>(`/orders/${orderId}`);
-    return res.data;
-  },
-
   async updateStatus(orderId: number, status: string) {
     const res = await api.patch<{ message: string; order: Order }>('/orders/status', { order_id: orderId, status });
-    return res.data;
-  },
-
-  async patientConfirm(orderId: number) {
-    const res = await api.patch<{ message: string; order: Order }>(`/orders/${orderId}/patient-confirm`);
     return res.data;
   },
 };
