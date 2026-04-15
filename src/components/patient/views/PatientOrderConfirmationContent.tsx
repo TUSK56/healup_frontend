@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import PatientOrderConfirmationSource from "../../../../legacy-pages-sources/patient-order-confirmation_1/src/App";
+import PatientOrderConfirmationLive from "./PatientOrderConfirmationLive";
 
 export default function PatientOrderConfirmationContent() {
-  return <PatientOrderConfirmationSource />;
+  return <PatientOrderConfirmationLive />;
 }
