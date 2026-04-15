@@ -11,6 +11,9 @@ export interface IncomingMedicineRequestRow {
     id: number;
     status: string;
     expires_at: string;
+    created_at: string;
+    prescription_url: string | null;
+    patient: { id: number; name: string };
     medicines: IncomingRequestMedicine[];
   };
   distance_km: number | null;
