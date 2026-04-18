@@ -9,7 +9,7 @@ export interface HealUpNotification {
 let connection: signalR.HubConnection | null = null;
 
 function getHubUrl() {
-  const api = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const api = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
   const path = process.env.NEXT_PUBLIC_SIGNALR_HUB_PATH || '/hubs/notifications';
   return `${api}${path}`;
 }

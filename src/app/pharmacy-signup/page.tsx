@@ -3,6 +3,9 @@ import React from "react";
 import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import dynamic from "next/dynamic";
+
+const LeafletPicker = dynamic(() => import("@/components/pharmacy/views/PharmacyProfileLeaflet"), { ssr: false });
 
 export default function PharmacySignupPage() {
   const router = useRouter();
@@ -17,6 +20,58 @@ export default function PharmacySignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [governorate, setGovernorate] = useState("");
   const [district, setDistrict] = useState("");
+  const [addressDetails, setAddressDetails] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [focusToken, setFocusToken] = useState(0);
+
+  const onPickLocation = async (lat: number, lng: number) => {
+    setLatitude(lat);
+    setLongitude(lng);
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=ar`;
+      const response = await fetch(url, { headers: { Accept: "application/json" } });
+      const data = await response.json();
+      const address = data?.address ?? {};
+
+      const city = address.city || address.town || address.state || address.county || "";
+      const districtName = address.suburb || address.neighbourhood || address.quarter || address.city_district || "";
+      const details = data?.display_name || "";
+
+      setGovernorate(city);
+      setDistrict(districtName);
+      setAddressDetails(details);
+    } catch {
+      // Keep coordinates even if reverse geocoding fails.
+    }
+  };
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setError("المتصفح لا يدعم تحديد الموقع الجغرافي.");
+      return;
+    }
+
+    setError(null);
+    setLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = Number(position.coords.latitude.toFixed(6));
+        const lng = Number(position.coords.longitude.toFixed(6));
+        await onPickLocation(lat, lng);
+        setFocusToken((x) => x + 1);
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        setError("تعذر الحصول على موقعك الحالي. تأكد من السماح بخدمة الموقع.");
+      },
+      { enableHighAccuracy: true, timeout: 15000 }
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +89,12 @@ export default function PharmacySignupPage() {
         email,
         phone: phone || undefined,
         licenseNumber: licenseNumber || undefined,
+        responsiblePharmacistName: managerName || undefined,
+        city: governorate || undefined,
+        district: district || undefined,
+        addressDetails: addressDetails || undefined,
+        latitude: latitude ?? undefined,
+        longitude: longitude ?? undefined,
         password,
         passwordConfirmation: confirmPassword,
       });
@@ -155,16 +216,29 @@ export default function PharmacySignupPage() {
               <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#2356c8' }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             </div>
             <div style={{ display: 'flex', gap: 14, marginBottom: 12 }}>
-              <select value={governorate} onChange={(e) => setGovernorate(e.target.value)} style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#9aa3b0', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', appearance: 'none', cursor: 'pointer' }}>
-                <option value="" disabled>اختر المحافظة</option>
-                <option>القاهرة</option>
-                <option>الجيزة</option>
-                <option>الإسكندرية</option>
-                <option>الشرقية</option>
-              </select>
-              <select value={district} onChange={(e) => setDistrict(e.target.value)} style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#9aa3b0', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', appearance: 'none', cursor: 'pointer' }}>
-                <option value="" disabled>اختر الحي / المنطقة</option>
-              </select>
+              <input
+                type="text"
+                value={governorate}
+                onChange={(e) => setGovernorate(e.target.value)}
+                placeholder="المحافظة / المدينة"
+                style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl' }}
+              />
+              <input
+                type="text"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                placeholder="الحي / المنطقة"
+                style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl' }}
+              />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <input
+                type="text"
+                value={addressDetails}
+                onChange={(e) => setAddressDetails(e.target.value)}
+                placeholder="العنوان بالتفصيل"
+                style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl' }}
+              />
             </div>
             {error ? (
               <div style={{ marginBottom: 14, fontSize: 13, fontWeight: 600, color: '#b91c1c', textAlign: 'right' }}>
@@ -173,10 +247,25 @@ export default function PharmacySignupPage() {
             ) : null}
             {/* Map placeholder */}
             <div style={{ position: 'relative', marginBottom: 22 }}>
-              <div style={{ width: '100%', height: 160, borderRadius: 12, background: '#e8ecf4', border: '1.5px solid #dde3ed', position: 'relative', zIndex: 0 }} />
+              <div style={{ width: '100%', height: 220, borderRadius: 12, border: '1.5px solid #dde3ed', position: 'relative', zIndex: 0, overflow: 'hidden' }}>
+                <LeafletPicker
+                  latitude={latitude ?? 30.0444}
+                  longitude={longitude ?? 31.2357}
+                  onPick={onPickLocation}
+                  focusToken={focusToken}
+                />
+              </div>
               <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'white', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#9aa3b0', zIndex: 999, pointerEvents: 'none', direction: 'rtl' }}>
                 انقر لتحديد موقع الصيدلية بدقة
               </div>
+              <button
+                type="button"
+                onClick={handleGetCurrentLocation}
+                disabled={locating}
+                style={{ position: 'absolute', bottom: 10, left: 10, background: locating ? '#6b88de' : '#2356c8', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 12px', fontSize: 12, fontWeight: 700, cursor: locating ? 'not-allowed' : 'pointer', zIndex: 1000 }}
+              >
+                {locating ? 'جاري تحديد الموقع...' : 'تحديد الموقع الحالي'}
+              </button>
             </div>
             {/* Submit */}
             <button type="submit" disabled={isSubmitting} style={{ width: '100%', padding: 16, background: isSubmitting ? '#6b88de' : '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, direction: 'rtl' }}>

@@ -18,6 +18,10 @@ export interface PharmacyRegister {
   email: string;
   phone?: string;
   licenseNumber?: string;
+  responsiblePharmacistName?: string;
+  city?: string;
+  district?: string;
+  addressDetails?: string;
   password: string;
   passwordConfirmation: string;
   latitude?: number;

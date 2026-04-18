@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ShoppingBag,
   CheckCircle,
@@ -22,6 +22,7 @@ import {
 } from "recharts";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { adminService, AdminPharmacy } from "@/services/adminService";
 
 const stats = [
   {
@@ -95,31 +96,74 @@ const chartData = [
   { name: "الجمعة", value: 60 },
 ];
 
-const pharmacyRequests = [
-  {
-    name: "صيدلية الشفاء",
-    location: "القاهرة، حي المعادي",
-    license: "#99283741",
-    status: "بانتظار المراجعة",
-    avatar: "https://picsum.photos/seed/pharm1/40/40",
-  },
-  {
-    name: "صيدلية الدواء بلس",
-    location: "الجيزة، شارع الهرم",
-    license: "#88273645",
-    status: "بانتظار المراجعة",
-    avatar: "https://picsum.photos/seed/pharm2/40/40",
-  },
-  {
-    name: "مركز العناية الطبية",
-    location: "الإسكندرية، حي سموحة",
-    license: "#77364512",
-    status: "بانتظار المراجعة",
-    avatar: "https://picsum.photos/seed/pharm3/40/40",
-  },
-];
-
 export default function AdminHomeView() {
+  const [pharmacyRequests, setPharmacyRequests] = useState<AdminPharmacy[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [requestsError, setRequestsError] = useState<string | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+
+  const pendingPharmacyRequests = useMemo(
+    () => pharmacyRequests.filter((p) => p.status === "pending"),
+    [pharmacyRequests]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPharmacyRequests = async () => {
+      setLoadingRequests(true);
+      setRequestsError(null);
+      try {
+        const data = await adminService.listPharmacies();
+        if (isMounted) {
+          setPharmacyRequests(data);
+        }
+      } catch {
+        if (isMounted) {
+          setRequestsError("تعذر تحميل طلبات الصيدليات الجديدة.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingRequests(false);
+        }
+      }
+    };
+
+    loadPharmacyRequests();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleApprove = async (id: number) => {
+    setActionLoadingId(id);
+    try {
+      await adminService.approvePharmacy(id);
+      setPharmacyRequests((prev) => prev.map((p) => (p.id === id ? { ...p, status: "approved" } : p)));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleReject = async (id: number) => {
+    setActionLoadingId(id);
+    try {
+      await adminService.disablePharmacy(id);
+      setPharmacyRequests((prev) => prev.map((p) => (p.id === id ? { ...p, status: "disabled" } : p)));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const formatLocation = (pharmacy: AdminPharmacy) => {
+    const city = (pharmacy.city || "").trim();
+    const district = (pharmacy.district || "").trim();
+    if (city && district) return `${city}، ${district}`;
+    if (city) return city;
+    if (district) return district;
+    return "غير محدد";
+  };
+
   return (
     <main className="flex min-w-0 flex-1 flex-col">
       <div className="space-y-8 p-8">
@@ -254,44 +298,65 @@ export default function AdminHomeView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {pharmacyRequests.map((req, i) => (
-                  <tr key={i} className="transition-colors hover:bg-slate-50/50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={req.avatar}
-                          alt=""
-                          className="h-10 w-10 rounded-xl object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                        <span className="font-bold text-slate-900">{req.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{req.location}</td>
-                    <td className="px-6 py-4 font-mono text-sm text-slate-500">{req.license}</td>
-                    <td className="px-6 py-4">
-                      <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-600">
-                        {req.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-blue-700"
-                        >
-                          قبول
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-lg bg-red-50 px-4 py-1.5 text-xs font-bold text-red-600 transition-colors hover:bg-red-100"
-                        >
-                          رفض
-                        </button>
-                      </div>
+                {loadingRequests ? (
+                  <tr>
+                    <td className="px-6 py-8 text-center text-sm text-slate-500" colSpan={5}>
+                      جاري تحميل طلبات الصيدليات...
                     </td>
                   </tr>
-                ))}
+                ) : requestsError ? (
+                  <tr>
+                    <td className="px-6 py-8 text-center text-sm text-red-600" colSpan={5}>
+                      {requestsError}
+                    </td>
+                  </tr>
+                ) : pendingPharmacyRequests.length === 0 ? (
+                  <tr>
+                    <td className="px-6 py-8 text-center text-sm text-slate-500" colSpan={5}>
+                      لا توجد طلبات صيدليات جديدة حالياً.
+                    </td>
+                  </tr>
+                ) : (
+                  pendingPharmacyRequests.map((req) => (
+                    <tr key={req.id} className="transition-colors hover:bg-slate-50/50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-sm font-bold text-blue-700">
+                            {req.name.slice(0, 1)}
+                          </div>
+                          <span className="font-bold text-slate-900">{req.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">{formatLocation(req)}</td>
+                      <td className="px-6 py-4 font-mono text-sm text-slate-500">{req.license_number || "-"}</td>
+                      <td className="px-6 py-4">
+                        <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-600">
+                          بانتظار المراجعة
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            disabled={actionLoadingId === req.id}
+                            onClick={() => handleApprove(req.id)}
+                            className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {actionLoadingId === req.id ? "..." : "قبول"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={actionLoadingId === req.id}
+                            onClick={() => handleReject(req.id)}
+                            className="rounded-lg bg-red-50 px-4 py-1.5 text-xs font-bold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            رفض
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
