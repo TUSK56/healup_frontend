@@ -1,7 +1,20 @@
 "use client";
 
-import PatientOrderTrackingSource from "../../../../legacy-pages-sources/patient-order-tracking_3/src/App";
+import { Suspense } from "react";
+import PatientOrderTrackingView from "@/components/patient/views/PatientOrderTrackingView";
+
+function TrackingFallback() {
+  return (
+    <div className="patient-order-tracking-wrap min-h-[40vh] bg-slate-50 px-4 py-10 text-center text-slate-500 rtl">
+      جاري التحميل…
+    </div>
+  );
+}
 
 export default function PatientOrderTrackingContent() {
-  return <PatientOrderTrackingSource />;
+  return (
+    <Suspense fallback={<TrackingFallback />}>
+      <PatientOrderTrackingView />
+    </Suspense>
+  );
 }

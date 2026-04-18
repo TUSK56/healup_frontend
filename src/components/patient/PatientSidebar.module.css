@@ -284,6 +284,23 @@
   margin-right: auto !important;
 }
 
+/* Order confirmation: centered column (reference public/patient-order-confirmation_1) */
+.shellMain :global(.patient-order-confirmation-wrap) {
+  width: 100%;
+}
+
+.shellMain :global(.patient-order-confirmation-wrap .max-w-3xl) {
+  max-width: 48rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.shellMain :global(.patient-order-tracking-wrap .max-w-6xl) {
+  max-width: 72rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 .icon {
   width: 22px;
   text-align: center;

@@ -1,135 +1,84 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import api from "@/services/apiService";
+import PharmacySidebar from "@/components/pharmacy/PharmacySidebar";
+import PharmacyTopNavbar from "@/components/pharmacy/PharmacyTopNavbar";
 import "./cart.css";
 
 export default function PharmacyDashboardPage() {
+  const router = useRouter();
+  const [nowTick, setNowTick] = React.useState(0);
+  const parseServerDate = React.useCallback((value: string) => {
+    const v = (value || "").trim();
+    if (!v) return new Date(0);
+    if (/[zZ]$/.test(v) || /[+-]\d\d:\d\d$/.test(v)) return new Date(v);
+    return new Date(`${v}Z`);
+  }, []);
+  const [newRequests, setNewRequests] = React.useState<
+    Array<{
+      id: number;
+      patient_name: string;
+      medicine_title: string;
+      created_at: string;
+    }>
+  >([]);
+  const [incomingTotal, setIncomingTotal] = React.useState(0);
+
+  const loadIncoming = React.useCallback(async () => {
+    try {
+      const res = await api.get<{
+        data: Array<{
+          request: {
+            id: number;
+            created_at: string;
+            patient: { name: string };
+            medicines: Array<{ medicine_name: string }>;
+            prescription_url: string | null;
+          };
+        }>;
+      }>("/pharmacy/requests");
+
+      const sorted = [...(res.data.data || [])].sort(
+        (a, b) =>
+          parseServerDate(b.request.created_at).getTime() -
+          parseServerDate(a.request.created_at).getTime(),
+      );
+      setIncomingTotal(sorted.length);
+      const rows = sorted.slice(0, 8).map((entry) => {
+        const request = entry.request;
+        const firstMedicine = request.medicines?.[0]?.medicine_name;
+        return {
+          id: request.id,
+          patient_name: request.patient?.name || "مريض",
+          medicine_title: firstMedicine || (request.prescription_url ? "وصفة طبية" : "طلب دواء"),
+          created_at: request.created_at,
+        };
+      });
+      setNewRequests(rows);
+    } catch {
+      setNewRequests([]);
+      setIncomingTotal(0);
+    }
+  }, [parseServerDate]);
+
+  React.useEffect(() => {
+    void loadIncoming();
+    const timer = window.setInterval(() => setNowTick((x) => x + 1), 30000);
+    return () => window.clearInterval(timer);
+  }, [loadIncoming]);
+
   return (
     <div className="pharmacyDashboard">
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="sidebar-logo">
-          <button className="logo-btn" type="button" aria-label="Healup logo">
-            {/* Medical bag icon (matches other pages) */}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-              <path d="M20 8h-4V6a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V10a2 2 0 00-2-2z" />
-              <path d="M12 8v8M8 12h8" />
-            </svg>
-          </button>
-          <span className="logo-text">Healup</span>
-        </div>
+      <PharmacySidebar active="home" />
 
-        <nav className="sidebar-nav">
-          <Link className="nav-item active" href="/pharmacy-dashboard">
-            <div className="nav-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="14" y="14" width="7" height="7" rx="1" />
-              </svg>
-            </div>
-            <span>الرئيسية</span>
-          </Link>
+      <div className="main" style={{ padding: 0 }}>
+        <PharmacyTopNavbar />
 
-          <Link className="nav-item" style={{ justifyContent: "space-between" }} href="/pharmacy-dashboard/new-orders">
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div className="nav-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-4 5h6v1.5H9V14zm0 3h4v1.5H9V17z" />
-                </svg>
-              </div>
-              <span>طلبات جديدة</span>
-            </div>
-            <span className="nav-badge">12</span>
-          </Link>
-
-          <Link className="nav-item" href="/pharmacy-dashboard/current-orders">
-            <div className="nav-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5v5.25l4.5 2.67-.75 1.23L11 13V7h1.5z" />
-              </svg>
-            </div>
-            <span>الطلبات الحالية</span>
-          </Link>
-
-          <Link className="nav-item" href="/pharmacy-dashboard/completed-orders">
-            <div className="nav-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z" />
-              </svg>
-            </div>
-            <span>الطلبات المكتملة</span>
-          </Link>
-
-          <Link className="nav-item" href="/pharmacy-dashboard/analytics">
-            <div className="nav-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
-                <path d="M5 20h2v-8H5v8zm4 0h2V4H9v16zm4 0h2v-5h-2v5zm4 0h2v-11h-2v11z" />
-              </svg>
-            </div>
-            <span>التحليلات</span>
-          </Link>
-
-        </nav>
-
-        <div className="sidebar-footer">
-          <Link href="/pharmacy-dashboard/profile-settings" className="settings-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
-              <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a6.93 6.93 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
-            </svg>
-            <span>الإعدادات</span>
-          </Link>
-        </div>
-      </aside>
-
-      {/* MAIN */}
-      <div className="main">
-        {/* TOPBAR */}
-        <header className="topbar">
-          <div className="search-bar">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input type="text" placeholder="بحث عن مريض أو دواء..." />
-          </div>
-
-          <div className="topbar-right">
-            <button className="topbar-icon-btn" type="button" style={{ position: "relative" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.73 21a2 2 0 01-3.46 0" />
-              </svg>
-              <span className="bell-dot" />
-            </button>
-
-            <button className="topbar-icon-btn" type="button" title="تغيير اللغة">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 8l6 6" />
-                <path d="M4 14l6-6 2-3" />
-                <path d="M2 5h12" />
-                <path d="M7 2h1" />
-                <path d="M22 22l-5-10-5 10" />
-                <path d="M14 18h6" />
-              </svg>
-            </button>
-
-            <div style={{ width: 1, height: 32, background: "var(--border)", margin: "0 4px" }} />
-
-            <Link href="/pharmacy-dashboard/profile-settings" className="profile">
-              <div className="profile-info">
-                <div className="profile-name">صيدلية النهدي</div>
-                <div className="profile-role">مدير الصيدلية</div>
-              </div>
-              <div className="profile-avatar">👨‍⚕️</div>
-            </Link>
-          </div>
-        </header>
-
-        {/* CONTENT */}
-        <div className="content">
-          {/* STATS */}
+        <div className="pharmacy-content-shell">
+          <div className="content">
+            {/* STATS */}
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-top">
@@ -139,7 +88,7 @@ export default function PharmacyDashboardPage() {
                 <span className="stat-badge badge-green">12%+</span>
               </div>
               <div className="stat-label">طلبات جديدة</div>
-              <div className="stat-value">12</div>
+              <div className="stat-value">{incomingTotal}</div>
             </div>
 
             <div className="stat-card">
@@ -203,9 +152,9 @@ export default function PharmacyDashboardPage() {
                   </svg>
                   <span className="section-title">طلبات جديدة</span>
                 </div>
-                <a href="#" style={{ fontSize: 12, color: "var(--blue)", textDecoration: "none", fontWeight: 600 }}>
+                <Link href="/pharmacy-dashboard/new-orders" style={{ fontSize: 12, color: "var(--blue)", textDecoration: "none", fontWeight: 600 }}>
                   عرض الكل
-                </a>
+                </Link>
               </div>
 
               <div className="section-card" style={{ paddingTop: 12 }}>
@@ -219,95 +168,76 @@ export default function PharmacyDashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td style={{ textAlign: "center" }}>
-                        <div className="patient-row" style={{ justifyContent: "center" }}>
-                          <div className="patient-avatar" style={{ background: "#fde68a" }}>
-                            👤
+                    {newRequests.map((row, idx) => (
+                      <tr key={row.id}>
+                        <td style={{ textAlign: "center" }}>
+                          <div className="patient-row" style={{ justifyContent: "center" }}>
+                            <div className="patient-avatar" style={{ background: idx % 2 === 0 ? "#fde68a" : "#d9f99d" }}>👤</div>
+                            <span>{row.patient_name}</span>
                           </div>
-                          <span>أحمد محمد</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div className="med-row" style={{ justifyContent: "center" }}>
-                          <div className="med-thumb">📋</div>
-                          <span>وصفة طبية #442</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <span className="time-text">منذ 5 دقائق</span>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                          <button className="pill pill-green" style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#dcfce7", color: "#16a34a" }} type="button">
-                            متوفر
-                          </button>
-                          <button className="pill pill-red" style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#fee2e2", color: "#dc2626" }} type="button">
-                            غير متوفر
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td style={{ textAlign: "center" }}>
-                        <div className="patient-row" style={{ justifyContent: "center" }}>
-                          <div className="patient-avatar" style={{ background: "#fca5a5" }}>
-                            👤
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          <div className="med-row" style={{ justifyContent: "center" }}>
+                            <div className="med-thumb">📋</div>
+                            <span>{row.medicine_title}</span>
                           </div>
-                          <span>سارة أحمد</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div className="med-row" style={{ justifyContent: "center" }}>
-                          <div className="med-thumb">💊</div>
-                          <span>بانادول اكسترا</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <span className="time-text">منذ 12 دقيقة</span>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                          <button className="pill pill-green" style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#dcfce7", color: "#16a34a" }} type="button">
-                            متوفر
-                          </button>
-                          <button className="pill pill-red" style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#fee2e2", color: "#dc2626" }} type="button">
-                            غير متوفر
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td style={{ textAlign: "center" }}>
-                        <div className="patient-row" style={{ justifyContent: "center" }}>
-                          <div className="patient-avatar" style={{ background: "#d9f99d" }}>
-                            👤
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          <span className="time-text">
+                            {(() => {
+                              // reference nowTick so it updates live
+                              void nowTick;
+                              const created = parseServerDate(row.created_at).getTime();
+                              const diffMs = Math.max(0, Date.now() - created);
+                              const sec = Math.floor(diffMs / 1000);
+                              if (sec < 60) return "الآن";
+                              const minutes = Math.floor(sec / 60);
+                              if (minutes < 60) return minutes === 1 ? "منذ دقيقة" : `منذ ${minutes} دقيقة`;
+                              const hours = Math.floor(minutes / 60);
+                              if (hours < 24) return hours === 1 ? "منذ ساعة" : `منذ ${hours} ساعة`;
+                              const days = Math.floor(hours / 24);
+                              return days === 1 ? "منذ يوم" : `منذ ${days} يوم`;
+                            })()}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                            <button
+                              className="pill pill-green"
+                              style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#dcfce7", color: "#16a34a" }}
+                              type="button"
+                              onClick={() => router.push(`/pharmacy-dashboard/new-orders?openRequestId=${row.id}`)}
+                            >
+                              متوفر
+                            </button>
+                            <button
+                              className="pill pill-red"
+                              style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#fee2e2", color: "#dc2626" }}
+                              type="button"
+                              onClick={() => {
+                                void (async () => {
+                                  try {
+                                    await api.post(`/pharmacy/requests/${row.id}/decline`);
+                                    await loadIncoming();
+                                  } catch {
+                                    // no-op
+                                  }
+                                })();
+                              }}
+                            >
+                              غير متوفر
+                            </button>
                           </div>
-                          <span>خالد علي</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div className="med-row" style={{ justifyContent: "center" }}>
-                          <div className="med-thumb">🧴</div>
-                          <span>أوجمنتين أجم</span>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <span className="time-text">منذ 20 دقيقة</span>
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                          <button className="pill pill-green" style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#dcfce7", color: "#16a34a" }} type="button">
-                            متوفر
-                          </button>
-                          <button className="pill pill-red" style={{ padding: "5px 12px", borderRadius: 8, border: "none", background: "#fee2e2", color: "#dc2626" }} type="button">
-                            غير متوفر
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                    ))}
+                    {newRequests.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: "center", color: "#64748b", padding: "14px" }}>
+                          لا توجد طلبات جديدة حالياً.
+                        </td>
+                      </tr>
+                    ) : null}
                   </tbody>
                 </table>
               </div>
@@ -434,6 +364,7 @@ export default function PharmacyDashboardPage() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

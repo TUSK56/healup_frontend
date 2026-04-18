@@ -44,7 +44,7 @@ export default function OrderConfirmation() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* Success Card */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}

@@ -5,61 +5,152 @@
 
 import { Bell, User, Phone, Mail, Share2, PlusSquare, CheckCircle2, XCircle, Clock, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { requestService, Request } from '../../../src/services/requestService';
+import { orderService } from '../../../src/services/orderService';
 
-interface Order {
+interface OrderCardView {
   id: string;
   number: string;
   status: 'processing' | 'delivered' | 'cancelled';
   statusLabel: string;
+  orderId: number | null;
   date: string;
   pharmacy: string;
   price: string;
-  oldPrice?: string;
+  /** When true, list price is cart estimate until pharmacy confirms line prices */
+  priceIsEstimate: boolean;
   contents: string;
+  hasOffers: boolean;
+  latestOfferResponseId: number | null;
 }
 
-const orders: Order[] = [
-  {
-    id: '1',
-    number: '9872541',
-    status: 'processing',
-    statusLabel: 'جاري التجهيز',
-    date: '24 مايو 2023',
-    pharmacy: 'صيدلية النهدي',
-    price: '150.00 ج.م',
-    oldPrice: '150.00 ج.م',
-    contents: 'بانادول أكسترا، فيتامين سي، معقم يدين',
-  },
-  {
-    id: '2',
-    number: '9872540',
-    status: 'delivered',
-    statusLabel: 'تم التسليم',
-    date: '20 مايو 2023',
-    pharmacy: 'صيدلية الدواء',
-    price: '85.00 ج.م',
-    oldPrice: '85.00 ج.م',
-    contents: 'أومول 500 ملغ، شاش طبي',
-  },
-  {
-    id: '3',
-    number: '9872539',
-    status: 'cancelled',
-    statusLabel: 'ملغي',
-    date: '15 مايو 2023',
-    pharmacy: 'صيدلية وايتس',
-    price: '210.00 ج.م',
-    oldPrice: '210.00 ج.م',
-    contents: 'ميزان حرارة ديجيتال، كمامات طبية',
-  },
-];
+const parseServerDate = (value: string) => {
+  const v = (value || '').trim();
+  if (!v) return new Date(0);
+  // Backend returns DateTime which may serialize without timezone; treat as UTC to avoid +2h drift.
+  if (/[zZ]$/.test(v) || /[+-]\d\d:\d\d$/.test(v)) return new Date(v);
+  return new Date(`${v}Z`);
+};
+
+const toRelativeArabic = (value: string) => {
+  const created = parseServerDate(value).getTime();
+  const diffMs = Math.max(0, Date.now() - created);
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) return 'الآن';
+  const minutes = Math.floor(sec / 60);
+  if (minutes < 60) return minutes === 1 ? 'منذ دقيقة' : `منذ ${minutes} دقيقة`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours === 1 ? 'منذ ساعة' : `منذ ${hours} ساعة`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? 'منذ يوم' : `منذ ${days} يوم`;
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('الكل');
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [orderByRequest, setOrderByRequest] = useState<Record<number, { id: number; status: string; created_at: string }>>({});
+  const [loading, setLoading] = useState(true);
 
   const tabs = ['الكل', 'قيد التنفيذ', 'المكتملة', 'الملغاة'];
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [reqRes, orderRes] = await Promise.all([requestService.list(), orderService.list().catch(() => ({ data: [] }))]);
+        setRequests(reqRes.data || []);
+
+        const byRequest: Record<number, { id: number; status: string; created_at: string }> = {};
+        for (const order of orderRes.data || []) {
+          if (!Number.isFinite(order.request_id)) continue;
+          const existing = byRequest[order.request_id];
+          if (!existing) {
+            byRequest[order.request_id] = {
+              id: order.id,
+              status: order.status,
+              created_at: order.created_at,
+            };
+            continue;
+          }
+          const existingTs = parseServerDate(existing.created_at).getTime();
+          const nextTs = parseServerDate(order.created_at).getTime();
+          if (nextTs >= existingTs) {
+            byRequest[order.request_id] = {
+              id: order.id,
+              status: order.status,
+              created_at: order.created_at,
+            };
+          }
+        }
+        setOrderByRequest(byRequest);
+      } finally {
+        setLoading(false);
+      }
+    };
+    void load();
+  }, []);
+
+  const orders = useMemo<OrderCardView[]>(() => {
+    return requests.map((request) => {
+      const linkedOrder = orderByRequest[request.id];
+      const linkedStatus = (linkedOrder?.status || '').toLowerCase();
+      const hasLinkedOrder = Boolean(linkedOrder?.id);
+      const isCompletedOrder = linkedStatus === 'completed';
+
+      const status: OrderCardView['status'] =
+        request.status === 'cancelled' ? 'cancelled' : isCompletedOrder ? 'delivered' : 'processing';
+
+      const statusLabel =
+        request.status === 'cancelled'
+          ? 'ملغي'
+          : isCompletedOrder
+          ? 'تم التسليم'
+          : hasLinkedOrder
+          ? 'قيد التنفيذ'
+          : request.status === 'active'
+          ? 'بانتظار رد من الصيدليه'
+          : 'قيد التنفيذ';
+
+      const fromOffer =
+        Boolean(request.uses_latest_offer_pricing) &&
+        typeof request.latest_offer_grand_total === 'number' &&
+        Number.isFinite(request.latest_offer_grand_total);
+      const priceNum = fromOffer ? request.latest_offer_grand_total! : request.estimated_total;
+      const pharmacyName =
+        (request.latest_pharmacy_name && String(request.latest_pharmacy_name).trim()) ||
+        'بانتظار اختيار الصيدلية';
+
+      return {
+        id: String(request.id),
+        number: String(request.id),
+        status,
+        statusLabel,
+        orderId: linkedOrder?.id ?? null,
+        date: toRelativeArabic(request.created_at),
+        pharmacy: pharmacyName,
+        price: typeof priceNum === 'number' && Number.isFinite(priceNum) ? `${priceNum.toFixed(2)}` : '--',
+        priceIsEstimate: !fromOffer,
+        contents:
+          request.medicines && request.medicines.length > 0
+            ? request.medicines.map((m) => `${m.medicine_name} × ${m.quantity}`).join('، ')
+            : request.prescription_url
+            ? 'طلب بوصفة طبية'
+            : 'طلب جديد',
+        hasOffers: Boolean(request.has_offers),
+        latestOfferResponseId: typeof request.latest_offer_response_id === 'number' ? request.latest_offer_response_id : null,
+      };
+    });
+  }, [requests, orderByRequest]);
+
+  const filteredOrders = useMemo(() => {
+    if (activeTab === 'الكل') return orders;
+    if (activeTab === 'قيد التنفيذ') return orders.filter((o) => o.status === 'processing');
+    if (activeTab === 'المكتملة') return orders.filter((o) => o.status === 'delivered');
+    if (activeTab === 'الملغاة') return orders.filter((o) => o.status === 'cancelled');
+    return orders;
+  }, [activeTab, orders]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900" dir="rtl">
@@ -146,7 +237,19 @@ export default function App() {
 
         {/* Orders List */}
         <div className="space-y-8 max-w-6xl mx-auto">
-          {orders.map((order, index) => (
+          {loading ? (
+            <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-gray-100 text-center text-gray-500">
+              جاري تحميل الطلبات...
+            </div>
+          ) : null}
+
+          {!loading && filteredOrders.length === 0 ? (
+            <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-gray-100 text-center text-gray-500">
+              لا توجد طلبات حالياً.
+            </div>
+          ) : null}
+
+          {filteredOrders.map((order, index) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -192,10 +295,14 @@ export default function App() {
                       <Clock size={16} />
                       <span>{order.date}</span>
                     </div>
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-gray-300 line-through text-sm">{order.oldPrice}</span>
+                    <div className="flex flex-wrap items-baseline gap-2">
                       <span className="text-lg font-black text-gray-900">{order.price}</span>
                       <span className="text-xs text-gray-400">ج.م</span>
+                      {order.price !== '--' && order.priceIsEstimate ? (
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-extrabold text-amber-800">
+                          تقديري
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
@@ -205,14 +312,25 @@ export default function App() {
 
                   {/* Actions */}
                   <div className="flex flex-row gap-3 pt-2">
-                    {order.status === 'processing' && (
-                      <Link href="/patient-order-tracking" className="px-10 bg-[#0052CC] text-white py-3 rounded-xl font-black text-sm hover:bg-[#0041a3] transition-all inline-flex items-center justify-center">
-                        تتبع الطلب
-                      </Link>
-                    )}
-                    <Link href="/patient-review-order-history" className="px-10 bg-white border border-gray-200 text-gray-600 py-3 rounded-xl font-black text-sm hover:bg-gray-50 transition-all inline-flex items-center justify-center">
+                    <Link href={`/patient-review-order-history?requestId=${encodeURIComponent(order.id)}`} className="px-10 bg-white border border-gray-200 text-gray-600 py-3 rounded-xl font-black text-sm hover:bg-gray-50 transition-all inline-flex items-center justify-center">
                       تفاصيل الطلب
                     </Link>
+                    {!order.orderId && order.hasOffers && order.latestOfferResponseId ? (
+                      <Link
+                        href={`/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(order.id)}&responseId=${encodeURIComponent(String(order.latestOfferResponseId))}`}
+                        className="px-10 bg-[#0052CC] border border-[#0052CC] text-white py-3 rounded-xl font-black text-sm hover:opacity-90 transition-all inline-flex items-center justify-center"
+                      >
+                        تأكيد الطلب
+                      </Link>
+                    ) : null}
+                    {order.orderId && order.status !== 'delivered' ? (
+                      <Link
+                        href={`/patient-order-tracking?orderId=${encodeURIComponent(String(order.orderId))}`}
+                        className="px-10 bg-[#0052CC] border border-[#0052CC] text-white py-3 rounded-xl font-black text-sm hover:opacity-90 transition-all inline-flex items-center justify-center"
+                      >
+                        تتبع الطلب
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
               </div>

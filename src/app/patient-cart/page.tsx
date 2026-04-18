@@ -4,6 +4,7 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authService, getAuthErrorMessage } from "@/services/authService";
+import { requestService } from "@/services/requestService";
 import PatientShell from "@/components/patient/PatientShell";
 import {
   getCart,
@@ -80,6 +81,23 @@ function buildDrinkDesc(drinkType: string, volume: string): string {
   return `${drinkType}، ${volume} مل`;
 }
 
+function dataUrlToFile(dataUrl: string, filename: string): File | null {
+  try {
+    const parts = dataUrl.split(",");
+    if (parts.length < 2) return null;
+    const mimeMatch = parts[0].match(/data:(.*?);base64/);
+    const mime = mimeMatch?.[1] || "image/jpeg";
+    const binary = atob(parts[1]);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new File([bytes], filename, { type: mime });
+  } catch {
+    return null;
+  }
+}
+
 export default function PatientCartPage() {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
@@ -132,6 +150,7 @@ export default function PatientCartPage() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isLoginSubmitting, setIsLoginSubmitting] = useState(false);
   const drugNameInputRef = useRef<HTMLInputElement>(null);
   const modalPrescriptionInputRef = useRef<HTMLInputElement>(null);
@@ -236,6 +255,7 @@ export default function PatientCartPage() {
         const base64 = reader.result as string;
         setPrescription(base64);
         setPrescriptionState(base64);
+        closeModal();
       };
       reader.readAsDataURL(file);
       e.target.value = "";
@@ -292,14 +312,58 @@ export default function PatientCartPage() {
 
   const isUserLoggedIn = authService.getGuard() === "user" && !!authService.getToken();
 
-  const handleCheckout = useCallback(() => {
-    if (isUserLoggedIn) {
-      router.push("/patient-order-confirmation");
+  const submitRequestFromCart = useCallback(async () => {
+    const medicines = items.map((item) => ({
+      medicine_name: item.name,
+      quantity: item.qty,
+    }));
+
+    if (!medicines.length && !prescription) {
+      setCheckoutError("يرجى إضافة دواء أو روشتة قبل إتمام الطلب.");
       return;
     }
+    setCheckoutError(null);
+
+    try {
+      const prescriptionFile = prescription ? dataUrlToFile(prescription, `rx-${Date.now()}.jpg`) : undefined;
+      try {
+        await requestService.create({ medicines, estimated_total: Number(total.toFixed(2)) }, prescriptionFile || undefined);
+      } catch {
+        // Cloud upload may fail in some environments; keep supporting prescription-only by retrying with direct URL payload.
+        if (!prescription) throw new Error("create_request_failed");
+        await requestService.create(
+          {
+            medicines,
+            prescription_url: prescription,
+            estimated_total: Number(total.toFixed(2)),
+          },
+          undefined
+        );
+      }
+
+      setCart([]);
+      clearPrescription();
+      setPrescriptionState(null);
+
+      router.push("/patient-review-orders");
+    } catch {
+      setCheckoutError("تعذر إرسال الطلب حالياً. حاول مرة أخرى.");
+    }
+  }, [items, prescription, router, total]);
+
+  const handleCheckout = useCallback(() => {
+    if (!items.length && !prescription) {
+      setCheckoutError("يرجى إضافة دواء أو روشتة قبل إتمام الطلب.");
+      return;
+    }
+    if (isUserLoggedIn) {
+      void submitRequestFromCart();
+      return;
+    }
+    setCheckoutError(null);
     setLoginPromptOpen(true);
     setLoginError(null);
-  }, [isUserLoggedIn, router]);
+  }, [isUserLoggedIn, items.length, prescription, submitRequestFromCart]);
 
   const handleCheckoutLogin = useCallback(async () => {
     setLoginError(null);
@@ -312,13 +376,13 @@ export default function PatientCartPage() {
       });
       authService.setSession(res, "user");
       setLoginPromptOpen(false);
-      router.push("/patient-order-confirmation");
+      await submitRequestFromCart();
     } catch (e: unknown) {
       setLoginError(getAuthErrorMessage(e, "فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى."));
     } finally {
       setIsLoginSubmitting(false);
     }
-  }, [loginEmail, loginPassword, router]);
+  }, [loginEmail, loginPassword, submitRequestFromCart]);
 
   return (
     <PatientShell active="cart">
@@ -693,6 +757,21 @@ export default function PatientCartPage() {
             <span className="total-label">الإجمالي الكلي</span>
             <span className="total-value">{total.toFixed(2)} ج.م</span>
           </div>
+          <p
+            style={{
+              marginTop: 10,
+              fontSize: 12,
+              lineHeight: 1.5,
+              color: "#92400e",
+              textAlign: "center",
+              fontWeight: 600,
+              background: "#fffbeb",
+              borderRadius: 10,
+              padding: "10px 12px",
+            }}
+          >
+            هذا المبلغ <strong>تقديري</strong> من أسعار الدليل داخل التطبيق؛ الأسعار النهائية تأتي من الصيدلية بعد مراجعة طلبك.
+          </p>
 
           <button
             type="button"
@@ -713,6 +792,9 @@ export default function PatientCartPage() {
             </svg>
             إتمام الطلب
           </button>
+          {checkoutError ? (
+            <p style={{ color: "#b91c1c", fontSize: 12, textAlign: "center", marginTop: 8 }}>{checkoutError}</p>
+          ) : null}
           <button type="button" className="btn-continue" onClick={openModal}>
             متابعة التسوق
           </button>

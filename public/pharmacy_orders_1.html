@@ -40,7 +40,7 @@
     border-bottom: 1px solid var(--border);
     padding: 0 32px;
     height: 60px;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-between;
   }
@@ -233,7 +233,10 @@
     font-size: 11px; color: var(--blue); font-weight: 600;
     text-decoration: none; display: flex; align-items: center; gap: 4px;
     justify-content: flex-end; flex-direction: row-reverse;
+    background: none; border: none; padding: 0; cursor: pointer;
+    font-family: inherit; text-align: right;
   }
+  .card-med-link:hover { text-decoration: underline; }
 
   .card-med-thumb {
     width: 56px; height: 56px; border-radius: 10px;
@@ -288,6 +291,178 @@
     transition: all 0.15s;
   }
   .load-more-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  .price-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+  }
+
+  .price-modal {
+    width: min(760px, 100%);
+    max-height: 85vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    padding: 20px;
+  }
+
+  .price-modal h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    text-align: right;
+  }
+
+  .price-grid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .price-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 140px;
+    gap: 10px;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .price-row-info {
+    text-align: right;
+  }
+
+  .price-row-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+
+  .price-row-sub {
+    font-size: 14px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .price-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .price-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .price-row input {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: 'Cairo', sans-serif;
+    text-align: right;
+    background: #fff;
+  }
+
+  .price-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  .price-actions button {
+    border: none;
+    border-radius: 12px;
+    padding: 11px 12px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .price-send {
+    background: #05a94f;
+    color: #fff;
+  }
+
+  .price-cancel {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .add-med-row-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px dashed var(--border);
+    background: #f8fafc;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .add-med-row-btn:hover {
+    background: var(--blue-light);
+    border-color: var(--blue);
+  }
+
+  .price-row.price-row-manual {
+    grid-template-columns: minmax(0, 1fr) 100px 120px 44px;
+    align-items: end;
+  }
+
+  .price-row-manual .price-input-name {
+    width: 100%;
+  }
+
+  .price-row-remove {
+    width: 44px;
+    height: 42px;
+    align-self: end;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fee2e2;
+    color: var(--red);
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cairo', sans-serif;
+    transition: background 0.15s;
+  }
+  .price-row-remove:hover {
+    background: #fecaca;
+  }
+  .price-row-remove:disabled,
+  .price-row-remove[hidden] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
 </style>
 </head>
 <body>
@@ -566,14 +741,483 @@
 
 </div>
 
+<div class="price-modal-overlay" id="priceModalOverlay">
+  <div class="price-modal" id="priceModalCaptureRoot">
+    <h3>تسعير الطلب</h3>
+    <div class="price-grid" id="priceGrid"></div>
+    <button type="button" class="add-med-row-btn" id="addMedRowBtn">إضافة دواء</button>
+    <div class="price-actions">
+      <button class="price-send" id="sendOfferBtn">إرسال العرض</button>
+      <button class="price-cancel" id="cancelOfferBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Filter buttons
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  const API_BASE = (localStorage.getItem("healup_api_url") || "http://localhost:8000") + "/api";
+  const token = localStorage.getItem("healup_token");
+  const cardsGrid = document.querySelector(".cards-grid");
+  const loadMoreBtn = document.querySelector(".load-more-btn");
+  const loadMoreWrap = document.querySelector(".load-more-wrap");
+  const priceModalOverlay = document.getElementById("priceModalOverlay");
+  const priceGrid = document.getElementById("priceGrid");
+  const sendOfferBtn = document.getElementById("sendOfferBtn");
+  const cancelOfferBtn = document.getElementById("cancelOfferBtn");
+  const addMedRowBtn = document.getElementById("addMedRowBtn");
+  const priceModalCaptureRoot = document.getElementById("priceModalCaptureRoot");
+
+  const PAGE_SIZE = 4;
+  let allRequests = [];
+  let visibleCount = PAGE_SIZE;
+  let selectedRequest = null;
+
+  const parseServerDate = (value) => {
+    const v = String(value || "").trim();
+    if (!v) return new Date(0);
+    if (/[zZ]$/.test(v) || /[+-]\d\d:\d\d$/.test(v)) return new Date(v);
+    return new Date(`${v}Z`);
+  };
+
+  const relativeTime = (createdAt) => {
+    const diffMs = Math.max(0, Date.now() - parseServerDate(createdAt).getTime());
+    const diffSec = Math.floor(diffMs / 1000);
+    if (diffSec < 60) return "الآن";
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return diffMin === 1 ? "منذ دقيقة" : `منذ ${diffMin} دقيقة`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return diffHours === 1 ? "منذ ساعة" : `منذ ${diffHours} ساعة`;
+    const diffDays = Math.floor(diffHours / 24);
+    return diffDays === 1 ? "منذ يوم" : `منذ ${diffDays} يوم`;
+  };
+
+  const sortRequestsNewestFirst = (list) =>
+    [...list].sort(
+      (a, b) =>
+        parseServerDate(b.request.created_at).getTime() -
+        parseServerDate(a.request.created_at).getTime(),
+    );
+
+  const isManualPrescriptionPricing = (request) =>
+    Boolean(request.prescription_url) &&
+    (!(request.medicines?.length) ||
+      (request.medicines || []).every((m) => !String(m.medicine_name || "").trim()));
+
+  const manualRowHtml = () => `
+    <div class="price-row price-row-manual" data-manual-row>
+      <div class="price-field">
+        <label class="price-label">اسم الدواء</label>
+        <input type="text" class="price-input-name" placeholder="اسم الدواء" data-name-input />
+      </div>
+      <div class="price-field">
+        <label class="price-label">الكمية</label>
+        <input type="number" min="1" step="1" value="1" data-qty-input />
+      </div>
+      <div class="price-field">
+        <label class="price-label">السعر (ج.م)</label>
+        <input type="number" min="0" step="0.01" placeholder="0" data-price-input />
+      </div>
+      <button type="button" class="price-row-remove" data-remove-manual-row title="حذف الصف">×</button>
+    </div>
+  `;
+
+  const updateManualRemoveButtons = () => {
+    if (!priceGrid) return;
+    const rows = priceGrid.querySelectorAll(".price-row-manual");
+    const onlyOne = rows.length <= 1;
+    rows.forEach((row) => {
+      const btn = row.querySelector("[data-remove-manual-row]");
+      if (btn) {
+        btn.disabled = onlyOne;
+        btn.toggleAttribute("hidden", onlyOne);
+      }
     });
+  };
+
+  const updateLoadMoreVisibility = () => {
+    if (!loadMoreBtn || !loadMoreWrap) return;
+    const hidden = allRequests.length === 0 || visibleCount >= allRequests.length;
+    loadMoreWrap.style.display = hidden ? "none" : "flex";
+  };
+
+  const prescriptionExtFromMime = (mime) => {
+    const m = String(mime || "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
+    if (m === "image/png" || m.includes("png")) return "png";
+    if (m === "image/jpeg" || m.includes("jpeg")) return "jpg";
+    if (m.includes("webp")) return "webp";
+    if (m.includes("gif")) return "gif";
+    if (m.includes("bmp")) return "bmp";
+    return "";
+  };
+
+  const prescriptionExtFromUrlPath = (url) => {
+    try {
+      const pathname = new URL(url, window.location.href).pathname;
+      const match = pathname.match(/\.([a-z0-9]+)$/i);
+      return match ? match[1].toLowerCase() : "";
+    } catch {
+      return "";
+    }
+  };
+
+  async function downloadPrescription(url, requestId) {
+    if (!url) return;
+    const y = window.scrollY;
+    const baseName = `prescription-${requestId || "rx"}-${Date.now()}`;
+
+    const triggerDownload = (filename, blob) => {
+      const objectUrl = URL.createObjectURL(blob);
+      const inIframe = window.self !== window.top;
+      if (inIframe) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result;
+          if (
+            typeof dataUrl === "string" &&
+            (dataUrl.startsWith("data:image/") ||
+              dataUrl.startsWith("data:application/pdf"))
+          ) {
+            window.parent.postMessage(
+              { type: "healup-download-file", filename, dataUrl },
+              window.location.origin,
+            );
+          }
+          URL.revokeObjectURL(objectUrl);
+          requestAnimationFrame(() =>
+            window.scrollTo({ top: y, left: 0, behavior: "auto" }),
+          );
+        };
+        reader.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          requestAnimationFrame(() =>
+            window.scrollTo({ top: y, left: 0, behavior: "auto" }),
+          );
+        };
+        reader.readAsDataURL(blob);
+      } else {
+        const a = document.createElement("a");
+        a.href = objectUrl;
+        a.download = filename;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(objectUrl);
+        requestAnimationFrame(() =>
+          window.scrollTo({ top: y, left: 0, behavior: "auto" }),
+        );
+      }
+    };
+
+    try {
+      const r = await fetch(url, { mode: "cors" });
+      if (!r.ok) throw new Error("fetch failed");
+      const blob = await r.blob();
+      const ct = r.headers.get("content-type") || blob.type || "";
+      const pathExt = prescriptionExtFromUrlPath(url);
+
+      if (
+        pathExt === "pdf" ||
+        ct.toLowerCase().includes("pdf") ||
+        blob.type?.toLowerCase().includes("pdf")
+      ) {
+        triggerDownload(
+          `${baseName}.pdf`,
+          blob.type?.toLowerCase().includes("pdf")
+            ? blob
+            : new Blob([blob], { type: "application/pdf" }),
+        );
+        return;
+      }
+
+      let ext =
+        prescriptionExtFromMime(ct) || pathExt || "jpg";
+      if (!["png", "jpg", "jpeg", "webp", "gif", "bmp"].includes(ext)) {
+        ext = "jpg";
+      }
+      if (ext === "jpeg") ext = "jpg";
+      const filename = `${baseName}.${ext}`;
+      const mimeForExt = {
+        png: "image/png",
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        webp: "image/webp",
+        gif: "image/gif",
+        bmp: "image/bmp",
+      };
+      if (!blob.type || !blob.type.startsWith("image/")) {
+        const mime = mimeForExt[ext] || "image/jpeg";
+        triggerDownload(filename, new Blob([blob], { type: mime }));
+        return;
+      }
+      triggerDownload(filename, blob);
+    } catch {
+      try {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } catch {
+        // no-op
+      }
+      requestAnimationFrame(() =>
+        window.scrollTo({ top: y, left: 0, behavior: "auto" }),
+      );
+    }
+  }
+
+  const renderCards = () => {
+    if (!cardsGrid) return;
+    const rows = allRequests.slice(0, visibleCount);
+    cardsGrid.innerHTML = rows.map((entry, idx) => {
+      const request = entry.request;
+      const medicine = request.medicines?.[0];
+      const medTitle = medicine?.medicine_name || (request.prescription_url ? "وصفة طبية" : "طلب دواء");
+      const medQty = medicine?.quantity ? `الكمية: ${medicine.quantity}` : "الكمية: حسب الوصفة";
+      return `
+        <div class="order-card ${idx % 3 === 0 ? "urgent" : ""}" data-request-id="${request.id}">
+          <div class="card-top">
+            <div class="card-med-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+            <div class="card-id-block">
+              <div class="card-id">#HLP-${request.id}</div>
+              <div class="card-name">${request.patient?.name || "مريض"}</div>
+              <div class="card-meta">${relativeTime(request.created_at)}</div>
+            </div>
+          </div>
+          <div class="card-med">
+            <div class="card-med-info">
+              <div class="card-med-name">${medTitle}</div>
+              <div class="card-med-qty">${medQty}</div>
+              ${
+                request.prescription_url
+                  ? `<button type="button" class="card-med-link" data-rx-for-request="${request.id}">عرض الوصفة الطبية</button>`
+                  : `<div class="card-med-note">لا توجد وصفة مرافقة</div>`
+              }
+            </div>
+            <div class="card-med-thumb">💊</div>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn-available" data-open-modal="${request.id}">متوفر</button>
+            <button type="button" class="btn-unavailable" data-decline-request="${request.id}">غير متوفر</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    cardsGrid.querySelectorAll("[data-open-modal]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const y = window.scrollY;
+        openPriceModal(Number(btn.getAttribute("data-open-modal")));
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: y, left: 0, behavior: "auto" });
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: y, left: 0, behavior: "auto" });
+          });
+        });
+      });
+    });
+    updateLoadMoreVisibility();
+  };
+
+  const refreshTimes = () => {
+    document.querySelectorAll(".order-card").forEach((card) => {
+      const id = Number(card.getAttribute("data-request-id") || 0);
+      const entry = allRequests.find((x) => x.request.id === id);
+      if (!entry) return;
+      const meta = card.querySelector(".card-meta");
+      if (meta) meta.textContent = relativeTime(entry.request.created_at);
+    });
+  };
+
+  const openPriceModal = (requestId) => {
+    const entry = allRequests.find((x) => x.request.id === requestId);
+    if (!entry) return;
+    selectedRequest = entry.request;
+
+    if (isManualPrescriptionPricing(selectedRequest)) {
+      priceGrid.innerHTML = manualRowHtml();
+      updateManualRemoveButtons();
+      if (addMedRowBtn) addMedRowBtn.style.display = "inline-flex";
+    } else {
+      if (addMedRowBtn) addMedRowBtn.style.display = "none";
+      const meds = selectedRequest.medicines?.length
+        ? selectedRequest.medicines
+        : [{ medicine_name: "دواء", quantity: 1 }];
+      priceGrid.innerHTML = meds
+        .map(
+          (m, idx) => `
+      <div class="price-row">
+        <div class="price-row-info">
+          <div class="price-row-title">${m.medicine_name}</div>
+          <div class="price-row-sub">الكمية المطلوبة: ${m.quantity || 1}</div>
+        </div>
+        <div class="price-field">
+          <label class="price-label">الكمية المتوفرة</label>
+          <input type="number" min="1" step="1" value="${m.quantity || 1}" data-qty="${idx}" />
+        </div>
+        <div class="price-field">
+          <label class="price-label">السعر (ج.م)</label>
+          <input type="number" min="0" step="0.01" placeholder="0" data-price="${idx}" />
+          <input type="hidden" value="${String(m.medicine_name || "")
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")}" data-name="${idx}" />
+        </div>
+      </div>
+    `,
+        )
+        .join("");
+    }
+    priceModalOverlay.style.display = "flex";
+    window.parent?.postMessage({ type: "healup-price-modal", open: true, requestId }, "*");
+  };
+
+  const closePriceModal = () => {
+    selectedRequest = null;
+    priceModalOverlay.style.display = "none";
+    if (addMedRowBtn) addMedRowBtn.style.display = "none";
+    window.parent?.postMessage({ type: "healup-price-modal", open: false }, "*");
+  };
+
+  cancelOfferBtn?.addEventListener("click", closePriceModal);
+  priceModalOverlay?.addEventListener("click", (e) => {
+    if (e.target === priceModalOverlay) closePriceModal();
   });
+
+  addMedRowBtn?.addEventListener("click", () => {
+    if (!priceGrid || !selectedRequest || !isManualPrescriptionPricing(selectedRequest)) return;
+    priceGrid.insertAdjacentHTML("beforeend", manualRowHtml());
+    updateManualRemoveButtons();
+  });
+
+  priceGrid?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-remove-manual-row]");
+    if (!btn || btn.disabled) return;
+    const row = btn.closest("[data-manual-row]");
+    if (!row || !priceGrid) return;
+    const rows = priceGrid.querySelectorAll(".price-row-manual");
+    if (rows.length <= 1) return;
+    row.remove();
+    updateManualRemoveButtons();
+  });
+
+  cardsGrid?.addEventListener("click", async (e) => {
+    const declineBtn = e.target.closest("[data-decline-request]");
+    if (declineBtn) {
+      e.preventDefault();
+      const id = Number(declineBtn.getAttribute("data-decline-request"));
+      if (!id) return;
+      try {
+        const res = await fetch(`${API_BASE}/pharmacy/requests/${id}/decline`, {
+          method: "POST",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (!res.ok) return;
+        allRequests = allRequests.filter((x) => x.request.id !== id);
+        visibleCount = Math.min(visibleCount, Math.max(PAGE_SIZE, allRequests.length));
+        renderCards();
+      } catch {
+        // no-op
+      }
+      return;
+    }
+    const t = e.target.closest("[data-rx-for-request]");
+    if (!t) return;
+    e.preventDefault();
+    const id = Number(t.getAttribute("data-rx-for-request"));
+    const entry = allRequests.find((x) => x.request.id === id);
+    const url = entry?.request?.prescription_url;
+    if (url) void downloadPrescription(url, id);
+  });
+
+  sendOfferBtn?.addEventListener("click", async () => {
+    if (!selectedRequest) return;
+    let medicines = [];
+
+    const manualRows = priceGrid.querySelectorAll(".price-row-manual");
+    if (manualRows.length) {
+      medicines = Array.from(manualRows)
+        .map((row) => {
+          const name = row.querySelector("[data-name-input]")?.value?.trim() || "";
+          const price = Number(row.querySelector("[data-price-input]")?.value || 0);
+          const qty = Math.max(1, Math.floor(Number(row.querySelector("[data-qty-input]")?.value || 1)));
+          return { medicine_name: name, available: true, quantity_available: qty, price };
+        })
+        .filter((m) => m.medicine_name && m.price >= 0);
+    } else {
+      const rows = Array.from(priceGrid.querySelectorAll(".price-row"));
+      medicines = rows
+        .map((row) => {
+          const name = row.querySelector("[data-name]")?.value?.trim() || "";
+          const price = Number(row.querySelector("[data-price]")?.value || 0);
+          const qty = Math.max(1, Math.floor(Number(row.querySelector("[data-qty]")?.value || 1)));
+          return { medicine_name: name, available: true, quantity_available: qty, price };
+        })
+        .filter((m) => m.medicine_name && m.price >= 0);
+    }
+
+    if (!medicines.length) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/pharmacy/respond`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          request_id: selectedRequest.id,
+          delivery_fee: 0,
+          medicines,
+        }),
+      });
+      if (!res.ok) return;
+      allRequests = allRequests.filter((x) => x.request.id !== selectedRequest.id);
+      visibleCount = Math.min(visibleCount, Math.max(PAGE_SIZE, allRequests.length));
+      renderCards();
+      closePriceModal();
+    } catch {
+      // no-op
+    }
+  });
+
+  loadMoreBtn?.addEventListener("click", () => {
+    visibleCount = Math.min(visibleCount + PAGE_SIZE, allRequests.length);
+    renderCards();
+  });
+
+  const loadRequests = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/pharmacy/requests`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await response.json();
+      allRequests = sortRequestsNewestFirst(data.data || []);
+      visibleCount =
+        allRequests.length === 0 ? 0 : Math.min(PAGE_SIZE, allRequests.length);
+      renderCards();
+      refreshTimes();
+
+      const params = new URLSearchParams(window.location.search);
+      const openRequestId = Number(params.get("openRequestId") || 0);
+      if (openRequestId) {
+        const y = window.scrollY;
+        openPriceModal(openRequestId);
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: y, left: 0, behavior: "auto" });
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: y, left: 0, behavior: "auto" });
+          });
+        });
+      }
+    } catch {
+      // keep static fallback if API fails
+    }
+  };
+
+  loadRequests();
+  setInterval(refreshTimes, 30000);
 </script>
 
 </body>

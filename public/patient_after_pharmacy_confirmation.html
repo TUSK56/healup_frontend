@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healup - إتمام الطلب</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #1a56db;
+    --blue-dark: #1444b8;
+    --blue-light: #e8effc;
+    --bg: #f0f2f5;
+    --white: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-light: #94a3b8;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --radius: 12px;
+  }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: ltr;
+  }
+
+  /* ── TOPBAR + SIDEBAR ── */
+  .topbar {
+    position: fixed;
+    top: 0;
+    right: 220px;
+    left: 0;
+    z-index: 120;
+    height: 60px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+  .topbar-icon-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 10px;
+    background: #eceff4;
+    color: #1f2937;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .topbar-icon-btn.active {
+    border-radius: 999px;
+    background: #e9f0ff;
+    color: var(--blue);
+    border: 2px solid #bfdbfe;
+  }
+  .patient-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 220px;
+    height: 100vh;
+    background: #fff;
+    border-left: 1px solid var(--border);
+    z-index: 210;
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+  }
+  .patient-sidebar-header {
+    height: 60px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .patient-brand-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+  .patient-logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--blue);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .patient-brand { font-size: 20px; font-weight: 800; color: var(--blue); }
+  .patient-sidebar-nav { padding: 12px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .patient-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 700;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .patient-sidebar-item:hover { background: #f1f5f9; color: var(--text); }
+  .patient-sidebar-item.active { background: var(--blue); color: #fff; }
+  .patient-sidebar-icon { width: 22px; text-align: center; font-size: 13px; flex-shrink: 0; }
+
+  /* ── MAIN LAYOUT ── */
+  .page {
+    width: min(1040px, calc(100vw - 220px - 48px));
+    max-width: 1040px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 92px 24px 32px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    text-align: right;
+  }
+
+  /* ── ORDER SUMMARY ── */
+  .order-summary { display: flex; flex-direction: column; gap: 0; }
+
+  .order-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .order-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .order-item-info { text-align: right; flex: 0; white-space: nowrap; }
+  .order-item-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .order-item-pharmacy { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .order-item-price { font-size: 13px; font-weight: 700; color: var(--blue); }
+
+  .order-item-thumb {
+    width: 44px; height: 44px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .order-item-thumb svg {
+    color: #64748b;
+  }
+
+  #order-items-list {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .order-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .order-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px;
+  }
+  .order-row-label { color: var(--text-muted); }
+  .order-row-value { font-weight: 600; color: var(--text); }
+
+  .order-total {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .order-total-label { font-size: 14px; font-weight: 700; color: var(--text); }
+  .order-total-value { font-size: 18px; font-weight: 800; color: var(--blue); }
+
+  .confirm-btn {
+    width: 100%;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.15s;
+    margin-bottom: 12px;
+  }
+  .confirm-btn:hover { background: var(--blue-dark); }
+
+  .confirm-note {
+    font-size: 11px; color: var(--text-light);
+    text-align: center; line-height: 1.6;
+  }
+  .confirm-note a { color: var(--blue); text-decoration: none; }
+
+  /* ── RIGHT COLUMN ── */
+  .right-col { display: flex; flex-direction: column; gap: 20px; order: 2; }
+  .order-summary-wrap { order: 1; }
+
+  /* ── STEPS ── */
+  .steps-card { padding: 20px; }
+
+  .steps-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .steps-title { font-size: 15px; font-weight: 700; }
+  .steps-percent { font-size: 13px; font-weight: 700; color: var(--blue); }
+
+  .steps-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .steps-bar-fill {
+    height: 100%;
+    width: 33%;
+    background: var(--blue);
+    border-radius: 99px;
+    margin-left: auto;
+  }
+
+  .steps-list {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .step {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: var(--text-light);
+  }
+  .step.active { color: var(--text); }
+
+  .step-icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: #f1f5f9;
+    border: 2px solid var(--border);
+  }
+  .step.active .step-icon {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+  .step.done .step-icon {
+    background: #f1f5f9;
+    border-color: var(--border);
+  }
+
+  .step-connector {
+    flex: 1; height: 2px; background: var(--border); margin: 0 4px; margin-bottom: 22px;
+  }
+
+  /* ── SHIPPING OPTIONS ── */
+  .shipping-tabs {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .shipping-tab {
+    padding: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    border: none; background: none;
+    font-family: 'Cairo', sans-serif;
+    color: var(--text-muted);
+    background: #f8fafc;
+    transition: background 0.15s, color 0.15s;
+  }
+  .shipping-tab.active {
+    background: var(--white);
+    color: var(--blue);
+    box-shadow: inset 0 0 0 1px var(--blue);
+  }
+  .shipping-tab:first-child { border-left: 1px solid var(--border); }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-align: right; }
+  .location-dot-btn {
+    width: 26px;
+    height: 26px;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    background: #fff;
+    color: #1a56db;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .location-dot-btn:hover { background: #eff6ff; border-color: #1a56db; }
+  .location-dot-btn.loading { opacity: 0.6; cursor: progress; }
+  .pickup-map-actions {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    z-index: 1200;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .pickup-map-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #0f172a;
+    text-decoration: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.12);
+    font-size: 12px;
+    font-weight: 800;
+    transition: all 0.15s;
+  }
+  .pickup-map-btn:hover {
+    border-color: #c7d7f8;
+    transform: translateY(-1px);
+  }
+  .pickup-google-btn {
+    padding: 7px 12px;
+  }
+  .pickup-recenter-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 0;
+    line-height: 1;
+  }
+  .pickup-recenter-btn svg { width: 20px; height: 20px; }
+  .leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 10px 25px rgba(2,6,23,0.15) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+  }
+  .leaflet-control-zoom a {
+    width: 38px !important;
+    height: 38px !important;
+    line-height: 36px !important;
+    border: none !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+  }
+  .leaflet-control-zoom a:hover {
+    background: #eff6ff !important;
+    color: #1a56db !important;
+  }
+  .street-input-wrap {
+    position: relative;
+  }
+  .street-input-wrap .form-input {
+    padding-left: 44px;
+  }
+  .street-input-wrap .location-dot-btn {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .form-input {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px; color: var(--text-muted);
+    text-align: left;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--blue); background: white; }
+  .form-input.input-error {
+    border-color: #ef4444 !important;
+    background: #fff5f5;
+    animation: shakeInput 0.28s ease-in-out;
+  }
+  @keyframes shakeInput {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-3px); }
+  }
+
+  /* ── PAYMENT ── */
+  .payment-options { display: flex; flex-direction: column; gap: 10px; }
+
+  .payment-option {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    background: var(--white);
+  }
+  .payment-option:hover { border-color: #c7d7f8; }
+  .payment-option.selected { border-color: var(--blue); background: #f5f8ff; }
+
+  .payment-left { display: flex; align-items: center; gap: 10px; }
+  .payment-icon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+  }
+  .payment-label { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  .payment-right { display: flex; align-items: center; gap: 10px; }
+  .card-placeholder {
+    width: 44px; height: 28px;
+    background: #e2e8f0;
+    border-radius: 4px;
+  }
+
+  .radio {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+  .radio.checked {
+    border-color: var(--blue);
+    background: var(--blue);
+  }
+  .radio.checked::after {
+    content: '';
+    width: 8px; height: 8px; border-radius: 50%;
+    background: white;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--white);
+    margin-top: 48px;
+    padding: 40px 60px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .footer-brand { text-align: left; }
+  .footer-logo {
+    display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+    font-size: 18px; font-weight: 800; color: var(--text);
+    margin-bottom: 12px;
+  }
+  .footer-desc { font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-left: auto; text-align: left; }
+
+  .footer-col { text-align: left; }
+  .footer-col-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .footer-col ul li a {
+    font-size: 13px; color: var(--text-muted); text-decoration: none;
+    transition: color 0.15s;
+  }
+  .footer-col ul li a:hover { color: var(--blue); }
+
+  .footer-bottom {
+    padding: 16px 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-copy { font-size: 12px; color: var(--text-light); }
+  .footer-dots { display: flex; gap: 8px; }
+  .footer-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #e2e8f0;
+  }
+</style>
+</head>
+<body>
+
+<aside class="patient-sidebar">
+  <div class="patient-sidebar-header">
+    <a href="/patient-home" class="patient-brand-link">
+      <span class="patient-logo-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3h6v3H9z"/>
+          <path d="M3 7h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/>
+          <line x1="12" y1="11" x2="12" y2="17"/>
+          <line x1="9" y1="14" x2="15" y2="14"/>
+        </svg>
+      </span>
+      <span class="patient-brand">Healup</span>
+    </a>
+  </div>
+  <nav class="patient-sidebar-nav">
+    <a class="patient-sidebar-item" href="/patient-home"><span class="patient-sidebar-icon">▦</span>الرئيسية</a>
+    <a class="patient-sidebar-item" href="/patient-cart"><span class="patient-sidebar-icon">🧺</span>سلة المشتريات</a>
+    <a class="patient-sidebar-item active" href="/patient-review-orders"><span class="patient-sidebar-icon">🧾</span>طلباتي</a>
+    <a class="patient-sidebar-item" href="/patient-review-order-history"><span class="patient-sidebar-icon">🕒</span>تاريخ الطلبات</a>
+    <a class="patient-sidebar-item" href="/patient-profile"><span class="patient-sidebar-icon">👤</span>الملف الشخصي</a>
+  </nav>
+</aside>
+
+<header class="topbar">
+  <div class="topbar-actions">
+    <a href="/patient-profile" class="topbar-icon-btn active" aria-label="profile">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0 1 12 0"/></svg>
+    </a>
+    <a href="/patient-review-orders" class="topbar-icon-btn" aria-label="notifications">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </a>
+    <a href="/patient-cart" class="topbar-icon-btn" aria-label="cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    </a>
+  </div>
+</header>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- LEFT: ORDER SUMMARY -->
+  <div class="order-summary-wrap card order-summary">
+    <div class="card-title">ملخص الطلب</div>
+
+    <div id="order-items-list">
+      <div class="order-item">
+        <div class="order-item-info">
+          <div class="order-item-name">—</div>
+          <div class="order-item-pharmacy">—</div>
+          <div class="order-item-price">EGP 0.00</div>
+        </div>
+        <div class="order-item-thumb">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-rows">
+      <div class="order-row">
+        <span class="order-row-value" id="subtotal-value">EGP 0.00</span>
+        <span class="order-row-label">المجموع الفرعي</span>
+      </div>
+      <div class="order-row">
+        <span class="order-row-value" id="delivery-value">EGP 0.00</span>
+        <span class="order-row-label">رسوم التوصيل</span>
+      </div>
+      <div class="order-row">
+        <span class="order-row-value" id="tax-value">EGP 0.00</span>
+        <span class="order-row-label">ضريبة القيمة المضافة</span>
+      </div>
+      <div class="order-row" id="discount-row" style="display:none;">
+        <span class="order-row-value" id="discount-value">-EGP 0.00</span>
+        <span class="order-row-label">الخصم</span>
+      </div>
+    </div>
+
+    <div class="order-total">
+      <div class="order-total-value" id="total-value">EGP 0.00</div>
+      <div class="order-total-label">الإجمالي</div>
+    </div>
+
+    <button class="confirm-btn" id="confirm-order-btn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      تأكيد الطلب
+    </button>
+
+    <p class="confirm-note">بالنقر على تأكيد الطلب، فأنت توافق على <a href="#">شروط الخدمة وسياسة الخصوصية</a> الخاصة بهيل آب.</p>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-col">
+
+    <!-- STEPS -->
+    <div class="card steps-card">
+      <div class="steps-header">
+        <span class="steps-percent" id="checkout-steps-percent">66% مكتمل</span>
+        <span class="steps-title">خطوات إتمام الطلب</span>
+      </div>
+      <div class="steps-bar"><div class="steps-bar-fill" id="checkout-steps-fill"></div></div>
+      <div class="steps-list">
+
+        <div class="step done" data-step="1">
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+          </div>
+          <span>الدفع</span>
+        </div>
+
+        <div class="step-connector"></div>
+
+        <div class="step active" data-step="2">
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <span>التأكيد</span>
+        </div>
+
+        <div class="step-connector"></div>
+
+        <div class="step" data-step="3">
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13" rx="2"/>
+              <path d="M16 8h4l3 3v5h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <span>الشحن</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SHIPPING OPTIONS -->
+    <div class="card">
+      <div class="card-title">خيارات الشحن</div>
+
+      <div class="shipping-tabs">
+        <button class="shipping-tab" data-mode="pickup" style="flex-direction:row-reverse;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          استلام من الصيدلية
+        </button>
+        <button class="shipping-tab active" data-mode="delivery" style="flex-direction:row-reverse;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          توصيل للمنزل
+        </button>
+      </div>
+      <p id="delivery-eta-hint" style="margin-top:10px;font-size:13px;color:#64748b;text-align:right;line-height:1.55;"></p>
+
+      <div class="form-grid" id="delivery-form">
+        <div class="form-group">
+          <label class="form-label" for="district-input">المنطقة / الحي</label>
+          <input id="district-input" class="form-input" type="text" placeholder="مثال: المعادي، التجمع الخامس، الدقي" style="text-align:right; direction:rtl;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="city-input">المدينة</label>
+          <input id="city-input" class="form-input" type="text" placeholder="مثال: القاهرة، الجيزة، الإسكندرية" style="text-align:right; direction:rtl;">
+        </div>
+        <div class="form-group full">
+          <label class="form-label" for="street-input">عنوان الشارع ورقم العقار</label>
+          <div class="street-input-wrap">
+            <input id="street-input" class="form-input" type="text" placeholder="اسم الشارع، رقم العمارة، رقم الشقة/المكتب" style="text-align:right; direction:rtl;">
+            <button id="location-dot-btn" class="location-dot-btn" type="button" title="استخدام موقعي">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5.5 5 9c0 5 7 13 7 13s7-8 7-13c0-3.5-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="pickup-map-wrap" style="display:none; margin-top:12px;">
+        <div style="position:relative; border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+          <div id="pickup-pharmacy-map" style="height:240px; background:#f8fafc;"></div>
+          <div id="pickup-map-actions" class="pickup-map-actions">
+            <a id="pickup-google-maps-btn" class="pickup-map-btn pickup-google-btn" href="#" target="_blank" rel="noreferrer">
+              Google Maps
+            </a>
+            <button id="pickup-recenter-btn" class="pickup-map-btn pickup-recenter-btn" type="button" title="إعادة تمركز الخريطة">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.2"></circle>
+                <path d="M12 2.5v3.2M12 18.3v3.2M2.5 12h3.2M18.3 12h3.2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="card">
+      <div class="card-title">طرق الدفع</div>
+
+      <div class="payment-options">
+
+        <!-- Credit Card -->
+        <div class="payment-option selected">
+          <div class="radio checked"></div>
+          <span class="payment-label">بطاقة ائتمان / خصم مباشر</span>
+          <div class="payment-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+        </div>
+
+        <!-- Cash -->
+        <div class="payment-option">
+          <div class="radio"></div>
+          <span class="payment-label">دفع نقدي عند الاستلام</span>
+          <div class="payment-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>
+          </div>
+        </div>
+
+        <!-- InstaPay -->
+        <div class="payment-option">
+          <div class="radio"></div>
+          <span class="payment-label">إنستا باي (InstaPay)</span>
+          <div class="payment-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+          </div>
+        </div>
+
+        <!-- Fawry -->
+        <div class="payment-option">
+          <div class="radio"></div>
+          <span class="payment-label">فوري (Fawry)</span>
+          <div class="payment-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid" style="grid-template-columns: 1fr 1fr 2fr; justify-content: center; max-width: 900px; margin: 0 auto;">
+
+    <div class="footer-col" style="text-align:right;">
+      <div class="footer-col-title">الدعم</div>
+      <ul>
+        <li><a href="#">سياسة الاسترجاع</a></li>
+        <li><a href="#">شروط الاستخدام</a></li>
+        <li><a href="#">سياسة الخصوصية</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col" style="text-align:right;">
+      <div class="footer-col-title">روابط سريعة</div>
+      <ul>
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">عن هيل آب</a></li>
+        <li><a href="#">الأسئلة الشائعة</a></li>
+        <li><a href="#">تواصل بنا</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-brand" style="text-align:right;">
+      <div class="footer-logo" style="justify-content:flex-end;">
+        Healup
+        <div class="nav-logo-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+      </div>
+      <p class="footer-desc" style="text-align:right; margin-right:0; margin-left:auto;">منصتك الطبية الموثوقة للحصول على الأدوية والخدمات الصحية بسهولة وأمان. نحن<br>نربطك بأفضل الصيدليات لضمان وصول الرعاية الصحية لباب منزلك.</p>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copy">© Healup Egypt 2024. جميع الحقوق محفوظة.</div>
+    <div class="footer-dots">
+      <div class="footer-dot"></div>
+      <div class="footer-dot"></div>
+      <div class="footer-dot"></div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  function formatMoney(value) {
+    return `EGP ${Number(value || 0).toFixed(2)}`;
+  }
+
+  const CheckoutStep = Object.freeze({
+    PAYMENT: 1,
+    CONFIRM: 2,
+    SHIPPING: 3,
+  });
+
+  function setCheckoutStep(step) {
+    const normalized = Math.max(CheckoutStep.PAYMENT, Math.min(CheckoutStep.SHIPPING, Number(step || CheckoutStep.PAYMENT)));
+    const percentByStep = {
+      [CheckoutStep.PAYMENT]: 33,
+      [CheckoutStep.CONFIRM]: 66,
+      [CheckoutStep.SHIPPING]: 100,
+    };
+    const percent = percentByStep[normalized] || 33;
+
+    const percentEl = document.getElementById('checkout-steps-percent');
+    const fillEl = document.getElementById('checkout-steps-fill');
+    if (percentEl) percentEl.textContent = `${percent}% مكتمل`;
+    if (fillEl) fillEl.style.width = `${percent}%`;
+
+    document.querySelectorAll('.steps-list .step[data-step]').forEach((el) => {
+      const idx = Number(el.getAttribute('data-step') || 0);
+      el.classList.remove('active', 'done');
+      if (idx < normalized) el.classList.add('done');
+      else if (idx === normalized) el.classList.add('active');
+    });
+  }
+
+  function haversineKm(aLat, aLng, bLat, bLng) {
+    const R = 6371;
+    const toR = (d) => (d * Math.PI) / 180;
+    const dLat = toR(bLat - aLat);
+    const dLng = toR(bLng - aLng);
+    const la1 = toR(aLat);
+    const la2 = toR(bLat);
+    const h =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+
+  let shippingMode = 'delivery';
+  let pharmacyLat = null;
+  let pharmacyLng = null;
+  let pickupMap = null;
+  let deliveryCoords = { lat: null, lng: null };
+  /** Filled in loadLiveConfirmationData for confirm payload */
+  let cachedOffers = [];
+  /** Selected-offer line items + API distance for pricing / ETA refresh */
+  let pricingBundle = null;
+
+  /** Must match src/constants/checkoutAddress.ts */
+  const CHECKOUT_SELECTED_ADDRESS_KEY = 'healup_selected_checkout_address';
+
+  /** Empty = same origin (e.g. Next.js at :3000 rewrites /api → API). Set healup_api_url only to call the API directly. */
+  function getApiBase() {
+    return window.localStorage.getItem('healup_api_url') || '';
+  }
+
+  /** Fills delivery fields from the address chosen & saved on /patient-profile (localStorage). */
+  async function fillDeliveryFromSavedProfileChoice() {
+    const cityInput = document.getElementById('city-input');
+    const districtInput = document.getElementById('district-input');
+    const streetInput = document.getElementById('street-input');
+    const token = window.localStorage.getItem('healup_token');
+    if (!cityInput || !districtInput || !streetInput) return;
+    if (!token) return;
+    let addressId = null;
+    try {
+      const raw = window.localStorage.getItem(CHECKOUT_SELECTED_ADDRESS_KEY);
+      if (!raw) return;
+      addressId = Number(JSON.parse(raw).addressId);
+    } catch {
+      return;
+    }
+    if (!Number.isFinite(addressId)) return;
+    try {
+      const res = await fetch(`${getApiBase()}/api/patient/addresses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('addresses');
+      const payload = await res.json();
+      const list = Array.isArray(payload.data) ? payload.data : [];
+      const addr = list.find((x) => Number(x.id) === addressId);
+      if (!addr) return;
+      cityInput.value = addr.city != null ? String(addr.city) : '';
+      districtInput.value = addr.district != null ? String(addr.district) : '';
+      streetInput.value = addr.address_details != null ? String(addr.address_details) : '';
+      const lat = addr.latitude != null ? Number(addr.latitude) : null;
+      const lng = addr.longitude != null ? Number(addr.longitude) : null;
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        deliveryCoords = { lat, lng };
+      } else {
+        deliveryCoords = { lat: null, lng: null };
+      }
+      refreshOrderSummaryPricing();
+    } catch {
+      /* silent */
+    }
+  }
+
+  function getNormalizedDate(value) {
+    return /Z$|[+-]\d{2}:\d{2}$/.test(value) ? value : `${value}Z`;
+  }
+
+  function getRequestId() {
+    const params = new URLSearchParams(window.location.search);
+    const value = Number(params.get('requestId') || params.get('requestid') || params.get('request_id'));
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
+  function getResponseId() {
+    const params = new URLSearchParams(window.location.search);
+    const value = Number(
+      params.get('responseId')
+      || params.get('responseid')
+      || params.get('responsneId')
+      || params.get('response_id')
+    );
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
+  /** Line items and subtotal for the pharmacy offer the patient chose (URL responseId), not the cheapest offer. */
+  function lineItemsForOffer(offerWrapper, requestMedicines) {
+    if (!offerWrapper || !offerWrapper.response) return null;
+    const requestedQtyMap = new Map();
+    (requestMedicines || []).forEach((m) => {
+      const key = String(m?.medicine_name || '').trim().toLowerCase();
+      if (!key) return;
+      const qty = Math.max(1, Number(m?.quantity || 1));
+      requestedQtyMap.set(key, qty);
+    });
+
+    const meds = (offerWrapper.response.response_medicines || [])
+      .filter((m) => m.available)
+      .map((m) => {
+        const key = String(m?.medicine_name || '').trim().toLowerCase();
+        const requestedQty = requestedQtyMap.get(key) ?? Math.max(1, Number(m?.quantity_available || 1));
+        return { ...m, requested_quantity: requestedQty };
+      })
+      .filter((m) => m.requested_quantity > 0);
+    if (meds.length === 0) return null;
+    const subtotal = meds.reduce((sum, m) => sum + Number(m.price) * Number(m.requested_quantity), 0);
+    const qtySum = meds.reduce((sum, m) => sum + Number(m.requested_quantity), 0);
+    return { meds, subtotal, qtySum, offerWrapper };
+  }
+
+  function refreshOrderSummaryPricing() {
+    if (!pricingBundle) return;
+    const { meds, subtotal, offerWrapper } = pricingBundle;
+    const pharmacyName = offerWrapper?.response?.pharmacy?.name || 'صيدلية';
+    renderOrderItems(meds, pharmacyName);
+
+    const rid = getRequestId();
+    const pricingRaw = rid ? window.localStorage.getItem(`healup_checkout_pricing_${rid}`) : null;
+    const pricing = pricingRaw ? JSON.parse(pricingRaw) : null;
+    const couponPercent = Number(pricing?.coupon_percent || 0);
+    const qtySum = pricingBundle.qtySum ?? 0;
+    const standardDelivery =
+      shippingMode === 'delivery' ? (qtySum >= 5 ? 0 : 25) : 0;
+    const delivery = standardDelivery;
+    const discount = couponPercent > 0 ? (subtotal * couponPercent) / 100 : 0;
+    const afterDiscount = subtotal - discount;
+    const tax = afterDiscount * 0.15;
+    const total = afterDiscount + delivery + tax;
+
+    document.getElementById('subtotal-value').textContent = formatMoney(subtotal);
+    document.getElementById('delivery-value').textContent = formatMoney(delivery);
+    document.getElementById('tax-value').textContent = formatMoney(tax);
+    document.getElementById('total-value').textContent = formatMoney(total);
+
+    const discountRow = document.getElementById('discount-row');
+    if (discount > 0) {
+      discountRow.style.display = 'flex';
+      document.getElementById('discount-value').textContent = `-${formatMoney(discount)}`;
+    } else {
+      discountRow.style.display = 'none';
+    }
+
+    let distanceKm =
+      offerWrapper.distance_km != null && Number.isFinite(Number(offerWrapper.distance_km))
+        ? Number(offerWrapper.distance_km)
+        : null;
+    const ph = offerWrapper?.response?.pharmacy;
+    const plat = typeof ph?.latitude === 'number' ? ph.latitude : null;
+    const plng = typeof ph?.longitude === 'number' ? ph.longitude : null;
+    if (
+      (distanceKm == null || !Number.isFinite(distanceKm)) &&
+      plat != null &&
+      plng != null &&
+      deliveryCoords.lat != null &&
+      deliveryCoords.lng != null
+    ) {
+      distanceKm = haversineKm(deliveryCoords.lat, deliveryCoords.lng, plat, plng);
+    }
+    const etaEl = document.getElementById('delivery-eta-hint');
+    if (etaEl) {
+      if (distanceKm == null || !Number.isFinite(distanceKm)) {
+        etaEl.textContent = '';
+      } else if (shippingMode === 'delivery') {
+        const travelMin = (distanceKm / 22) * 60;
+        const low = Math.max(12, Math.round(travelMin * 0.75));
+        const high = Math.min(95, Math.max(low + 5, Math.round(travelMin * 1.35)));
+        etaEl.textContent = `الوقت المتوقع للتوصيل: تقريبًا ${low} - ${high} دقيقة (حسب المسافة بين عنوان التوصيل وموقع الصيدلية).`;
+      } else {
+        const travelMin = (distanceKm / 22) * 60;
+        const low = Math.max(10, Math.round(travelMin * 0.65));
+        const high = Math.min(75, Math.max(low + 4, Math.round(travelMin * 1.15)));
+        etaEl.textContent = `الوقت المتوقع للاستلام من الفرع: تقريبًا ${low} - ${high} دقيقة (حسب المسافة إلى الصيدلية).`;
+      }
+    }
+  }
+
+  function renderOrderItems(meds, pharmacyName) {
+    const container = document.getElementById('order-items-list');
+    if (!container) return;
+    const safeMeds = Array.isArray(meds) ? meds : [];
+    if (safeMeds.length === 0) {
+      container.innerHTML = `
+        <div class="order-item">
+          <div class="order-item-info">
+            <div class="order-item-name">—</div>
+            <div class="order-item-pharmacy">${pharmacyName || 'صيدلية'}</div>
+            <div class="order-item-price">${formatMoney(0)}</div>
+          </div>
+          <div class="order-item-thumb">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+          </div>
+        </div>
+      `;
+      return;
+    }
+    container.innerHTML = safeMeds.map((med) => {
+      const qty = Math.max(1, Number(med?.requested_quantity || 1));
+      const medName = String(med?.medicine_name || 'دواء').trim();
+      const lineTotal = Number(med?.price || 0) * qty;
+      const qtyLabel = qty > 1 ? 'وحدات' : 'وحدة';
+      return `
+        <div class="order-item">
+          <div class="order-item-info">
+            <div class="order-item-name">${medName} - ${qty} ${qtyLabel}</div>
+            <div class="order-item-pharmacy">${pharmacyName || 'صيدلية'}</div>
+            <div class="order-item-price">${formatMoney(lineTotal)}</div>
+          </div>
+          <div class="order-item-thumb">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function reverseGeocode(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&format=jsonv2&accept-language=ar`;
+    const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!response.ok) throw new Error('reverse_geocode_failed');
+    return response.json();
+  }
+
+  function markFieldError(input) {
+    input.classList.add('input-error');
+    window.setTimeout(() => input.classList.remove('input-error'), 500);
+  }
+
+  function readRequiredFields() {
+    const city = document.getElementById('city-input');
+    const district = document.getElementById('district-input');
+    const street = document.getElementById('street-input');
+    const required = [city, district, street];
+    const missing = required.filter((el) => !el.value || !el.value.trim());
+    return { city, district, street, missing };
+  }
+
+  async function detectAndFillLocation() {
+    const locationBtn = document.getElementById('location-dot-btn');
+    const cityInput = document.getElementById('city-input');
+    const districtInput = document.getElementById('district-input');
+    const streetInput = document.getElementById('street-input');
+
+    if (!navigator.geolocation) {
+      alert('المتصفح لا يدعم تحديد الموقع.');
+      return;
+    }
+
+    locationBtn.classList.add('loading');
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 12000,
+          maximumAge: 0,
+        });
+      });
+
+      const currentLat = Number(position.coords.latitude);
+      const currentLng = Number(position.coords.longitude);
+      deliveryCoords = { lat: currentLat, lng: currentLng };
+
+      try {
+        const geo = await reverseGeocode(currentLat, currentLng);
+        const a = geo.address || {};
+        cityInput.value = a.city || a.town || a.village || a.state || cityInput.value;
+        districtInput.value = a.suburb || a.neighbourhood || a.county || districtInput.value;
+        streetInput.value = [a.road, a.house_number].filter(Boolean).join(' ') || (a.residential || a.road || streetInput.value);
+      } catch {
+        /* reverse geocode failed; coords still set */
+      }
+    } catch {
+      deliveryCoords = { lat: null, lng: null };
+    } finally {
+      locationBtn.classList.remove('loading');
+      refreshOrderSummaryPricing();
+    }
+  }
+
+  function validateBeforeConfirm() {
+    if (shippingMode !== 'delivery') return true;
+    const { missing } = readRequiredFields();
+    missing.forEach(markFieldError);
+
+    return missing.length === 0;
+  }
+
+  async function loadLiveConfirmationData() {
+    const requestId = getRequestId();
+    if (!requestId) return;
+
+    const token = window.localStorage.getItem('healup_token');
+    if (!token) return;
+
+    const apiUrl = getApiBase();
+
+    try {
+      const response = await fetch(`${apiUrl}/api/requests/${requestId}/offers`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return;
+      const payload = await response.json();
+      const responseId = getResponseId();
+      const offers = payload.offers || [];
+      cachedOffers = offers;
+      const targetOffer =
+        (responseId ? offers.find((x) => Number(x?.response?.id) === responseId) : null) || offers[0] || null;
+      const bundle = lineItemsForOffer(targetOffer, payload.request?.medicines || []);
+      if (!bundle) return;
+      pricingBundle = bundle;
+      refreshOrderSummaryPricing();
+
+      const pharmacy = targetOffer?.response?.pharmacy;
+      if (typeof pharmacy?.latitude === 'number' && typeof pharmacy?.longitude === 'number') {
+        pharmacyLat = pharmacy.latitude;
+        pharmacyLng = pharmacy.longitude;
+        const gBtn = document.getElementById('pickup-google-maps-btn');
+        const actionsWrap = document.getElementById('pickup-map-actions');
+        gBtn.href = `https://www.google.com/maps?q=${encodeURIComponent(String(pharmacyLat))},${encodeURIComponent(String(pharmacyLng))}`;
+        actionsWrap.style.display = 'inline-flex';
+        initPickupMapIfNeeded();
+      }
+    } catch {
+      // keep static fallback if request fails
+    }
+  }
+
+  void loadLiveConfirmationData();
+  void fillDeliveryFromSavedProfileChoice();
+  setCheckoutStep(CheckoutStep.CONFIRM);
+
+  document.getElementById('location-dot-btn').addEventListener('click', () => {
+    void detectAndFillLocation();
+  });
+
+  document.getElementById('confirm-order-btn').addEventListener('click', async () => {
+    if (!validateBeforeConfirm()) return;
+    const responseId = getResponseId();
+    if (!responseId) {
+      alert('لا يمكن تأكيد الطلب: responseId غير موجود.');
+      return;
+    }
+    const token = window.localStorage.getItem('healup_token');
+    if (!token) {
+      alert('يجب تسجيل الدخول أولاً.');
+      return;
+    }
+    const apiUrl = getApiBase();
+    const btn = document.getElementById('confirm-order-btn');
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.textContent = 'جاري التأكيد...';
+    setCheckoutStep(CheckoutStep.CONFIRM);
+    try {
+      const targetOffer =
+        cachedOffers.find((x) => Number(x?.response?.id) === responseId) || cachedOffers[0] || null;
+      const ph = targetOffer?.response?.pharmacy;
+      const payLabel = document.querySelector('.payment-option.selected .payment-label')?.textContent?.trim() || '';
+      let deliveryAddr = '';
+      if (shippingMode === 'delivery') {
+        const city = document.getElementById('city-input')?.value?.trim() || '';
+        const district = document.getElementById('district-input')?.value?.trim() || '';
+        const street = document.getElementById('street-input')?.value?.trim() || '';
+        deliveryAddr = [district, city, street].filter(Boolean).join('، ');
+      } else {
+        deliveryAddr = [ph?.name, ph?.city, ph?.district, ph?.address_details].filter(Boolean).join(' — ') || 'استلام من الصيدلية';
+      }
+      const ordersUrl = apiUrl ? `${apiUrl.replace(/\/$/, '')}/api/orders` : '/api/orders';
+      const response = await fetch(ordersUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          response_id: responseId,
+          delivery: shippingMode === 'delivery',
+          payment_method: payLabel.slice(0, 200),
+          delivery_address: (deliveryAddr || '').slice(0, 500) || null,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        let msg = (data && (data.message || data.title)) || '';
+        if (!msg && data && data.errors && typeof data.errors === 'object') {
+          for (const v of Object.values(data.errors)) {
+            if (Array.isArray(v) && v[0]) {
+              msg = String(v[0]);
+              break;
+            }
+            if (typeof v === 'string') {
+              msg = v;
+              break;
+            }
+          }
+        }
+        if (!msg) {
+          msg =
+            response.status === 401
+              ? 'انتهت الجلسة. سجّل الدخول مرة أخرى.'
+              : response.status === 409
+                ? 'يوجد طلب مسبق لهذا الطلب.'
+                : `تعذر التأكيد (${response.status}).`;
+        }
+        alert(msg);
+      } else {
+        setCheckoutStep(CheckoutStep.SHIPPING);
+        const oid = data?.order?.id;
+        window.setTimeout(() => {
+          window.location.href = oid
+            ? `/patient-order-confirmation?orderId=${encodeURIComponent(String(oid))}`
+            : '/patient-order-confirmation';
+        }, 250);
+      }
+    } catch (e) {
+      alert(e && e.message ? String(e.message) : 'حدث خطأ أثناء تأكيد الطلب (تحقق من الاتصال بالخادم).');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
+  });
+
+  function initPickupMapIfNeeded() {
+    if (shippingMode !== 'pickup') return;
+    if (!pickupMap && pharmacyLat != null && pharmacyLng != null) {
+      pickupMap = L.map('pickup-pharmacy-map', { zoomControl: true, attributionControl: false }).setView([pharmacyLat, pharmacyLng], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+      }).addTo(pickupMap);
+      L.marker([pharmacyLat, pharmacyLng]).addTo(pickupMap);
+      setTimeout(() => pickupMap.invalidateSize(), 100);
+      return;
+    }
+    if (pickupMap) setTimeout(() => pickupMap.invalidateSize(), 100);
+  }
+
+  // Shipping tabs toggle
+  document.querySelectorAll('.shipping-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.shipping-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      shippingMode = tab.getAttribute('data-mode') === 'pickup' ? 'pickup' : 'delivery';
+      document.getElementById('delivery-form').style.display = shippingMode === 'delivery' ? 'grid' : 'none';
+      document.getElementById('pickup-map-wrap').style.display = shippingMode === 'pickup' ? 'block' : 'none';
+      refreshOrderSummaryPricing();
+      initPickupMapIfNeeded();
+    });
+  });
+
+  document.getElementById('pickup-recenter-btn').addEventListener('click', () => {
+    if (!pickupMap || pharmacyLat == null || pharmacyLng == null) return;
+    pickupMap.flyTo([pharmacyLat, pharmacyLng], Math.max(pickupMap.getZoom(), 15), { animate: true, duration: 0.9 });
+  });
+
+  // Payment option toggle
+  document.querySelectorAll('.payment-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.payment-option').forEach(o => {
+        o.classList.remove('selected');
+        o.querySelector('.radio').classList.remove('checked');
+      });
+      opt.classList.add('selected');
+      opt.querySelector('.radio').classList.add('checked');
+    });
+  });
+</script>
+
+</body>
+</html>

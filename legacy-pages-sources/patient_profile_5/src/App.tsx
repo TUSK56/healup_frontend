@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { 
   User, 
   Bell, 
@@ -24,6 +24,12 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
+import dynamic from 'next/dynamic';
+import { getAuthErrorMessage } from '../../../src/services/authService';
+import { CHECKOUT_SELECTED_ADDRESS_KEY } from '../../../src/constants/checkoutAddress';
+import { patientService, PatientAddress, PatientMe } from '../../../src/services/patientService';
+
+const PatientAddressLeafletPicker = dynamic(() => import('../../../src/components/patient/views/PatientAddressLeafletPicker'), { ssr: false });
 
 // --- Components ---
 
@@ -49,14 +55,15 @@ const SectionHeader = ({ icon: Icon, title, action }: { icon: any; title: string
   </div>
 );
 
-const InputField = ({ label, value, icon: Icon, type = "text", placeholder }: { label: string; value: string; icon?: any; type?: string; placeholder?: string }) => (
+const InputField = ({ label, value, icon: Icon, type = "text", placeholder, onChange }: { label: string; value: string; icon?: any; type?: string; placeholder?: string; onChange?: (v: string) => void }) => (
   <div className="space-y-2">
     <label className="text-sm font-medium text-slate-500 mr-1">{label}</label>
     <div className="relative">
       <input 
         type={type}
-        defaultValue={value}
+        value={value}
         placeholder={placeholder}
+        onChange={(e) => onChange?.(e.target.value)}
         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-healup-blue/20 focus:border-healup-blue transition-all text-slate-700"
       />
       {Icon && (
@@ -72,6 +79,303 @@ const InputField = ({ label, value, icon: Icon, type = "text", placeholder }: { 
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('personal');
+  const [me, setMe] = useState<PatientMe | null>(null);
+  const [draft, setDraft] = useState({ name: '', email: '', phone: '', date_of_birth: '' });
+  const [initial, setInitial] = useState({ name: '', email: '', phone: '', date_of_birth: '' });
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [addresses, setAddresses] = useState<PatientAddress[]>([]);
+  /** Snapshot of last saved addresses (server). Deletes apply on «حفظ التغييرات». */
+  const [initialAddresses, setInitialAddresses] = useState<PatientAddress[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [pwdOpen, setPwdOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwdError, setPwdError] = useState<string | null>(null);
+  const [pwdShake, setPwdShake] = useState(false);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const [pickOpen, setPickOpen] = useState(false);
+  const [pickLat, setPickLat] = useState<number>(30.0444);
+  const [pickLng, setPickLng] = useState<number>(31.2357);
+  const [pickFocus, setPickFocus] = useState(0);
+  const [pickCity, setPickCity] = useState<string>('');
+  const [pickDistrict, setPickDistrict] = useState<string>('');
+  const [pickAddress, setPickAddress] = useState<string>('');
+
+  const [nameOpen, setNameOpen] = useState(false);
+  const [addrLabel, setAddrLabel] = useState('المنزل');
+  const [addrIcon, setAddrIcon] = useState<'home'|'work'|'other'>('home');
+  const [addressSaving, setAddressSaving] = useState(false);
+  const [addressError, setAddressError] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  /** Selected address for checkout (العناوين المسجلة); persisted on «حفظ التغييرات». */
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  const [persistedAddressSelectionId, setPersistedAddressSelectionId] = useState<number | null>(null);
+
+  const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(initial), [draft, initial]);
+  const selectionDirty = useMemo(
+    () => selectedAddressId !== persistedAddressSelectionId,
+    [selectedAddressId, persistedAddressSelectionId],
+  );
+  const addressBookDirty = useMemo(() => {
+    const cur = addresses
+      .map((a) => a.id)
+      .slice()
+      .sort((a, b) => a - b)
+      .join(",");
+    const ini = initialAddresses
+      .map((a) => a.id)
+      .slice()
+      .sort((a, b) => a - b)
+      .join(",");
+    return cur !== ini;
+  }, [addresses, initialAddresses]);
+  const canSave = isDirty || selectionDirty || addressBookDirty;
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const meRes = await patientService.getMe();
+        setMe(meRes.data);
+        const d = {
+          name: meRes.data.name || '',
+          email: meRes.data.email || '',
+          phone: meRes.data.phone || '',
+          date_of_birth: meRes.data.date_of_birth ? String(meRes.data.date_of_birth).slice(0, 10) : '',
+        };
+        setDraft(d);
+        setInitial(d);
+        const cachedAvatar = typeof window !== 'undefined' ? localStorage.getItem('healup_patient_avatar') : null;
+        const resolvedAvatar = meRes.data.avatar_url || (cachedAvatar && cachedAvatar.length > 10 ? cachedAvatar : null);
+        setAvatar(resolvedAvatar);
+        if (typeof window !== 'undefined' && meRes.data.avatar_url) {
+          localStorage.setItem('healup_patient_avatar', meRes.data.avatar_url);
+        }
+
+        const addrRes = await patientService.listAddresses();
+        const list = addrRes.data || [];
+        setAddresses(list);
+        setInitialAddresses(list.map((a) => ({ ...a })));
+
+        if (typeof window !== 'undefined') {
+          try {
+            const raw = localStorage.getItem(CHECKOUT_SELECTED_ADDRESS_KEY);
+            if (raw) {
+              const parsed = JSON.parse(raw) as { addressId?: number };
+              const id = Number(parsed.addressId);
+              if (Number.isFinite(id) && list.some((a) => a.id === id)) {
+                setSelectedAddressId(id);
+                setPersistedAddressSelectionId(id);
+              }
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    void load();
+  }, []);
+
+  const onSave = async () => {
+    setSaving(true);
+    try {
+      if (isDirty) {
+        const res = await patientService.updateMe({
+          name: draft.name,
+          email: draft.email,
+          phone: draft.phone,
+          dateOfBirth: draft.date_of_birth ? new Date(draft.date_of_birth).toISOString() : null,
+        });
+        const d = {
+          name: res.data.name || '',
+          email: res.data.email || '',
+          phone: res.data.phone || '',
+          date_of_birth: res.data.date_of_birth ? String(res.data.date_of_birth).slice(0, 10) : '',
+        };
+        setInitial(d);
+        setDraft(d);
+      }
+
+      if (addressBookDirty) {
+        for (const prev of initialAddresses) {
+          if (!addresses.some((a) => a.id === prev.id)) {
+            await patientService.deleteAddress(prev.id);
+          }
+        }
+        setInitialAddresses(addresses.map((a) => ({ ...a })));
+      }
+
+      if (typeof window !== 'undefined') {
+        if (selectedAddressId != null) {
+          localStorage.setItem(
+            CHECKOUT_SELECTED_ADDRESS_KEY,
+            JSON.stringify({ addressId: selectedAddressId }),
+          );
+        } else {
+          localStorage.removeItem(CHECKOUT_SELECTED_ADDRESS_KEY);
+        }
+      }
+      setPersistedAddressSelectionId(selectedAddressId);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onCancel = () => {
+    setDraft(initial);
+    setSelectedAddressId(persistedAddressSelectionId);
+    setAddresses(initialAddresses.map((a) => ({ ...a })));
+  };
+
+  const submitPassword = async () => {
+    setPwdError(null);
+    if (!currentPassword || !newPassword || !confirmPassword) return;
+    if (newPassword !== confirmPassword) {
+      setPwdError('كلمتا المرور غير متطابقتين');
+      setPwdShake(true);
+      setTimeout(() => setPwdShake(false), 450);
+      return;
+    }
+    try {
+      await patientService.changePassword({
+        currentPassword,
+        newPassword,
+        newPasswordConfirmation: confirmPassword,
+      });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPwdOpen(false);
+    } catch (e: unknown) {
+      setPwdError(getAuthErrorMessage(e, 'فشل تغيير كلمة المرور'));
+      setPwdShake(true);
+      setTimeout(() => setPwdShake(false), 450);
+    }
+  };
+
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(String(lat))}&lon=${encodeURIComponent(String(lng))}`);
+      const data = await res.json();
+      const a = data?.address || {};
+      const city = a.city || a.town || a.village || '';
+      const district = a.suburb || a.neighbourhood || a.county || '';
+      const display = data?.display_name || '';
+      setPickCity(city);
+      setPickDistrict(district);
+      setPickAddress(display);
+    } catch {
+      // ignore
+    }
+  };
+
+  const locateMe = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      setPickLat(lat);
+      setPickLng(lng);
+      setPickFocus((x) => x + 1);
+      void reverseGeocode(lat, lng);
+    });
+  };
+
+  const openAddAddress = () => {
+    setPickOpen(true);
+    setPickCity('');
+    setPickDistrict('');
+    setPickAddress('');
+    setTimeout(() => locateMe(), 50);
+  };
+
+  const onMapPick = (lat: number, lng: number) => {
+    setPickLat(lat);
+    setPickLng(lng);
+    setPickFocus((x) => x + 1);
+    void reverseGeocode(lat, lng);
+  };
+
+  const savePickedLocation = () => {
+    setPickOpen(false);
+    setNameOpen(true);
+    setAddrLabel('المنزل');
+    setAddrIcon('home');
+  };
+
+  const createAddress = async () => {
+    setAddressError(null);
+    setAddressSaving(true);
+    try {
+      const normalizedPayload = {
+        label: addrLabel.trim() || 'العنوان',
+        iconKey: addrIcon,
+        city: (pickCity || '').trim().slice(0, 120) || null,
+        district: (pickDistrict || '').trim().slice(0, 120) || null,
+        // Backend limit is 500 chars; reverse-geocode display names can exceed it.
+        addressDetails: (pickAddress || '').trim().slice(0, 500) || null,
+        latitude: pickLat,
+        longitude: pickLng,
+      };
+
+      const res = await patientService.createAddress(normalizedPayload);
+
+      // Show created address immediately, then try to sync from server.
+      if (res?.data) {
+        setAddresses((prev) => [res.data, ...prev.filter((x) => x.id !== res.data.id)]);
+        setInitialAddresses((prev) => [res.data, ...prev.filter((x) => x.id !== res.data.id)]);
+      }
+      try {
+        const fresh = await patientService.listAddresses();
+        const next = fresh.data || (res?.data ? [res.data] : []);
+        setAddresses(next);
+        setInitialAddresses(next.map((a) => ({ ...a })));
+      } catch {
+        // Keep optimistic address in UI if refresh fails; initialAddresses already updated if res.data.
+      }
+      setNameOpen(false);
+    } catch (e: unknown) {
+      setAddressError(getAuthErrorMessage(e, 'تعذر حفظ العنوان. حاول مرة أخرى.'));
+    } finally {
+      setAddressSaving(false);
+    }
+  };
+
+  const uploadAvatar = async (file: File) => {
+    setAvatarError(null);
+    const localPreview = URL.createObjectURL(file);
+    setAvatar(localPreview);
+    try {
+      const res = await patientService.uploadAvatar(file);
+      setAvatar(res.avatar_url);
+      localStorage.setItem('healup_patient_avatar', res.avatar_url);
+      window.dispatchEvent(new CustomEvent('healup:patient-profile-updated'));
+    } catch (e: unknown) {
+      // Fallback: persist locally if upload API fails.
+      try {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = String(reader.result || '');
+          if (!dataUrl) return;
+          setAvatar(dataUrl);
+          localStorage.setItem('healup_patient_avatar', dataUrl);
+          window.dispatchEvent(new CustomEvent('healup:patient-profile-updated'));
+        };
+        reader.readAsDataURL(file);
+      } catch {
+        setAvatarError(getAuthErrorMessage(e, 'تعذر حفظ صورة الملف الشخصي.'));
+      }
+    }
+  };
 
   const navItems = [
     { id: 'personal', label: 'البيانات الشخصية', icon: User },
@@ -95,8 +399,12 @@ export default function App() {
             <Bell size={20} />
             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
           </div>
-          <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer">
-            <User size={20} />
+          <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer overflow-hidden">
+            {avatar ? (
+              <img src={avatar} alt="avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            ) : (
+              <User size={20} />
+            )}
           </div>
         </div>
       </header>
@@ -110,20 +418,26 @@ export default function App() {
               <div className="relative group">
                 <div className="w-32 h-32 rounded-full border-4 border-slate-50 overflow-hidden shadow-lg">
                   <img 
-                    src="https://picsum.photos/seed/profile/200/200" 
+                    src={avatar || "https://picsum.photos/seed/profile/200/200"} 
                     alt="Profile" 
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
                 </div>
-                <button className="absolute bottom-1 right-1 p-2 bg-healup-blue text-white rounded-full shadow-md hover:scale-110 transition-transform">
+                <button type="button" onClick={() => fileRef.current?.click()} className="absolute bottom-1 right-1 p-2 bg-healup-blue text-white rounded-full shadow-md hover:scale-110 transition-transform">
                   <Camera size={16} />
                 </button>
+                <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void uploadAvatar(f);
+                  e.currentTarget.value = '';
+                }} />
+                {avatarError ? <div className="mt-2 text-xs text-red-600 font-bold">{avatarError}</div> : null}
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-3xl font-extrabold text-slate-800">أحمد محمد</h1>
-                <p className="text-slate-500 font-medium">مريض رقم: #HEAL-98231</p>
+                <h1 className="text-3xl font-extrabold text-slate-800">{me?.name || (loading ? '...' : '')}</h1>
+                <p className="text-slate-500 font-medium">مريض رقم: #{me?.id ?? '—'}</p>
                 <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
                   <span className="px-3 py-1 bg-healup-light-blue text-healup-blue text-xs font-bold rounded-full">فصيلة الدم: A+</span>
                   <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-full flex items-center gap-1">
@@ -144,14 +458,15 @@ export default function App() {
             <Card className="p-8 min-h-[300px]">
               <SectionHeader icon={User} title="البيانات الأساسية" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField label="الاسم بالكامل" value="أحمد محمد" />
-                <InputField label="البريد الإلكتروني" value="ahmed.mohamed@example.com" />
+                <InputField label="الاسم بالكامل" value={draft.name} onChange={(v) => setDraft((p) => ({ ...p, name: v }))} />
+                <InputField label="البريد الإلكتروني" value={draft.email} onChange={(v) => setDraft((p) => ({ ...p, email: v }))} />
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-500 mr-1">رقم الهاتف</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
-                      defaultValue="01012345678" 
+                      value={draft.phone}
+                      onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))}
                       className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-healup-blue/20 focus:border-healup-blue transition-all text-slate-700 text-left"
                       dir="ltr"
                     />
@@ -160,7 +475,7 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                <InputField label="تاريخ الميلاد" value="1990-05-15" type="date" />
+                <InputField label="تاريخ الميلاد" value={draft.date_of_birth} type="date" onChange={(v) => setDraft((p) => ({ ...p, date_of_birth: v }))} />
               </div>
             </Card>
 
@@ -170,32 +485,58 @@ export default function App() {
                 icon={MapPin} 
                 title="العناوين المسجلة" 
                 action={
-                  <button className="text-healup-blue font-bold flex items-center gap-1 hover:underline">
+                  <button type="button" onClick={openAddAddress} className="text-healup-blue font-bold flex items-center gap-1 hover:underline">
                     <Plus size={18} />
                     <span>إضافة عنوان جديد</span>
                   </button>
                 }
               />
               <div className="space-y-4">
-                {[
-                  { id: 1, type: 'المنزل', address: 'المعادي، القاهرة، شارع 9', icon: Home },
-                  { id: 2, type: 'العمل', address: 'مدينة نصر، القاهرة، الحي السابع', icon: Briefcase },
-                ].map((addr) => (
-                  <div key={addr.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-healup-blue/30 transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white rounded-xl text-healup-blue shadow-sm">
-                        <addr.icon size={20} />
+                {addresses.map((addr) => {
+                  const Icon = addr.icon_key === 'work' ? Briefcase : addr.icon_key === 'other' ? MapPin : Home;
+                  const line = [addr.district, addr.city, addr.address_details].filter(Boolean).join('، ');
+                  const isSelected = selectedAddressId === addr.id;
+                  return (
+                  <div
+                    key={addr.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedAddressId((cur) => (cur === addr.id ? null : addr.id))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedAddressId((cur) => (cur === addr.id ? null : addr.id));
+                      }
+                    }}
+                    className={cn(
+                      'flex items-center justify-between p-4 bg-slate-50 rounded-2xl border-2 transition-colors group cursor-pointer text-right',
+                      isSelected
+                        ? 'border-healup-blue shadow-md shadow-healup-blue/10 bg-white'
+                        : 'border-slate-100 hover:border-healup-blue/30',
+                    )}
+                  >
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <div className="p-3 bg-white rounded-xl text-healup-blue shadow-sm shrink-0">
+                        <Icon size={20} />
                       </div>
-                      <div>
-                        <h4 className="font-bold text-slate-800">{addr.type}</h4>
-                        <p className="text-sm text-slate-500">{addr.address}</p>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-slate-800">{addr.label}</h4>
+                        <p className="text-sm text-slate-500 break-words">{line || '—'}</p>
                       </div>
                     </div>
-                    <button className="p-2 text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAddresses((p) => p.filter((x) => x.id !== addr.id));
+                        setSelectedAddressId((cur) => (cur === addr.id ? null : cur));
+                      }}
+                      className="p-2 text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </div>
-                ))}
+                )})}
               </div>
             </Card>
 
@@ -212,18 +553,40 @@ export default function App() {
                     <p className="text-sm text-slate-500">آخر تغيير منذ 3 أشهر</p>
                   </div>
                 </div>
-                <button className="px-6 py-2.5 bg-healup-light-blue text-healup-blue font-bold rounded-xl hover:bg-healup-blue hover:text-white transition-all">
+                <button type="button" onClick={() => setPwdOpen((v) => !v)} className="px-6 py-2.5 bg-healup-light-blue text-healup-blue font-bold rounded-xl hover:bg-healup-blue hover:text-white transition-all">
                   تغيير كلمة المرور
                 </button>
               </div>
+
+              <AnimatePresence>
+                {pwdOpen ? (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className={cn("mt-4 overflow-hidden", pwdShake ? "animate-[shake_.35s]" : "")}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <InputField label="كلمة المرور الحالية" value={currentPassword} type="password" onChange={setCurrentPassword} />
+                      <InputField label="كلمة المرور الجديدة" value={newPassword} type="password" onChange={setNewPassword} />
+                      <InputField label="تأكيد كلمة المرور" value={confirmPassword} type="password" onChange={setConfirmPassword} />
+                      {pwdError ? <div className="md:col-span-3 text-sm text-red-600 font-bold">{pwdError}</div> : null}
+                      <div className="md:col-span-3 flex justify-end gap-2">
+                        <button type="button" onClick={() => setPwdOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">إلغاء</button>
+                        <button type="button" onClick={() => void submitPassword()} className="px-5 py-2.5 bg-healup-blue text-white rounded-xl font-bold">حفظ</button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
             </Card>
 
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-4 pt-4">
-              <button className="flex-1 sm:flex-none px-10 py-4 bg-white text-slate-500 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
+              <button type="button" onClick={onCancel} className="flex-1 sm:flex-none px-10 py-4 bg-white text-slate-500 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
                 إلغاء
               </button>
-              <button className="flex-1 sm:flex-none px-10 py-4 bg-healup-blue text-white font-bold rounded-2xl shadow-lg shadow-healup-blue/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <button type="button" disabled={!canSave || saving} onClick={() => void onSave()} className="flex-1 sm:flex-none px-10 py-4 bg-healup-blue text-white font-bold rounded-2xl shadow-lg shadow-healup-blue/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
                 <CheckCircle2 size={20} />
                 <span>حفظ التغييرات</span>
               </button>
@@ -237,6 +600,80 @@ export default function App() {
       <footer className="mt-12 py-8 border-t border-slate-100 text-center text-slate-400 text-sm">
         <p>© 2024 هيل أب للخدمات الطبية. جميع الحقوق محفوظة.</p>
       </footer>
+
+      {/* Map modal */}
+      <AnimatePresence>
+        {pickOpen ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[3000] bg-black/40 p-4 flex items-center justify-center">
+            <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+              <div className="p-5 flex items-center justify-between">
+                <div className="font-extrabold text-slate-800">اختيار العنوان</div>
+                <button type="button" className="text-slate-500 text-2xl" onClick={() => setPickOpen(false)}>×</button>
+              </div>
+              <div style={{ height: 360, position: 'relative' }}>
+                <PatientAddressLeafletPicker latitude={pickLat} longitude={pickLng} focusToken={pickFocus} onPick={onMapPick} />
+                <button
+                  type="button"
+                  onClick={locateMe}
+                  style={{ position: 'absolute', left: 12, bottom: 12, zIndex: 1200 }}
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-700 shadow"
+                >
+                  موقعي الحالي
+                </button>
+              </div>
+              <div className="p-5">
+                <div className="text-sm text-slate-500 font-bold mb-2">العنوان</div>
+                <div className="text-slate-700 text-sm">{pickAddress || 'اختر موقعًا من الخريطة'}</div>
+                <div className="mt-4 flex justify-end gap-2">
+                  <button type="button" onClick={() => setPickOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">إلغاء</button>
+                  <button type="button" onClick={savePickedLocation} className="px-5 py-2.5 bg-healup-blue text-white rounded-xl font-bold">حفظ</button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {/* Name + icon modal */}
+      <AnimatePresence>
+        {nameOpen ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[3100] bg-black/40 p-4 flex items-center justify-center">
+            <div className="w-full max-w-md bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="font-extrabold text-slate-800">حفظ العنوان</div>
+                <button type="button" className="text-slate-500 text-2xl" onClick={() => setNameOpen(false)}>×</button>
+              </div>
+              <div className="space-y-3">
+                <InputField label="اسم العنوان" value={addrLabel} onChange={setAddrLabel} />
+                <div className="text-sm font-bold text-slate-600">الأيقونة</div>
+                <div className="flex gap-2">
+                  {[
+                    { k: 'home', Icon: Home },
+                    { k: 'work', Icon: Briefcase },
+                    { k: 'other', Icon: MapPin },
+                  ].map((it) => (
+                    <button
+                      key={it.k}
+                      type="button"
+                      onClick={() => setAddrIcon(it.k as any)}
+                      className={cn("flex-1 border rounded-2xl p-3 font-bold", addrIcon === it.k ? "border-healup-blue bg-healup-light-blue text-healup-blue" : "border-slate-200 bg-white text-slate-600")}
+                    >
+                      <div className="flex items-center justify-center">
+                        <it.Icon size={18} />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {addressError ? <div className="text-sm text-red-600 font-bold">{addressError}</div> : null}
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setNameOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">إلغاء</button>
+                  <button type="button" disabled={addressSaving} onClick={() => void createAddress()} className="px-5 py-2.5 bg-healup-blue text-white rounded-xl font-bold disabled:opacity-60 disabled:cursor-not-allowed">حفظ</button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

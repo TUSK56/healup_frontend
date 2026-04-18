@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cairo } from 'next/font/google';
 import './globals.css';
+import "leaflet/dist/leaflet.css";
 
 export const metadata: Metadata = {
   title: 'HealUp - Medicine Request Platform',
