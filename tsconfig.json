@@ -15,6 +15,15 @@
     "plugins": [{ "name": "next" }],
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "standalone-exports", "pages", "legacy-pages-sources"]
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "public",
+    "public/**",
+    "standalone-exports",
+    "standalone-exports/**",
+    "pages",
+    "legacy-pages-sources",
+    "legacy-pages-sources/**"
+  ]
 }
