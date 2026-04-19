@@ -1,8 +1,15 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const DEV_FALLBACK_API_URL = 'https://healup1.runasp.net';
-const resolvedApiUrl = API_URL || (process.env.NODE_ENV === 'development' ? DEV_FALLBACK_API_URL : '');
+const PRIMARY_API_URL = 'https://healup2.runasp.net';
+
+function normalizeApiUrl(url?: string | null): string {
+  const raw = String(url || '').trim();
+  if (!raw) return PRIMARY_API_URL;
+  return raw.replace(/healup1\.runasp\.net/gi, 'healup2.runasp.net').replace(/\/$/, '');
+}
+
+const resolvedApiUrl = normalizeApiUrl(API_URL);
 const REQUEST_TIMEOUT_MS = 12000;
 const MAX_GET_RETRIES = 2;
 
@@ -33,6 +40,11 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('healup_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    const storedApiUrl = localStorage.getItem('healup_api_url');
+    if (storedApiUrl && /healup1\.runasp\.net/i.test(storedApiUrl)) {
+      localStorage.setItem('healup_api_url', normalizeApiUrl(storedApiUrl));
     }
   }
   return config;

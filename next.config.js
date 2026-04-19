@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
-const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '');
+const PRIMARY_API_URL = 'https://healup2.runasp.net';
+
+function normalizeApiBaseUrl(url) {
+  const raw = String(url || '').trim();
+  if (!raw) return PRIMARY_API_URL;
+  return raw.replace(/healup1\.runasp\.net/gi, 'healup2.runasp.net').replace(/\/$/, '');
+}
+
+const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
 
 const noCacheHeaders = [
   { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
