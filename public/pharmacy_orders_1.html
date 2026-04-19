@@ -763,7 +763,8 @@
 </div>
 
 <script>
-  const API_BASE = (localStorage.getItem("healup_api_url") || "http://localhost:8000") + "/api";
+  const apiRoot = String(localStorage.getItem("healup_api_url") || "").trim().replace(/\/$/, "");
+  const API_BASE = apiRoot ? `${apiRoot}/api` : "/api";
   const token = localStorage.getItem("healup_token");
   const cardsGrid = document.querySelector(".cards-grid");
   const loadMoreBtn = document.querySelector(".load-more-btn");
