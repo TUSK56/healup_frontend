@@ -81,44 +81,55 @@ export default function App() {
         setLoading(true);
       }
       try {
-        const [reqRes, orderRes] = await Promise.all([requestService.list(), orderService.list().catch(() => ({ data: [] }))]);
+        const reqRes = await requestService.list();
         const nextRequests = reqRes.data || [];
         setRequests(nextRequests);
 
-        const byRequest: Record<number, { id: number; status: string; created_at: string }> = {};
-        for (const order of orderRes.data || []) {
-          if (!Number.isFinite(order.request_id)) continue;
-          const existing = byRequest[order.request_id];
-          if (!existing) {
-            byRequest[order.request_id] = {
-              id: order.id,
-              status: order.status,
-              created_at: order.created_at,
-            };
-            continue;
-          }
-          const existingTs = parseServerDate(existing.created_at).getTime();
-          const nextTs = parseServerDate(order.created_at).getTime();
-          if (nextTs >= existingTs) {
-            byRequest[order.request_id] = {
-              id: order.id,
-              status: order.status,
-              created_at: order.created_at,
-            };
-          }
-        }
-        setOrderByRequest(byRequest);
+        setLoading(false);
+
+        void orderService.list()
+          .then((orderRes) => {
+            const byRequest: Record<number, { id: number; status: string; created_at: string }> = {};
+            for (const order of orderRes.data || []) {
+              if (!Number.isFinite(order.request_id)) continue;
+              const existing = byRequest[order.request_id];
+              if (!existing) {
+                byRequest[order.request_id] = {
+                  id: order.id,
+                  status: order.status,
+                  created_at: order.created_at,
+                };
+                continue;
+              }
+              const existingTs = parseServerDate(existing.created_at).getTime();
+              const nextTs = parseServerDate(order.created_at).getTime();
+              if (nextTs >= existingTs) {
+                byRequest[order.request_id] = {
+                  id: order.id,
+                  status: order.status,
+                  created_at: order.created_at,
+                };
+              }
+            }
+            setOrderByRequest(byRequest);
+            try {
+              localStorage.setItem(ORDERS_BY_REQUEST_CACHE_KEY, JSON.stringify(byRequest));
+            } catch {
+              // ignore storage errors
+            }
+          })
+          .catch(() => {
+            // keep request list visible even if orders API is slow/failing
+          });
         try {
           localStorage.setItem(REQUESTS_CACHE_KEY, JSON.stringify(nextRequests));
-          localStorage.setItem(ORDERS_BY_REQUEST_CACHE_KEY, JSON.stringify(byRequest));
         } catch {
           // ignore storage errors
         }
       } catch {
-        if (!hasCachedData) {
-          setRequests([]);
-          setOrderByRequest({});
-        }
+          if (!hasCachedData) {
+            setLoading(false);
+          }
       } finally {
         setLoading(false);
       }
