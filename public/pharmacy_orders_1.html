@@ -774,22 +774,15 @@
 </div>
 
 <script>
-  const normalizeApiRoot = (value) =>
-    String(value || "")
-      .trim()
-      .replace(/healup1\.runasp\.net/gi, "healup2.runasp.net")
-      .replace(/\/$/, "");
-
   const savedApiRoot = localStorage.getItem("healup_api_url");
-  const apiRoot = normalizeApiRoot(savedApiRoot);
-  if (savedApiRoot && apiRoot && savedApiRoot !== apiRoot) {
+  if (savedApiRoot) {
     try {
-      localStorage.setItem("healup_api_url", apiRoot);
+      localStorage.removeItem("healup_api_url");
     } catch {
       // no-op
     }
   }
-  const API_BASE = apiRoot ? `${apiRoot}/api` : "/api";
+  const API_BASE = "/api";
   const REQUEST_TIMEOUT_MS = 12000;
   const REQUESTS_CACHE_KEY = "healup_pharmacy_requests_cache_v1";
   const token = localStorage.getItem("healup_token");
