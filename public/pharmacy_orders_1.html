@@ -777,6 +777,7 @@
   const apiRoot = String(localStorage.getItem("healup_api_url") || "").trim().replace(/\/$/, "");
   const API_BASE = apiRoot ? `${apiRoot}/api` : "/api";
   const REQUEST_TIMEOUT_MS = 12000;
+  const REQUESTS_CACHE_KEY = "healup_pharmacy_requests_cache_v1";
   const token = localStorage.getItem("healup_token");
   const cardsGrid = document.querySelector(".cards-grid");
   const loadMoreBtn = document.querySelector(".load-more-btn");
@@ -803,6 +804,24 @@
   const updateSubtitleCount = () => {
     if (!subtitleCountEl) return;
     subtitleCountEl.textContent = `${allRequests.length} طلب`;
+  };
+
+  const saveRequestsCache = () => {
+    try {
+      localStorage.setItem(REQUESTS_CACHE_KEY, JSON.stringify(allRequests));
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  const loadRequestsCache = () => {
+    try {
+      const raw = localStorage.getItem(REQUESTS_CACHE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   };
 
   const fetchWithTimeout = async (url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) => {
@@ -1278,6 +1297,7 @@
       renderCards();
       refreshTimes();
       updateSubtitleCount();
+      saveRequestsCache();
 
       const params = new URLSearchParams(window.location.search);
       const openRequestId = Number(params.get("openRequestId") || 0);
@@ -1292,6 +1312,16 @@
         });
       }
     } catch {
+      if (!allRequests.length) {
+        const cached = loadRequestsCache();
+        if (cached.length) {
+          allRequests = sortRequestsNewestFirst(cached);
+          visibleCount = Math.min(PAGE_SIZE, allRequests.length);
+          renderCards();
+          refreshTimes();
+          updateSubtitleCount();
+        }
+      }
       if (!allRequests.length) {
         setOrdersState("تعذر تحميل الطلبات حالياً. حاول التحديث بعد قليل.");
       }

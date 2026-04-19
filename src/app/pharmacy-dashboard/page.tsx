@@ -118,10 +118,7 @@ export default function PharmacyDashboardPage() {
       setCompletedTodayTotal(completedTodayCount);
       setRevenueTotal(completedRevenue);
     } catch {
-      setActivityRows([]);
-      setInProgressTotal(0);
-      setCompletedTodayTotal(0);
-      setRevenueTotal(0);
+      // Keep last successful snapshot on transient failures.
     } finally {
       activityInFlightRef.current = false;
     }
@@ -161,8 +158,7 @@ export default function PharmacyDashboardPage() {
       });
       setNewRequests(rows);
     } catch {
-      setNewRequests([]);
-      setIncomingTotal(0);
+      // Keep last successful snapshot on transient failures.
     } finally {
       incomingInFlightRef.current = false;
     }

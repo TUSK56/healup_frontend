@@ -26,7 +26,7 @@ export async function getNotifications(options?: { force?: boolean }): Promise<A
     return notificationsCache;
   }
 
-  if (!force && inFlightPromise) {
+  if (inFlightPromise) {
     return inFlightPromise;
   }
 

@@ -58,6 +58,7 @@ export default function App() {
   const tabs = ['الكل', 'قيد التنفيذ', 'المكتملة', 'الملغاة'];
 
   useEffect(() => {
+    let hasCachedData = false;
     try {
       const cachedRequests = localStorage.getItem(REQUESTS_CACHE_KEY);
       const cachedOrderMap = localStorage.getItem(ORDERS_BY_REQUEST_CACHE_KEY);
@@ -69,13 +70,16 @@ export default function App() {
         setRequests(parsedRequests);
         setOrderByRequest(parsedOrderMap || {});
         setLoading(false);
+        hasCachedData = true;
       }
     } catch {
       // ignore cache parse errors
     }
 
     const load = async () => {
-      setLoading(true);
+      if (!hasCachedData) {
+        setLoading(true);
+      }
       try {
         const [reqRes, orderRes] = await Promise.all([requestService.list(), orderService.list().catch(() => ({ data: [] }))]);
         const nextRequests = reqRes.data || [];
@@ -109,6 +113,11 @@ export default function App() {
           localStorage.setItem(ORDERS_BY_REQUEST_CACHE_KEY, JSON.stringify(byRequest));
         } catch {
           // ignore storage errors
+        }
+      } catch {
+        if (!hasCachedData) {
+          setRequests([]);
+          setOrderByRequest({});
         }
       } finally {
         setLoading(false);
