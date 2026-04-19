@@ -1,9 +1,20 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const DEV_FALLBACK_API_URL = 'https://healup1.runasp.net';
+const resolvedApiUrl = API_URL || (process.env.NODE_ENV === 'development' ? DEV_FALLBACK_API_URL : '');
+
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  if (!API_URL) {
+    console.warn('NEXT_PUBLIC_API_URL is not set in production; API calls will use relative /api routes.');
+  }
+  if (API_URL && /localhost|127\.0\.0\.1/i.test(API_URL)) {
+    console.warn(`NEXT_PUBLIC_API_URL points to a local address in production: ${API_URL}`);
+  }
+}
 
 export const api: AxiosInstance = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: `${resolvedApiUrl}/api`,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
