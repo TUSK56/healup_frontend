@@ -37,6 +37,9 @@ export default function PharmacyDashboardPage() {
       created_at: string;
     }>
   >([]);
+  const [inProgressTotal, setInProgressTotal] = React.useState(0);
+  const [completedTodayTotal, setCompletedTodayTotal] = React.useState(0);
+  const [revenueTotal, setRevenueTotal] = React.useState(0);
   const [shippingOrderId, setShippingOrderId] = React.useState<number | null>(null);
 
   const relativeTime = React.useCallback((createdAt: string) => {
@@ -69,7 +72,9 @@ export default function PharmacyDashboardPage() {
         }>;
       }>("/orders");
 
-      const rows = (res.data?.data || [])
+      const allOrders = res.data?.data || [];
+
+      const rows = allOrders
         .filter((o) => ["pending_pharmacy_confirmation", "confirmed", "preparing", "out_for_delivery", "ready_for_pickup", "completed"].includes((o.status || "").toLowerCase()))
         .sort((a, b) => parseServerDate(b.created_at).getTime() - parseServerDate(a.created_at).getTime())
         .slice(0, 3)
@@ -81,9 +86,38 @@ export default function PharmacyDashboardPage() {
           created_at: o.created_at,
         }));
 
+      const inProgressStatuses = new Set([
+        "pending_pharmacy_confirmation",
+        "confirmed",
+        "preparing",
+        "out_for_delivery",
+        "ready_for_pickup",
+      ]);
+      const completedStatuses = new Set(["completed"]);
+      const now = new Date();
+      const inProgressCount = allOrders.filter((o) => inProgressStatuses.has((o.status || "").toLowerCase())).length;
+      const completedTodayCount = allOrders.filter((o) => {
+        const created = parseServerDate(o.created_at);
+        return (
+          completedStatuses.has((o.status || "").toLowerCase()) &&
+          created.getFullYear() === now.getFullYear() &&
+          created.getMonth() === now.getMonth() &&
+          created.getDate() === now.getDate()
+        );
+      }).length;
+      const completedRevenue = allOrders
+        .filter((o) => completedStatuses.has((o.status || "").toLowerCase()))
+        .reduce((sum, o) => sum + Number(o.total_price || 0), 0);
+
       setActivityRows(rows);
+      setInProgressTotal(inProgressCount);
+      setCompletedTodayTotal(completedTodayCount);
+      setRevenueTotal(completedRevenue);
     } catch {
       setActivityRows([]);
+      setInProgressTotal(0);
+      setCompletedTodayTotal(0);
+      setRevenueTotal(0);
     }
   }, [parseServerDate]);
 
@@ -125,12 +159,12 @@ export default function PharmacyDashboardPage() {
   }, [parseServerDate]);
 
   React.useEffect(() => {
-    void loadIncoming();
-    void loadActivity();
+    void Promise.all([loadIncoming(), loadActivity()]);
     const timer = window.setInterval(() => {
       setNowTick((x) => x + 1);
+      void loadIncoming();
       void loadActivity();
-    }, 30000);
+    }, 15000);
     return () => window.clearInterval(timer);
   }, [loadIncoming, loadActivity]);
 
@@ -169,7 +203,7 @@ export default function PharmacyDashboardPage() {
                 <span className="stat-badge badge-orange">نشط</span>
               </div>
               <div className="stat-label">طلبات قيد التنفيذ</div>
-              <div className="stat-value">25</div>
+              <div className="stat-value">{inProgressTotal}</div>
             </div>
 
             <div className="stat-card">
@@ -183,7 +217,7 @@ export default function PharmacyDashboardPage() {
                 <span className="stat-badge badge-green">48 اليوم</span>
               </div>
               <div className="stat-label">مكتمل اليوم</div>
-              <div className="stat-value">48</div>
+              <div className="stat-value">{completedTodayTotal}</div>
             </div>
 
             <div className="stat-card">
@@ -200,7 +234,7 @@ export default function PharmacyDashboardPage() {
               </div>
               <div className="stat-label">إجمالي الإيرادات</div>
               <div className="stat-value">
-                3,500 <span>ج.م</span>
+                {revenueTotal.toLocaleString("ar-EG", { maximumFractionDigits: 2 })} <span>ج.م</span>
               </div>
             </div>
           </div>

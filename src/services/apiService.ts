@@ -3,6 +3,12 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEV_FALLBACK_API_URL = 'https://healup1.runasp.net';
 const resolvedApiUrl = API_URL || (process.env.NODE_ENV === 'development' ? DEV_FALLBACK_API_URL : '');
+const REQUEST_TIMEOUT_MS = 12000;
+const MAX_GET_RETRIES = 2;
+
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  _retryCount?: number;
+};
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
   if (!API_URL) {
@@ -15,6 +21,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
 
 export const api: AxiosInstance = axios.create({
   baseURL: `${resolvedApiUrl}/api`,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -33,7 +40,26 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const config = error.config as RetryableRequestConfig | undefined;
+    const method = String(config?.method || 'get').toLowerCase();
+    const status = error.response?.status;
+    const isTransientGatewayError = status === 502 || status === 503 || status === 504 || status === 408;
+    const isNetworkOrTimeout = !error.response;
+    const retryCount = config?._retryCount || 0;
+    const shouldRetry =
+      Boolean(config) &&
+      method === 'get' &&
+      (isTransientGatewayError || isNetworkOrTimeout) &&
+      retryCount < MAX_GET_RETRIES;
+
+    if (shouldRetry && config) {
+      config._retryCount = retryCount + 1;
+      const delayMs = 350 * Math.pow(2, retryCount);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      return api(config);
+    }
+
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('healup_token');
