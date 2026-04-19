@@ -4,6 +4,7 @@ import Link from "next/link";
 import { authService } from "@/services/authService";
 import { getCart } from "@/lib/cartStorage";
 import styles from "./PatientSidebar.module.css";
+import HealupLogo from "@/components/HealupLogo";
 
 type Props = {
   open?: boolean;
@@ -22,26 +23,7 @@ export default function PatientSidebar({ open = true, onClose, mode = "dynamic",
   const sidebar = (
       <aside className={`${styles.panel} ${mode === "dynamic" ? styles.dynamicPanel : ""}`}>
         <div className={styles.header}>
-          <Link href="/patient-home" className={styles.brandLink} onClick={onClose}>
-            <span className={styles.logoIcon}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 3h6v3H9z" />
-                <path d="M3 7h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
-                <line x1="12" y1="11" x2="12" y2="17" />
-                <line x1="9" y1="14" x2="15" y2="14" />
-              </svg>
-            </span>
-            <span className={styles.brand}>Healup</span>
-          </Link>
+          <HealupLogo href="/patient-home" onClick={onClose} />
           {mode === "dynamic" ? (
             <button type="button" onClick={onClose} className={styles.closeBtn}>
               ×

@@ -7,6 +7,9 @@ export interface PatientRegister {
   name: string;
   email: string;
   phone?: string;
+  city?: string;
+  district?: string;
+  addressDetails?: string;
   password: string;
   passwordConfirmation: string;
   latitude?: number;

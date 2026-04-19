@@ -77,6 +77,8 @@ export default function App() {
     status?: string | null;
     payment_method?: string | null;
     delivery_address_snapshot?: string | null;
+    coupon_code?: string | null;
+    coupon_percent?: number | null;
   } | null>(null);
 
   const loadPageData = useMemo(() => {
@@ -101,6 +103,8 @@ export default function App() {
               status?: string | null;
               payment_method?: string | null;
               delivery_address_snapshot?: string | null;
+              coupon_code?: string | null;
+              coupon_percent?: number | null;
             }>;
           }>('/orders');
           const row = (ordRes.data?.data || []).find((o) => Number(o.request_id) === Number(requestId));
@@ -111,6 +115,8 @@ export default function App() {
                   status: row.status,
                   payment_method: row.payment_method,
                   delivery_address_snapshot: row.delivery_address_snapshot,
+                  coupon_code: row.coupon_code,
+                  coupon_percent: row.coupon_percent,
                 }
               : null,
           );
@@ -192,6 +198,22 @@ export default function App() {
     return (request?.medicines || []).reduce((sum, m) => sum + Number(m.quantity || 0), 0);
   }, [request?.medicines]);
 
+  const couponPercent = useMemo(() => {
+    const raw = Number(orderSnapshot?.coupon_percent || 0);
+    if (!Number.isFinite(raw)) return 0;
+    return Math.max(0, Math.min(100, raw));
+  }, [orderSnapshot?.coupon_percent]);
+
+  const discount = useMemo(() => {
+    if (typeof medicineSubtotal !== 'number' || couponPercent <= 0) return 0;
+    return medicineSubtotal * (couponPercent / 100);
+  }, [medicineSubtotal, couponPercent]);
+
+  const subtotalAfterDiscount = useMemo(() => {
+    if (typeof medicineSubtotal !== 'number') return null;
+    return Math.max(0, medicineSubtotal - discount);
+  }, [medicineSubtotal, discount]);
+
   /** Same rule as cart / order create: pickup has no fee; home delivery 25 if &lt; 5 units else 0. Ignore pharmacy offer delivery_fee. */
   const deliveryFee = useMemo(() => {
     if (orderSnapshot?.delivery === false) return 0;
@@ -200,14 +222,14 @@ export default function App() {
 
   /** VAT on medicines subtotal only (matches checkout / patient_after_pharmacy_confirmation). */
   const tax = useMemo(() => {
-    if (typeof medicineSubtotal !== 'number') return null;
-    return medicineSubtotal * 0.15;
-  }, [medicineSubtotal]);
+    if (typeof subtotalAfterDiscount !== 'number') return null;
+    return subtotalAfterDiscount * 0.15;
+  }, [subtotalAfterDiscount]);
 
   const grandTotal = useMemo(() => {
-    if (typeof medicineSubtotal !== 'number' || typeof tax !== 'number') return null;
-    return medicineSubtotal + deliveryFee + tax;
-  }, [medicineSubtotal, tax, deliveryFee]);
+    if (typeof subtotalAfterDiscount !== 'number' || typeof tax !== 'number') return null;
+    return subtotalAfterDiscount + deliveryFee + tax;
+  }, [subtotalAfterDiscount, tax, deliveryFee]);
 
   const parseServerDate = (value: string) => {
     const v = (value || '').trim();
@@ -222,17 +244,21 @@ export default function App() {
     : '';
 
   const orderStatus = (orderSnapshot?.status || '').trim().toLowerCase();
+  const hasTrackedOrder = Boolean(orderSnapshot && orderStatus);
   const isOrderCompleted = orderStatus === 'completed';
   const statusStage = (() => {
+    if (!hasTrackedOrder) return 0;
     if (orderStatus === 'completed') return 4;
     if (orderStatus === 'out_for_delivery') return 3;
     if (orderStatus === 'preparing') return 2;
     if (orderStatus === 'confirmed') return 1;
     return 0;
   })();
-  const statusPercent = statusStage === 0 ? 25 : statusStage * 25;
+  const statusPercent = statusStage * 25;
   const statusBadgeText =
-    orderStatus === 'completed'
+    !hasTrackedOrder
+      ? 'لا يوجد طلب مؤكد'
+      : orderStatus === 'completed'
       ? 'تم التسليم'
       : orderStatus === 'out_for_delivery'
         ? 'خرج للتوصيل'
@@ -387,8 +413,8 @@ export default function App() {
             <motion.section variants={itemVariants} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
               <div className="mb-8 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-slate-900">حالة الطلب</h2>
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${isOrderCompleted ? 'bg-success/10 text-success' : 'bg-blue-50 text-[#1a56db]'}`}>
-                  <div className={`h-1.5 w-1.5 rounded-full ${isOrderCompleted ? 'bg-success animate-pulse' : 'bg-[#1a56db] animate-pulse'}`} />
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${!hasTrackedOrder ? 'bg-slate-100 text-slate-600' : isOrderCompleted ? 'bg-success/10 text-success' : 'bg-blue-50 text-[#1a56db]'}`}>
+                  <div className={`h-1.5 w-1.5 rounded-full ${!hasTrackedOrder ? 'bg-slate-500' : isOrderCompleted ? 'bg-success animate-pulse' : 'bg-[#1a56db] animate-pulse'}`} />
                   {statusBadgeText}
                 </span>
               </div>
@@ -591,6 +617,12 @@ export default function App() {
                   <span>رسوم التوصيل</span>
                   <span className="font-medium">{deliveryFee.toFixed(2)} ج.م</span>
                 </div>
+                {discount > 0 ? (
+                  <div className="flex justify-between text-slate-600">
+                    <span>الخصم{orderSnapshot?.coupon_code ? ` (${orderSnapshot.coupon_code})` : ''}</span>
+                    <span className="font-medium text-emerald-700">-{discount.toFixed(2)} ج.م</span>
+                  </div>
+                ) : null}
                 <div className="flex justify-between text-slate-600">
                   <span>ضريبة القيمة المضافة (15%)</span>
                   <span className="font-medium">{typeof tax === 'number' ? `${tax.toFixed(2)} ج.م` : '--'}</span>

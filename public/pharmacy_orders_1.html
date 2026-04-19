@@ -376,6 +376,15 @@
     background: #fff;
   }
 
+  .price-row .price-unit-fixed {
+    background: #f8fafc;
+    color: #475569;
+    text-align: center;
+    cursor: default;
+    pointer-events: none;
+    user-select: none;
+  }
+
   .price-actions {
     display: flex;
     gap: 8px;
@@ -754,7 +763,7 @@
 </div>
 
 <script>
-  const API_BASE = (localStorage.getItem("healup_api_url") || "http://localhost:5000") + "/api";
+  const API_BASE = (localStorage.getItem("healup_api_url") || "http://localhost:8000") + "/api";
   const token = localStorage.getItem("healup_token");
   const cardsGrid = document.querySelector(".cards-grid");
   const loadMoreBtn = document.querySelector(".load-more-btn");
@@ -802,7 +811,7 @@
     (!(request.medicines?.length) ||
       (request.medicines || []).every((m) => !String(m.medicine_name || "").trim()));
 
-  const manualRowHtml = () => `
+  const manualRowHtml = (qty = 1) => `
     <div class="price-row price-row-manual" data-manual-row>
       <div class="price-field">
         <label class="price-label">اسم الدواء</label>
@@ -810,10 +819,10 @@
       </div>
       <div class="price-field">
         <label class="price-label">الكمية</label>
-        <input type="number" min="1" step="1" value="1" data-qty-input />
+        <input type="number" min="1" step="1" value="${Math.max(1, Number(qty) || 1)}" data-qty-input />
       </div>
       <div class="price-field">
-        <label class="price-label">السعر (ج.م)</label>
+        <label class="price-label">سعر القطعة (ج.م)</label>
         <input type="number" min="0" step="0.01" placeholder="0" data-price-input />
       </div>
       <button type="button" class="price-row-remove" data-remove-manual-row title="حذف الصف">×</button>
@@ -1033,9 +1042,10 @@
     const entry = allRequests.find((x) => x.request.id === requestId);
     if (!entry) return;
     selectedRequest = entry.request;
+    const prescriptionRequest = Boolean(selectedRequest.prescription_url);
 
     if (isManualPrescriptionPricing(selectedRequest)) {
-      priceGrid.innerHTML = manualRowHtml();
+      priceGrid.innerHTML = manualRowHtml(1);
       updateManualRemoveButtons();
       if (addMedRowBtn) addMedRowBtn.style.display = "inline-flex";
     } else {
@@ -1052,11 +1062,15 @@
           <div class="price-row-sub">الكمية المطلوبة: ${m.quantity || 1}</div>
         </div>
         <div class="price-field">
-          <label class="price-label">الكمية المتوفرة</label>
-          <input type="number" min="1" step="1" value="${m.quantity || 1}" data-qty="${idx}" />
+          <label class="price-label">الكمية</label>
+          ${
+            prescriptionRequest
+              ? `<input type="number" min="1" step="1" value="${Math.max(1, Number(m.quantity) || 1)}" data-qty="${idx}" />`
+              : `<input type="text" value="${Math.max(1, Number(m.quantity) || 1)}" class="price-unit-fixed" data-qty-fixed="${Math.max(1, Number(m.quantity) || 1)}" readonly disabled />`
+          }
         </div>
         <div class="price-field">
-          <label class="price-label">السعر (ج.م)</label>
+          <label class="price-label">سعر القطعة (ج.م)</label>
           <input type="number" min="0" step="0.01" placeholder="0" data-price="${idx}" />
           <input type="hidden" value="${String(m.medicine_name || "")
             .replace(/&/g, "&amp;")
@@ -1151,7 +1165,19 @@
         .map((row) => {
           const name = row.querySelector("[data-name]")?.value?.trim() || "";
           const price = Number(row.querySelector("[data-price]")?.value || 0);
-          const qty = Math.max(1, Math.floor(Number(row.querySelector("[data-qty]")?.value || 1)));
+          const qtyEditable = row.querySelector("[data-qty]");
+          const qtyFixed = row.querySelector("[data-qty-fixed]");
+          const qty = Math.max(
+            1,
+            Math.floor(
+              Number(
+                qtyEditable?.value ||
+                  qtyFixed?.getAttribute("data-qty-fixed") ||
+                  qtyFixed?.value ||
+                  1
+              )
+            )
+          );
           return { medicine_name: name, available: true, quantity_available: qty, price };
         })
         .filter((m) => m.medicine_name && m.price >= 0);

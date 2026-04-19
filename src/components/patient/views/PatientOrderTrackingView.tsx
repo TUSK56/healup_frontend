@@ -92,24 +92,6 @@ export default function PatientOrderTrackingView() {
     return () => window.clearInterval(id);
   }, [orderId, loadOrder]);
 
-  const deliveryArrivalFiredRef = React.useRef(false);
-  React.useEffect(() => {
-    deliveryArrivalFiredRef.current = false;
-  }, [orderId, order?.status]);
-
-  const onCarReachDestination = React.useCallback(async () => {
-    if (!order || deliveryArrivalFiredRef.current) return;
-    const s = (order.status || "").toLowerCase();
-    if (s !== "out_for_delivery" && s !== "ready_for_pickup") return;
-    deliveryArrivalFiredRef.current = true;
-    try {
-      await orderService.patientMarkDelivered(order.id);
-      await loadOrder();
-    } catch {
-      deliveryArrivalFiredRef.current = false;
-    }
-  }, [order, loadOrder]);
-
   const rejected = order && (order.status || "").toLowerCase() === "rejected";
 
   const trackingUi = React.useMemo(() => {
@@ -117,19 +99,17 @@ export default function PatientOrderTrackingView() {
     const s = (order.status || "").toLowerCase().trim();
 
     const stageTwoTitle =
-      s === "completed"
-        ? "تم التسليم"
-        : s === "out_for_delivery" || s === "ready_for_pickup"
-          ? orderDeliveryFlag(order)
-            ? "خارج للتوصيل"
-            : "جاهز للاستلام"
-          : "تأكيد الصيدلية والتجهيز";
+      s === "out_for_delivery" || s === "ready_for_pickup" || s === "completed"
+        ? orderDeliveryFlag(order)
+          ? "خارج للتوصيل"
+          : "جاهز للاستلام"
+        : "تأكيد الصيدلية والتجهيز";
 
     const stageTwoDesc =
       s === "completed"
         ? orderDeliveryFlag(order)
-          ? "تم تسليم الطلب بنجاح"
-          : "تم إكمال الطلب بنجاح"
+          ? "اكتملت مرحلة خروج المندوب للتوصيل"
+          : "اكتملت مرحلة تجهيز الطلب للاستلام"
         : s === "out_for_delivery" || s === "ready_for_pickup"
           ? orderDeliveryFlag(order)
             ? "المندوب في الطريق إليك"
@@ -180,8 +160,8 @@ export default function PatientOrderTrackingView() {
   }, [order]);
 
   const pricing = React.useMemo(
-    () => computeOrderPricingDisplay(order ? orderDeliveryFlag(order) : false, order?.items),
-    [order, order?.items],
+    () => computeOrderPricingDisplay(order ? orderDeliveryFlag(order) : false, order?.items, order?.coupon_percent),
+    [order, order?.items, order?.coupon_percent],
   );
 
   const etaLabel = React.useMemo(() => {
@@ -247,10 +227,7 @@ export default function PatientOrderTrackingView() {
   const orderCompleted = (order.status || "").toLowerCase() === "completed";
   const statusLower = (order.status || "").toLowerCase();
   const isDelivery = orderDeliveryFlag(order);
-  const runDeliveryOnceToPatient =
-    !orderCompleted &&
-    ((isDelivery && statusLower === "out_for_delivery") ||
-      (!isDelivery && statusLower === "ready_for_pickup"));
+  const mapProgressKey = `healup_tracking_car_km_${order.id}_${statusLower}_${isDelivery ? "delivery" : "pickup"}`;
 
   return (
     <div className="patient-order-tracking-wrap min-h-screen bg-slate-50 px-4 py-6 font-sans rtl" dir="rtl">
@@ -358,8 +335,7 @@ export default function PatientOrderTrackingView() {
                   patient={patientCoords!}
                   delivery={isDelivery}
                   lockCarAtDestination={orderCompleted}
-                  runDeliveryOnce={runDeliveryOnceToPatient}
-                  onCarReachDestination={onCarReachDestination}
+                  progressStorageKey={mapProgressKey}
                 />
               </section>
             ) : showCourierMap && !isDelivery ? (
@@ -372,8 +348,7 @@ export default function PatientOrderTrackingView() {
                   patient={patientCoords!}
                   delivery={false}
                   lockCarAtDestination={orderCompleted}
-                  runDeliveryOnce={runDeliveryOnceToPatient}
-                  onCarReachDestination={onCarReachDestination}
+                  progressStorageKey={mapProgressKey}
                 />
               </section>
             ) : (
@@ -462,6 +437,12 @@ export default function PatientOrderTrackingView() {
                     {isDelivery ? formatMoney(pricing.deliveryDisplay) : "—"}
                   </span>
                 </div>
+                {pricing.discountDisplay > 0 ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">الخصم{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
+                    <span className="font-medium text-emerald-700">-{formatMoney(pricing.discountDisplay)}</span>
+                  </div>
+                ) : null}
                 {pricing.subtotal > 0 ? (
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">ضريبة القيمة المضافة (15%)</span>

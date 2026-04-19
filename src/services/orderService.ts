@@ -16,6 +16,8 @@ export interface Order {
   /** Some responses may use PascalCase */
   Delivery?: boolean;
   delivery_fee: number;
+  coupon_code?: string | null;
+  coupon_percent?: number | null;
   total_price: number;
   status: string;
   created_at: string;
@@ -42,8 +44,13 @@ export interface Order {
 }
 
 export const orderService = {
-  async create(responseId: number, delivery: boolean = true) {
-    const res = await api.post<{ message: string; order: Order }>('/orders', { response_id: responseId, delivery });
+  async create(responseId: number, delivery: boolean = true, couponCode?: string | null, couponPercent?: number | null) {
+    const res = await api.post<{ message: string; order: Order }>('/orders', {
+      response_id: responseId,
+      delivery,
+      coupon_code: couponCode ?? null,
+      coupon_percent: typeof couponPercent === 'number' ? couponPercent : null,
+    });
     return res.data;
   },
 

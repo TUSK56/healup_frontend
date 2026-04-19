@@ -2,37 +2,92 @@
 
 import Link from "next/link";
 import React from "react";
+import { useRouter } from "next/navigation";
+import { LogOut, Settings } from "lucide-react";
 import api from "@/services/apiService";
+import { authService } from "@/services/authService";
+import { readAvatar } from "@/lib/avatarStorage";
+
+type PharmacyNotification = {
+  id: number;
+  type: string;
+  message: string;
+  is_read: boolean;
+  created_at?: string | null;
+  route?: string | null;
+};
+
+function toArabicTime(value?: string | null): string {
+  const v = (value || "").trim();
+  if (!v) return "";
+  const d = /[zZ]$/.test(v) || /[+-]\d\d:?\d\d$/.test(v) ? new Date(v) : new Date(`${v}Z`);
+  if (!Number.isFinite(d.getTime())) return "";
+  return d.toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" });
+}
 
 export default function PharmacyTopNavbar() {
+  const router = useRouter();
   const [avatar, setAvatar] = React.useState<string | null>(null);
   const [name, setName] = React.useState("صيدلية");
-  const [notifUnread, setNotifUnread] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
+  const [loadingNotifs, setLoadingNotifs] = React.useState(false);
+  const [unread, setUnread] = React.useState<PharmacyNotification[]>([]);
+  const wrapRef = React.useRef<HTMLDivElement | null>(null);
+  const profileRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     const loadNotifs = async () => {
+      setLoadingNotifs(true);
       try {
         const res = await api.get<{
-          data: Array<{ type: string; is_read: boolean }>;
+          data: PharmacyNotification[];
         }>("/notifications");
         const rows = res.data?.data || [];
-        const n = rows.filter((x) => x.type === "new_request" && !x.is_read).length;
-        setNotifUnread(n);
+        setUnread(rows.filter((x) => !x.is_read));
       } catch {
-        setNotifUnread(0);
+        setUnread([]);
+      } finally {
+        setLoadingNotifs(false);
       }
     };
     void loadNotifs();
     const t = window.setInterval(loadNotifs, 30_000);
-    return () => window.clearInterval(t);
+
+    const onRealtime = () => {
+      void loadNotifs();
+    };
+
+    window.addEventListener("healup:notification", onRealtime as EventListener);
+    return () => {
+      window.clearInterval(t);
+      window.removeEventListener("healup:notification", onRealtime as EventListener);
+    };
   }, []);
+
+  React.useEffect(() => {
+    if (!open && !profileOpen) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      const notifEl = wrapRef.current;
+      const profileEl = profileRef.current;
+      const target = event.target as Node;
+
+      if (notifEl && !notifEl.contains(target)) setOpen(false);
+      if (profileEl && !profileEl.contains(target)) setProfileOpen(false);
+    };
+
+    window.addEventListener("mousedown", onPointerDown);
+    return () => window.removeEventListener("mousedown", onPointerDown);
+  }, [open, profileOpen]);
 
   React.useEffect(() => {
     const load = () => {
       try {
-        const avatarUrl = localStorage.getItem("healup_pharmacy_avatar");
         const rawUser = localStorage.getItem("healup_user");
-        const user = rawUser ? JSON.parse(rawUser) : {};
+        const user = rawUser ? (JSON.parse(rawUser) as { id?: number | string; email?: string; name?: string }) : {};
+        const identity = user?.id ?? user?.email;
+        const avatarUrl = readAvatar("pharmacy", identity, { migrateLegacy: true });
         setAvatar(avatarUrl);
         setName(String(user?.name || "صيدلية"));
       } catch {
@@ -60,28 +115,57 @@ export default function PharmacyTopNavbar() {
       </div>
 
       <div className="topbar-right">
-        <button
-          className="topbar-icon-btn"
-          type="button"
-          style={{ position: "relative" }}
-          onClick={() => {
-            void (async () => {
-              try {
-                await api.patch("/notifications/read-all");
-                setNotifUnread(0);
-              } catch {
-                // no-op
-              }
-            })();
-          }}
-          title="الإشعارات"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 01-3.46 0" />
-          </svg>
-          {notifUnread > 0 ? <span className="bell-dot" /> : null}
-        </button>
+        <div className="notif-wrap" ref={wrapRef}>
+          <button
+            className="topbar-icon-btn"
+            type="button"
+            style={{ position: "relative" }}
+            onClick={() => setOpen((v) => !v)}
+            title="الإشعارات"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            {unread.length > 0 ? <span className="bell-dot" /> : null}
+          </button>
+
+          {open ? (
+            <div className="notif-popup">
+              <div className="notif-popup-head">الإشعارات الجديدة</div>
+              <div className="notif-popup-body">
+                {loadingNotifs ? (
+                  <p className="notif-popup-empty">جاري تحميل الإشعارات...</p>
+                ) : unread.length === 0 ? (
+                  <p className="notif-popup-empty">لا توجد إشعارات جديدة.</p>
+                ) : (
+                  unread.map((n) => (
+                    <button
+                      key={n.id}
+                      type="button"
+                      className="notif-item"
+                      onClick={() => {
+                        void (async () => {
+                          try {
+                            await api.patch(`/notifications/${n.id}/read`);
+                          } catch {
+                            // non-blocking
+                          }
+                          setUnread((prev) => prev.filter((x) => x.id !== n.id));
+                          setOpen(false);
+                          router.push((n.route || "/pharmacy-dashboard").trim() || "/pharmacy-dashboard");
+                        })();
+                      }}
+                    >
+                      <div className="notif-item-msg">{n.message}</div>
+                      <div className="notif-item-time">{toArabicTime(n.created_at)}</div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          ) : null}
+        </div>
 
         <button className="topbar-icon-btn" type="button" title="تغيير اللغة">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -96,20 +180,67 @@ export default function PharmacyTopNavbar() {
 
         <div style={{ width: 1, height: 32, background: "var(--border)", margin: "0 4px" }} />
 
-        <Link href="/pharmacy-dashboard/profile-settings" className="profile">
-          <div className="profile-info">
-            <div className="profile-name">{name}</div>
-            <div className="profile-role">مدير الصيدلية</div>
-          </div>
-          <div className="profile-avatar" style={{ overflow: "hidden" }}>
-            {avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatar} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              "👨‍⚕️"
-            )}
-          </div>
-        </Link>
+        <div className="profile-menu-wrap" ref={profileRef}>
+          <button
+            type="button"
+            className="profile profile-trigger"
+            onClick={() => setProfileOpen((v) => !v)}
+            title="قائمة الحساب"
+          >
+            <div className="profile-info">
+              <div className="profile-name">{name}</div>
+              <div className="profile-role">مدير الصيدلية</div>
+            </div>
+            <div className="profile-avatar" style={{ overflow: "hidden" }}>
+              {avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatar} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                "👨‍⚕️"
+              )}
+            </div>
+          </button>
+
+          {profileOpen ? (
+            <div className="profile-popup">
+              <div className="profile-popup-headline">
+                <div className="profile-popup-headline-avatar" style={{ overflow: "hidden" }}>
+                  {avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatar} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    "👨‍⚕️"
+                  )}
+                </div>
+                <div className="profile-popup-headline-text">
+                  <div className="profile-popup-headline-name">{name}</div>
+                  <div className="profile-popup-headline-role">مدير الصيدلية</div>
+                </div>
+              </div>
+
+              <Link
+                href="/pharmacy-dashboard/profile-settings"
+                className="profile-popup-item"
+                onClick={() => setProfileOpen(false)}
+              >
+                <Settings size={15} />
+                الإعدادات
+              </Link>
+              <button
+                type="button"
+                className="profile-popup-item profile-popup-item-danger"
+                onClick={() => {
+                  authService.logout();
+                  setProfileOpen(false);
+                  router.push("/pharmacy-login");
+                }}
+              >
+                <LogOut size={15} />
+                تسجيل الخروج
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </header>
   );

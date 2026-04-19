@@ -64,8 +64,8 @@ export default function PatientOrderConfirmationContent() {
   }, [orderId]);
 
   const pricing = React.useMemo(
-    () => computeOrderPricingDisplay(Boolean(order?.delivery), order?.items),
-    [order?.delivery, order?.items],
+    () => computeOrderPricingDisplay(Boolean(order?.delivery), order?.items, order?.coupon_percent),
+    [order?.delivery, order?.items, order?.coupon_percent],
   );
 
   const patientPharmacyDistanceKm = React.useMemo(() => {
@@ -231,6 +231,12 @@ export default function PatientOrderConfirmationContent() {
                   {order.delivery ? formatMoney(pricing.deliveryDisplay) : "—"}
                 </span>
               </div>
+              {pricing.discountDisplay > 0 ? (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">الخصم{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
+                  <span className="font-medium text-emerald-700">-{formatMoney(pricing.discountDisplay)}</span>
+                </div>
+              ) : null}
               {pricing.subtotal > 0 ? (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">ضريبة القيمة المضافة (15%)</span>

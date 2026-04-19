@@ -233,6 +233,89 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.notificationWrap {
+  position: relative;
+}
+
+.notificationDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ef4444;
+  border: 2px solid #eceff4;
+}
+
+.notificationPopup {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 360px;
+  max-height: 420px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+  z-index: 300;
+}
+
+.notificationHeader {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e293b;
+  background: #f8fafc;
+  text-align: right;
+}
+
+.notificationList {
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.notificationItem {
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fff;
+  text-align: right;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+}
+
+.notificationItem:hover {
+  background: #f8fbff;
+}
+
+.notificationItemMessage {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+.notificationItemTime {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.notificationEmpty {
+  margin: 0;
+  padding: 18px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .topbarIconBtnActive {
@@ -240,6 +323,52 @@
   background: #e9f0ff;
   color: #1a56db;
   border: 2px solid #bfdbfe;
+}
+
+.profileWrap {
+  position: relative;
+}
+
+.profilePopup {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+  z-index: 310;
+}
+
+.profilePopupItem {
+  width: 100%;
+  border: none;
+  background: #fff;
+  color: #1e293b;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  cursor: pointer;
+}
+
+.profilePopupItem:hover {
+  background: #f8fafc;
+}
+
+.profilePopupItemDanger {
+  color: #b91c1c;
+}
+
+.profilePopupItemDanger:hover {
+  background: #fff1f2;
+  color: #9f1239;
 }
 
 .withTopbar :global(.content) {

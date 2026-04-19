@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import api from "@/services/apiService";
 import PharmacySidebar from "@/components/pharmacy/PharmacySidebar";
 import PharmacyTopNavbar from "@/components/pharmacy/PharmacyTopNavbar";
+import { orderService } from "@/services/orderService";
+import { consumePharmacyCurrentOrderNotifications } from "@/lib/pharmacyNotifications";
 import "./cart.css";
+import "@/components/pharmacy/pharmacy-sidebar.css";
 
 export default function PharmacyDashboardPage() {
   const router = useRouter();
@@ -25,6 +28,64 @@ export default function PharmacyDashboardPage() {
     }>
   >([]);
   const [incomingTotal, setIncomingTotal] = React.useState(0);
+  const [activityRows, setActivityRows] = React.useState<
+    Array<{
+      id: number;
+      status: string;
+      patient_name: string;
+      total_price: number;
+      created_at: string;
+    }>
+  >([]);
+  const [shippingOrderId, setShippingOrderId] = React.useState<number | null>(null);
+
+  const relativeTime = React.useCallback((createdAt: string) => {
+    const diffMs = Math.max(0, Date.now() - parseServerDate(createdAt).getTime());
+    const sec = Math.floor(diffMs / 1000);
+    if (sec < 60) return "الآن";
+    const minutes = Math.floor(sec / 60);
+    if (minutes < 60) return minutes === 1 ? "منذ دقيقة" : `منذ ${minutes} دقيقة`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours === 1 ? "منذ ساعة" : `منذ ${hours} ساعة`;
+    const days = Math.floor(hours / 24);
+    return days === 1 ? "منذ يوم" : `منذ ${days} يوم`;
+  }, [parseServerDate]);
+
+  const toArabicTime = React.useCallback((value: string) => {
+    const d = parseServerDate(value);
+    if (!Number.isFinite(d.getTime())) return "";
+    return d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+  }, [parseServerDate]);
+
+  const loadActivity = React.useCallback(async () => {
+    try {
+      const res = await api.get<{
+        data: Array<{
+          id: number;
+          status: string;
+          total_price: number;
+          created_at: string;
+          patient?: { name?: string | null } | null;
+        }>;
+      }>("/orders");
+
+      const rows = (res.data?.data || [])
+        .filter((o) => ["pending_pharmacy_confirmation", "confirmed", "preparing", "out_for_delivery", "ready_for_pickup", "completed"].includes((o.status || "").toLowerCase()))
+        .sort((a, b) => parseServerDate(b.created_at).getTime() - parseServerDate(a.created_at).getTime())
+        .slice(0, 3)
+        .map((o) => ({
+          id: o.id,
+          status: o.status,
+          patient_name: o.patient?.name || "مريض",
+          total_price: Number(o.total_price || 0),
+          created_at: o.created_at,
+        }));
+
+      setActivityRows(rows);
+    } catch {
+      setActivityRows([]);
+    }
+  }, [parseServerDate]);
 
   const loadIncoming = React.useCallback(async () => {
     try {
@@ -65,9 +126,13 @@ export default function PharmacyDashboardPage() {
 
   React.useEffect(() => {
     void loadIncoming();
-    const timer = window.setInterval(() => setNowTick((x) => x + 1), 30000);
+    void loadActivity();
+    const timer = window.setInterval(() => {
+      setNowTick((x) => x + 1);
+      void loadActivity();
+    }, 30000);
     return () => window.clearInterval(timer);
-  }, [loadIncoming]);
+  }, [loadIncoming, loadActivity]);
 
   return (
     <div className="pharmacyDashboard">
@@ -260,84 +325,128 @@ export default function PharmacyDashboardPage() {
 
                 <div className="activity-card">
                   <div className="activity-list">
-                    <div className="activity-item" style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                        <div className="activity-icon icon-delivery" style={{ marginTop: 18 }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 5H9L6 10H2l1 5h1" />
-                            <path d="M6 10h8l2-5" />
-                            <path d="M16 10l2 5h1" />
-                            <circle cx="6" cy="17" r="2" />
-                            <circle cx="18" cy="17" r="2" />
-                            <path d="M8 17h8" />
-                          </svg>
-                        </div>
+                    {activityRows.map((row) => {
+                      void nowTick;
+                      const s = (row.status || "").toLowerCase();
+                      const canShortcutShip = s === "confirmed" || s === "pending_pharmacy_confirmation" || s === "preparing";
+                      const isDelivery = s === "out_for_delivery";
+                      const isReady = s === "ready_for_pickup";
+                      const isCompleted = s === "completed";
 
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, flex: 1 }}>
-                          <span className="activity-title" style={{ margin: 0 }}>
-                            طلب #9021 - خرج للتوصيل
-                          </span>
-                          <div className="activity-desc">المندوب: محمد فواد • متبقي 15 دقيقة</div>
-                          <button className="activity-btn btn-track" type="button">
-                            تتبع المسار
-                          </button>
-                        </div>
+                      const title =
+                        isDelivery
+                          ? `طلب #${row.id} - خرج للتوصيل`
+                          : isReady
+                            ? `طلب #${row.id} - بالطريق`
+                            : isCompleted
+                              ? `طلب #${row.id} - مكتمل`
+                              : `طلب #${row.id} - قيد المعالجة`;
 
-                        <span className="activity-time" style={{ alignSelf: "flex-start" }}>
-                          10:45 ص
-                        </span>
+                      const desc =
+                        isDelivery
+                          ? `المريض: ${row.patient_name} • ${relativeTime(row.created_at)}`
+                          : isReady
+                            ? `المريض: ${row.patient_name} • جارٍ التسليم`
+                            : isCompleted
+                              ? `تم إكمال الطلب بقيمة ${row.total_price.toFixed(2)} ج.م`
+                              : `المريض: ${row.patient_name} • ${relativeTime(row.created_at)}`;
+
+                      const btnText = isCompleted ? "عرض الطلب" : "متابعة الطلب";
+                      const btnClass = isReady ? "btn-confirm" : isCompleted ? "btn-track" : "btn-track";
+                      const btnRoute = isCompleted ? "/pharmacy-dashboard/completed-orders" : "/pharmacy-dashboard/current-orders";
+                      const iconClass = isDelivery ? "icon-delivery" : isReady ? "icon-ready" : isCompleted ? "icon-payment" : "icon-delivery";
+
+                      return (
+                        <div key={row.id} className="activity-item" style={{ padding: "14px 16px" }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                            <div className={`activity-icon ${iconClass}`} style={{ marginTop: 18 }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isReady ? "#16a34a" : isCompleted ? "#0369a1" : "#2563eb"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                {isCompleted ? (
+                                  <>
+                                    <path d="M4 2h16v20l-2-2-2 2-2-2-2 2-2-2V2z" />
+                                    <line x1="8" y1="8" x2="16" y2="8" />
+                                    <line x1="8" y1="12" x2="16" y2="12" />
+                                    <line x1="8" y1="16" x2="12" y2="16" />
+                                  </>
+                                ) : isReady ? (
+                                  <>
+                                    <path d="M21 8V21H3V8" />
+                                    <path d="M23 3H1l2 5h18l2-5z" />
+                                    <path d="M10 12h4" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <path d="M12 5H9L6 10H2l1 5h1" />
+                                    <path d="M6 10h8l2-5" />
+                                    <path d="M16 10l2 5h1" />
+                                    <circle cx="6" cy="17" r="2" />
+                                    <circle cx="18" cy="17" r="2" />
+                                    <path d="M8 17h8" />
+                                  </>
+                                )}
+                              </svg>
+                            </div>
+
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, flex: 1 }}>
+                              <span className="activity-title" style={{ margin: 0 }}>
+                                {title}
+                              </span>
+                              <div className="activity-desc">{desc}</div>
+                              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                {canShortcutShip ? (
+                                  <button
+                                    className="activity-btn btn-confirm"
+                                    type="button"
+                                    disabled={shippingOrderId === row.id}
+                                    onClick={() => {
+                                      void (async () => {
+                                        setShippingOrderId(row.id);
+                                        try {
+                                          await orderService.updateStatus(row.id, "out_for_delivery");
+                                          await consumePharmacyCurrentOrderNotifications();
+                                          await loadActivity();
+                                        } catch {
+                                          router.push("/pharmacy-dashboard/current-orders");
+                                        } finally {
+                                          setShippingOrderId(null);
+                                        }
+                                      })();
+                                    }}
+                                  >
+                                    {shippingOrderId === row.id ? "جاري التحديث..." : "توصيل الطلب"}
+                                  </button>
+                                ) : null}
+
+                                <button
+                                  className={`activity-btn ${btnClass}`}
+                                  type="button"
+                                  onClick={() => {
+                                    void (async () => {
+                                      if (btnRoute === "/pharmacy-dashboard/current-orders") {
+                                        await consumePharmacyCurrentOrderNotifications();
+                                      }
+                                      router.push(btnRoute);
+                                    })();
+                                  }}
+                                >
+                                  {btnText}
+                                </button>
+                              </div>
+                            </div>
+
+                            <span className="activity-time" style={{ alignSelf: "flex-start" }}>
+                              {toArabicTime(row.created_at)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {activityRows.length === 0 ? (
+                      <div className="activity-item" style={{ padding: "14px 16px", textAlign: "center", color: "#64748b" }}>
+                        لا يوجد نشاط حالي.
                       </div>
-                    </div>
-
-                    <div className="activity-item" style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                        <div className="activity-icon icon-ready" style={{ marginTop: 18 }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 8V21H3V8" />
-                            <path d="M23 3H1l2 5h18l2-5z" />
-                            <path d="M10 12h4" />
-                          </svg>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, flex: 1 }}>
-                          <span className="activity-title" style={{ margin: 0 }}>
-                            طلب #9018 - جاهز للاستلام
-                          </span>
-                          <div className="activity-desc">المريض: سحر إبراهيم • صيدلية فرع العليا</div>
-                          <button className="activity-btn btn-confirm" type="button">
-                            تأكيد الاستلام
-                          </button>
-                        </div>
-
-                        <span className="activity-time" style={{ alignSelf: "flex-start" }}>
-                          10:20 ص
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="activity-item" style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                        <div className="activity-icon icon-payment" style={{ marginTop: 10 }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M4 2h16v20l-2-2-2 2-2-2-2 2-2-2V2z" />
-                            <line x1="8" y1="8" x2="16" y2="8" />
-                            <line x1="8" y1="12" x2="16" y2="12" />
-                            <line x1="8" y1="16" x2="12" y2="16" />
-                          </svg>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, flex: 1 }}>
-                          <span className="activity-title" style={{ margin: 0 }}>
-                            دفع إلكتروني ناجح
-                          </span>
-                          <div className="activity-desc">تم سداد 120.00 ر.س للطلب #8990</div>
-                        </div>
-
-                        <span className="activity-time" style={{ alignSelf: "flex-start" }}>
-                          09:55 ص
-                        </span>
-                      </div>
-                    </div>
+                    ) : null}
                   </div>
                 </div>
               </div>

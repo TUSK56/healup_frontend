@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "motion/react";
 import api from "@/services/apiService";
 import { orderService } from "@/services/orderService";
 import { pharmacyService, type AwaitingPatientOrderRow } from "@/services/pharmacyService";
+import { consumePharmacyCurrentOrderNotifications } from "@/lib/pharmacyNotifications";
 
 type ApiOrder = {
   id: number;
@@ -78,7 +79,7 @@ function classifyOrder(order: ApiOrder): { label: string; tab: "wait" | "prep" |
     return { label: "جاري التجهيز", tab: "prep" };
   }
   if (st === "out_for_delivery") return { label: "بالطريق", tab: "out" };
-  if (st === "ready_for_pickup") return { label: "جاهز للاستلام", tab: "out" };
+  if (st === "ready_for_pickup") return { label: "بالطريق", tab: "out" };
   if (st === "completed") return { label: "المكتملة", tab: "done" };
   if (st === "rejected") return { label: "مرفوض", tab: "done" };
   return { label: String(order.status ?? (order as { Status?: string }).Status ?? "").trim() || st, tab: "prep" };
@@ -234,7 +235,7 @@ const OrderCard = ({
             ) : (
               <>
                 <CheckCircle2 size={16} className="shrink-0" />
-                <span>{normalizeOrderDelivery(order) ? "توصيل الطلب" : "جاهز للاستلام"}</span>
+                <span>توصيل الطلب</span>
               </>
             )}
           </button>
@@ -312,8 +313,8 @@ export default function PharmacyCurrentOrdersApp() {
       setShipError(null);
       setConfirmingId(o.id);
       try {
-        const next = normalizeOrderDelivery(o) ? "out_for_delivery" : "ready_for_pickup";
-        await orderService.updateStatus(o.id, next);
+        await orderService.updateStatus(o.id, "out_for_delivery");
+        await consumePharmacyCurrentOrderNotifications();
         await load();
       } catch (e: unknown) {
         const ax = e as { response?: { data?: { message?: string } } };
@@ -417,7 +418,7 @@ export default function PharmacyCurrentOrdersApp() {
               ["all", `الكل (${stats.all})`],
               ["wait", `بانتظار المريض (${stats.wait})`],
               ["prep", `جاري التجهيز (${stats.prep})`],
-              ["out", `بالطريق / جاهز (${stats.out})`],
+              ["out", `بالطريق (${stats.out})`],
               ["done", `المكتملة (${stats.done})`],
             ] as const
           ).map(([key, text]) => (

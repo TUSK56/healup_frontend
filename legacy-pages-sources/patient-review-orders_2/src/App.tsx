@@ -13,7 +13,7 @@ import { orderService } from '../../../src/services/orderService';
 interface OrderCardView {
   id: string;
   number: string;
-  status: 'processing' | 'delivered' | 'cancelled';
+  status: 'waiting' | 'processing' | 'delivered' | 'cancelled';
   statusLabel: string;
   orderId: number | null;
   date: string;
@@ -100,7 +100,13 @@ export default function App() {
       const isCompletedOrder = linkedStatus === 'completed';
 
       const status: OrderCardView['status'] =
-        request.status === 'cancelled' ? 'cancelled' : isCompletedOrder ? 'delivered' : 'processing';
+        request.status === 'cancelled'
+          ? 'cancelled'
+          : isCompletedOrder
+          ? 'delivered'
+          : !hasLinkedOrder && request.status === 'active'
+          ? 'waiting'
+          : 'processing';
 
       const statusLabel =
         request.status === 'cancelled'
@@ -146,7 +152,7 @@ export default function App() {
 
   const filteredOrders = useMemo(() => {
     if (activeTab === 'الكل') return orders;
-    if (activeTab === 'قيد التنفيذ') return orders.filter((o) => o.status === 'processing');
+    if (activeTab === 'قيد التنفيذ') return orders.filter((o) => o.status === 'processing' || o.status === 'waiting');
     if (activeTab === 'المكتملة') return orders.filter((o) => o.status === 'delivered');
     if (activeTab === 'الملغاة') return orders.filter((o) => o.status === 'cancelled');
     return orders;
@@ -257,9 +263,34 @@ export default function App() {
               transition={{ delay: index * 0.1 }}
               className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 relative overflow-hidden group"
             >
+              {(() => {
+                const iconTone =
+                  order.status === 'delivered'
+                    ? {
+                        box: 'bg-green-50 text-green-600',
+                        dot: 'bg-green-600',
+                      }
+                    : order.status === 'waiting'
+                      ? {
+                          box: 'bg-amber-50 text-amber-700',
+                          dot: 'bg-amber-600',
+                        }
+                    : order.status === 'processing'
+                      ? {
+                          box: 'bg-blue-50 text-[#0052CC]',
+                          dot: 'bg-[#0052CC]',
+                        }
+                      : {
+                          box: 'bg-red-50 text-red-600',
+                          dot: 'bg-red-600',
+                        };
+
+                return (
+                  <>
               {/* Status Badge */}
               <div className="absolute top-8 left-8">
                 <span className={`px-4 py-1.5 rounded-full text-xs font-extrabold ${
+                  order.status === 'waiting' ? 'bg-amber-50 text-amber-700' :
                   order.status === 'processing' ? 'bg-blue-50 text-[#0052CC]' :
                   order.status === 'delivered' ? 'bg-green-50 text-green-600' :
                   'bg-red-50 text-red-600'
@@ -270,11 +301,11 @@ export default function App() {
 
               <div className="flex flex-row gap-10 items-start">
                 {/* Order Icon (Right Side) */}
-                <div className="w-24 h-24 bg-blue-50 rounded-2xl flex items-center justify-center shrink-0 text-[#0052CC]">
+                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center shrink-0 ${iconTone.box}`}>
                   <div className="relative">
                     <PlusSquare size={32} strokeWidth={2.5} />
                     <div className="absolute -bottom-1 -right-1 bg-white rounded-md p-0.5">
-                      <div className="w-4 h-4 bg-[#0052CC] rounded-sm" />
+                      <div className={`w-4 h-4 rounded-sm ${iconTone.dot}`} />
                     </div>
                   </div>
                 </div>
@@ -334,6 +365,9 @@ export default function App() {
                   </div>
                 </div>
               </div>
+                  </>
+                );
+              })()}
             </motion.div>
           ))}
         </div>

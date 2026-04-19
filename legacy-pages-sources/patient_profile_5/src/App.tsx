@@ -20,7 +20,8 @@ import {
   ChevronLeft,
   Calendar,
   Mail,
-  Phone
+  Phone,
+  AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
@@ -28,6 +29,7 @@ import dynamic from 'next/dynamic';
 import { getAuthErrorMessage } from '../../../src/services/authService';
 import { CHECKOUT_SELECTED_ADDRESS_KEY } from '../../../src/constants/checkoutAddress';
 import { patientService, PatientAddress, PatientMe } from '../../../src/services/patientService';
+import { readAvatar, writeAvatar, writePatientAvatarBackup } from '../../../src/lib/avatarStorage';
 
 const PatientAddressLeafletPicker = dynamic(() => import('../../../src/components/patient/views/PatientAddressLeafletPicker'), { ssr: false });
 
@@ -136,6 +138,84 @@ export default function App() {
     return cur !== ini;
   }, [addresses, initialAddresses]);
   const canSave = isDirty || selectionDirty || addressBookDirty;
+  const [leaveIntent, setLeaveIntent] = useState<{ type: 'href'; href: string } | null>(null);
+  const [leaveBusy, setLeaveBusy] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+  const allowLeaveRef = useRef(false);
+
+  const continueLeaving = (intent: { type: 'href'; href: string }) => {
+    allowLeaveRef.current = true;
+    window.location.assign(intent.href);
+  };
+
+  const stayOnPage = () => {
+    if (leaveBusy) return;
+    setLeaveIntent(null);
+    setLeaveError(null);
+  };
+
+  const leaveAndDiscard = () => {
+    if (!leaveIntent || leaveBusy) return;
+    onCancel();
+    continueLeaving(leaveIntent);
+  };
+
+  const saveAndLeave = async () => {
+    if (!leaveIntent || leaveBusy) return;
+    setLeaveError(null);
+    setLeaveBusy(true);
+    try {
+      await onSave();
+      continueLeaving(leaveIntent);
+    } catch {
+      setLeaveError('تعذر حفظ التغييرات. حاول مرة أخرى.');
+      setLeaveBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!canSave) {
+      setLeaveIntent(null);
+      setLeaveError(null);
+      setLeaveBusy(false);
+      return;
+    }
+
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (allowLeaveRef.current) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    const onDocumentClick = (event: MouseEvent) => {
+      if (allowLeaveRef.current) return;
+      const target = event.target as HTMLElement | null;
+      const anchor = target?.closest('a[href]') as HTMLAnchorElement | null;
+      if (!anchor) return;
+      if (anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+
+      const href = anchor.getAttribute('href') || '';
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+      const next = new URL(href, window.location.href);
+      const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      const nextPath = `${next.pathname}${next.search}${next.hash}`;
+      if (currentPath === nextPath) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      setLeaveError(null);
+      setLeaveIntent({ type: 'href', href: next.href });
+    };
+
+    window.addEventListener('beforeunload', onBeforeUnload);
+    document.addEventListener('click', onDocumentClick, true);
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      document.removeEventListener('click', onDocumentClick, true);
+    };
+  }, [canSave]);
 
   useEffect(() => {
     const load = async () => {
@@ -151,11 +231,16 @@ export default function App() {
         };
         setDraft(d);
         setInitial(d);
-        const cachedAvatar = typeof window !== 'undefined' ? localStorage.getItem('healup_patient_avatar') : null;
-        const resolvedAvatar = meRes.data.avatar_url || (cachedAvatar && cachedAvatar.length > 10 ? cachedAvatar : null);
+        const cachedAvatar = readAvatar('patient', meRes.data.id ?? meRes.data.email, {
+          includeBackup: true,
+          migrateLegacy: true,
+        });
+        const resolvedAvatar =
+          meRes.data.avatar_url
+          || (cachedAvatar && cachedAvatar.length > 10 ? cachedAvatar : null);
         setAvatar(resolvedAvatar);
         if (typeof window !== 'undefined' && meRes.data.avatar_url) {
-          localStorage.setItem('healup_patient_avatar', meRes.data.avatar_url);
+          writeAvatar('patient', meRes.data.avatar_url, meRes.data.id ?? meRes.data.email);
         }
 
         const addrRes = await patientService.listAddresses();
@@ -203,6 +288,11 @@ export default function App() {
         };
         setInitial(d);
         setDraft(d);
+        if (typeof window !== 'undefined' && res.data.avatar_url) {
+          setAvatar(res.data.avatar_url);
+          writeAvatar('patient', res.data.avatar_url, res.data.id ?? res.data.email);
+          window.dispatchEvent(new CustomEvent('healup:patient-profile-updated'));
+        }
       }
 
       if (addressBookDirty) {
@@ -355,9 +445,20 @@ export default function App() {
     const localPreview = URL.createObjectURL(file);
     setAvatar(localPreview);
     try {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = String(reader.result || '');
+        if (!dataUrl) return;
+        writePatientAvatarBackup(dataUrl, me?.id ?? me?.email);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      // ignore backup generation failure
+    }
+    try {
       const res = await patientService.uploadAvatar(file);
       setAvatar(res.avatar_url);
-      localStorage.setItem('healup_patient_avatar', res.avatar_url);
+      writeAvatar('patient', res.avatar_url, me?.id ?? me?.email);
       window.dispatchEvent(new CustomEvent('healup:patient-profile-updated'));
     } catch (e: unknown) {
       // Fallback: persist locally if upload API fails.
@@ -367,7 +468,7 @@ export default function App() {
           const dataUrl = String(reader.result || '');
           if (!dataUrl) return;
           setAvatar(dataUrl);
-          localStorage.setItem('healup_patient_avatar', dataUrl);
+          writeAvatar('patient', dataUrl, me?.id ?? me?.email);
           window.dispatchEvent(new CustomEvent('healup:patient-profile-updated'));
         };
         reader.readAsDataURL(file);
@@ -671,6 +772,83 @@ export default function App() {
                 </div>
               </div>
             </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {leaveIntent ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[3200] bg-slate-900/45 backdrop-blur-[2px] p-4 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="w-full max-w-lg bg-white rounded-3xl border border-slate-200/80 shadow-2xl overflow-hidden"
+            >
+              <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+                <div className="flex items-start justify-between gap-3">
+                  <button
+                    type="button"
+                    className="shrink-0 w-9 h-9 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+                    onClick={stayOnPage}
+                    aria-label="إغلاق"
+                  >
+                    ×
+                  </button>
+                  <div className="flex items-start gap-3 text-right">
+                    <div className="shrink-0 mt-0.5 w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
+                      <AlertTriangle size={18} />
+                    </div>
+                    <div>
+                      <div className="font-extrabold text-slate-900 text-xl leading-8">تغييرات غير محفوظة</div>
+                      <p className="text-sm text-slate-500 mt-1 leading-7">
+                        لديك تغييرات لم يتم حفظها. اختر الإجراء الذي تريد تنفيذه قبل مغادرة الصفحة.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {leaveError ? (
+                  <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700 font-bold">
+                    {leaveError}
+                  </div>
+                ) : null}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    type="button"
+                    onClick={stayOnPage}
+                    disabled={leaveBusy || saving}
+                    className="h-12 px-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-700 text-sm hover:bg-slate-50 hover:border-slate-300 transition-all focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    البقاء في الصفحة
+                  </button>
+                  <button
+                    type="button"
+                    onClick={leaveAndDiscard}
+                    disabled={leaveBusy || saving}
+                    className="h-12 px-4 bg-slate-100 border border-slate-100 text-slate-700 rounded-2xl font-bold text-sm hover:bg-slate-200 hover:border-slate-200 transition-all focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    تجاهل التغييرات والمغادرة
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void saveAndLeave()}
+                    disabled={leaveBusy || saving}
+                    className="h-12 px-4 bg-healup-blue text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-healup-blue/25 hover:bg-blue-700 hover:shadow-xl hover:shadow-healup-blue/30 active:scale-[0.99] transition-all focus:outline-none focus:ring-2 focus:ring-healup-blue/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {leaveBusy || saving ? 'جارٍ الحفظ...' : 'حفظ ثم مغادرة'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         ) : null}
       </AnimatePresence>

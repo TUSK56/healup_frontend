@@ -6,6 +6,7 @@ import { AxiosError } from "axios";
 import { Camera, CheckCircle2, ChevronLeft, FileText, LocateFixed, MapPin, Phone, Save, Shield, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { pharmacyService, PharmacyMe } from "@/services/pharmacyService";
+import { readAvatar, writeAvatar } from "@/lib/avatarStorage";
 
 const LeafletPicker = dynamic(() => import("./PharmacyProfileLeaflet"), { ssr: false });
 
@@ -75,16 +76,11 @@ export default function PharmacyProfileSource() {
         setMe(data);
         setDraft(nextDraft);
         setInitialDraft(nextDraft);
+        setAvatar(readAvatar("pharmacy", data.id ?? data.email, { migrateLegacy: true }));
       } finally {
         setLoading(false);
       }
     };
-
-    try {
-      setAvatar(localStorage.getItem("healup_pharmacy_avatar"));
-    } catch {
-      setAvatar(null);
-    }
 
     bootstrap();
   }, []);
@@ -204,7 +200,7 @@ export default function PharmacyProfileSource() {
       const imageUrl = String(reader.result || "");
       if (!imageUrl) return;
       setAvatar(imageUrl);
-      localStorage.setItem("healup_pharmacy_avatar", imageUrl);
+      writeAvatar("pharmacy", imageUrl, me?.id ?? me?.email);
       window.dispatchEvent(new Event("healup:pharmacy-profile-updated"));
     };
     reader.readAsDataURL(file);
@@ -278,6 +274,29 @@ export default function PharmacyProfileSource() {
         .healup-shake {
           animation: healup-shake 0.4s ease-in-out;
         }
+
+        .profile-map .leaflet-control-zoom {
+          border: 1px solid #dbe4f3 !important;
+          border-radius: 12px !important;
+          overflow: hidden;
+          box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12) !important;
+        }
+
+        .profile-map .leaflet-control-zoom a {
+          width: 34px !important;
+          height: 34px !important;
+          line-height: 34px !important;
+          font-size: 18px !important;
+          color: #1a4b9c !important;
+          background: #ffffff !important;
+          border: none !important;
+          transition: all 0.2s ease;
+        }
+
+        .profile-map .leaflet-control-zoom a:hover {
+          background: #eef4ff !important;
+          color: #123b84 !important;
+        }
       `}</style>
 
       <main className="flex-grow max-w-6xl mx-auto w-full px-4 pb-24">
@@ -296,7 +315,7 @@ export default function PharmacyProfileSource() {
                   )}
                 </div>
               </div>
-              <label className="absolute -bottom-2 -left-2 bg-[#1a4b9c] text-white p-2.5 rounded-full shadow-lg hover:scale-110 transition-transform border-4 border-white cursor-pointer">
+              <label className="absolute -bottom-2 -right-2 bg-[#1a4b9c] text-white p-2.5 rounded-full shadow-lg hover:scale-110 transition-transform border-4 border-white cursor-pointer">
                 <Camera size={16} />
                 <input type="file" accept="image/*" className="hidden" onChange={onAvatarChange} />
               </label>
@@ -332,7 +351,7 @@ export default function PharmacyProfileSource() {
               </div>
               <InputField label="العنوان بالتفصيل" value={draft.address_details} onChange={(value) => updateDraft("address_details", value)} />
 
-              <div className="mt-4 relative rounded-2xl overflow-hidden h-48 border border-slate-200">
+              <div className="profile-map mt-4 relative rounded-2xl overflow-hidden h-48 border border-slate-200">
                 <LeafletPicker
                   latitude={draft.latitude ?? 24.7136}
                   longitude={draft.longitude ?? 46.6753}
@@ -352,10 +371,12 @@ export default function PharmacyProfileSource() {
                   type="button"
                   disabled={locating}
                   onClick={focusToCurrentLocation}
-                  className="absolute bottom-4 left-4 z-[1200] bg-white/90 backdrop-blur-sm text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm border border-slate-200 flex items-center gap-1 disabled:opacity-50"
+                  className="absolute bottom-4 left-4 z-[1200] inline-flex items-center gap-2 rounded-xl border border-[#cfdcf4] bg-white px-3.5 py-2 text-xs font-bold text-[#1a4b9c] shadow-[0_8px_20px_rgba(15,23,42,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[#eef4ff] hover:text-[#123b84] disabled:cursor-not-allowed disabled:opacity-50"
                   title="موقعي الحالي"
                 >
-                  <LocateFixed size={14} />
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-[#1a4b9c] text-white">
+                    <LocateFixed size={13} />
+                  </span>
                   <span>موقعي الحالي</span>
                 </button>
               </div>

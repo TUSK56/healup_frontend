@@ -21,8 +21,9 @@ import {
   Cell,
 } from "recharts";
 import { motion } from "motion/react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { adminService, AdminPharmacy } from "@/services/adminService";
+import { adminService, AdminOrder, AdminPharmacy } from "@/services/adminService";
 
 const stats = [
   {
@@ -59,32 +60,80 @@ const stats = [
   },
 ];
 
-const recentOrders = [
-  {
-    id: "ORD-1245#",
-    time: "منذ ٥ دقائق",
-    status: "قيد التوصيل",
-    statusColor: "bg-amber-100 text-amber-700",
-    icon: ShoppingBag,
-    iconColor: "text-blue-600",
-  },
-  {
-    id: "ORD-1244#",
-    time: "منذ ١٢ دقيقة",
-    status: "مكتمل",
-    statusColor: "bg-emerald-100 text-emerald-700",
-    icon: CheckCircle,
-    iconColor: "text-emerald-600",
-  },
-  {
-    id: "ORD-1243#",
-    time: "منذ ١٨ دقيقة",
-    status: "قيد المعالجة",
-    statusColor: "bg-orange-100 text-orange-700",
-    icon: Clock,
-    iconColor: "text-orange-600",
-  },
-];
+type DashboardOrder = {
+  id: number;
+  created_at: string;
+  statusText: string;
+  statusColor: string;
+  icon: typeof ShoppingBag;
+  iconColor: string;
+};
+
+function toRelativeArabic(value: string): string {
+  const d = new Date(value);
+  if (!Number.isFinite(d.getTime())) return "الآن";
+  const mins = Math.max(0, Math.floor((Date.now() - d.getTime()) / 60000));
+  if (mins < 1) return "الآن";
+  if (mins < 60) return `منذ ${mins} دقيقة`;
+  const h = Math.floor(mins / 60);
+  if (h < 24) return `منذ ${h} ساعة`;
+  const days = Math.floor(h / 24);
+  return `منذ ${days} يوم`;
+}
+
+function mapStatus(status: string): { text: string; color: string; icon: typeof ShoppingBag; iconColor: string } {
+  switch ((status || "").toLowerCase()) {
+    case "pending_pharmacy_confirmation":
+      return {
+        text: "بانتظار تأكيد الصيدلية",
+        color: "bg-amber-100 text-amber-700",
+        icon: Clock,
+        iconColor: "text-orange-600",
+      };
+    case "confirmed":
+      return {
+        text: "تم التأكيد",
+        color: "bg-blue-100 text-blue-700",
+        icon: ShoppingBag,
+        iconColor: "text-blue-600",
+      };
+    case "preparing":
+      return {
+        text: "قيد التحضير",
+        color: "bg-orange-100 text-orange-700",
+        icon: Clock,
+        iconColor: "text-orange-600",
+      };
+    case "out_for_delivery":
+      return {
+        text: "قيد التوصيل",
+        color: "bg-amber-100 text-amber-700",
+        icon: ShoppingBag,
+        iconColor: "text-blue-600",
+      };
+    case "ready_for_pickup":
+      return {
+        text: "جاهز للاستلام",
+        color: "bg-blue-100 text-blue-700",
+        icon: CheckCircle,
+        iconColor: "text-emerald-600",
+      };
+    case "completed":
+      return {
+        text: "مكتمل",
+        color: "bg-emerald-100 text-emerald-700",
+        icon: CheckCircle,
+        iconColor: "text-emerald-600",
+      };
+    default:
+      return {
+        text: status || "غير معروف",
+        color: "bg-slate-100 text-slate-600",
+        icon: ShoppingBag,
+        iconColor: "text-blue-600",
+      };
+  }
+}
 
 const chartData = [
   { name: "السبت", value: 40 },
@@ -101,6 +150,7 @@ export default function AdminHomeView() {
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [requestsError, setRequestsError] = useState<string | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [recentOrders, setRecentOrders] = useState<DashboardOrder[]>([]);
 
   const pendingPharmacyRequests = useMemo(
     () => pharmacyRequests.filter((p) => p.status === "pending"),
@@ -130,6 +180,31 @@ export default function AdminHomeView() {
     };
 
     loadPharmacyRequests();
+
+    const loadRecentOrders = async () => {
+      try {
+        const data = await adminService.listOrders();
+        const active = data
+          .filter((o: AdminOrder) => !["completed", "rejected"].includes((o.status || "").toLowerCase()))
+          .slice(0, 5)
+          .map((o: AdminOrder) => {
+            const mapped = mapStatus(o.status);
+            return {
+              id: o.id,
+              created_at: o.created_at,
+              statusText: mapped.text,
+              statusColor: mapped.color,
+              icon: mapped.icon,
+              iconColor: mapped.iconColor,
+            };
+          });
+        if (isMounted) setRecentOrders(active);
+      } catch {
+        if (isMounted) setRecentOrders([]);
+      }
+    };
+
+    void loadRecentOrders();
     return () => {
       isMounted = false;
     };
@@ -247,35 +322,37 @@ export default function AdminHomeView() {
           <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
               <h3 className="font-bold text-slate-900">أحدث الطلبات النشطة</h3>
-              <button type="button" className="text-sm font-bold text-blue-600 hover:underline">
+              <Link href="/admin/orders" className="text-sm font-bold text-blue-600 hover:underline">
                 عرض الكل
-              </button>
+              </Link>
             </div>
             <div className="flex flex-1 flex-col space-y-4">
-              {recentOrders.map((order, i) => (
+              {recentOrders.length === 0 ? (
+                <div className="rounded-xl border border-slate-100 p-4 text-sm text-slate-500">لا توجد طلبات نشطة حالياً.</div>
+              ) : recentOrders.map((order) => (
                 <div
                   key={order.id}
                   className="flex items-center gap-4 rounded-xl border border-slate-50 p-4 transition-colors hover:bg-slate-50"
                 >
                   <div className="rounded-xl bg-blue-50 p-2.5">
-                    <order.icon className="text-blue-600" size={20} />
+                    <order.icon className={order.iconColor} size={20} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-slate-900">{order.id}</p>
-                    <p className="text-xs text-slate-400">{order.time}</p>
+                    <p className="text-sm font-bold text-slate-900">ORD-{order.id}#</p>
+                    <p className="text-xs text-slate-400">{toRelativeArabic(order.created_at)}</p>
                   </div>
                   <span className={cn("rounded-lg px-2.5 py-1 text-[10px] font-bold", order.statusColor)}>
-                    {order.status}
+                    {order.statusText}
                   </span>
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              className="mt-6 w-full rounded-xl border border-slate-200 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50"
+            <Link
+              href="/admin/orders"
+              className="mt-6 block w-full rounded-xl border border-slate-200 py-3 text-center text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50"
             >
               عرض كافة الطلبات
-            </button>
+            </Link>
           </div>
         </div>
 

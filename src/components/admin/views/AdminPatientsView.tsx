@@ -1,103 +1,87 @@
 "use client";
 
 import React from "react";
-import {
-  Users,
-  UserCheck,
-  UserPlus,
-  Calendar,
-  Search,
-  Eye,
-  Edit2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Users, UserCheck, UserPlus, Calendar, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
+import { adminService, AdminUser } from "@/services/adminService";
 
-const patients = [
-  {
-    id: "PA-1029",
-    name: "أحمد محمود السيد",
-    email: "ahmed.m@email.com",
-    phone: "010 1234 5678",
-    joinDate: "12 أكتوبر 2023",
-    status: "نشط",
-    image: "https://picsum.photos/seed/ahmed/100/100",
-  },
-  {
-    id: "PA-1030",
-    name: "سارة علي حسن",
-    email: "sara.h@email.com",
-    phone: "011 9876 5432",
-    joinDate: "05 سبتمبر 2023",
-    status: "نشط",
-    image: "https://picsum.photos/seed/sara/100/100",
-  },
-  {
-    id: "PA-1031",
-    name: "محمد إبراهيم كمال",
-    email: "faisal.k@email.com",
-    phone: "012 4442 2211",
-    joinDate: "20 أغسطس 2023",
-    status: "غير نشط",
-    image: "https://picsum.photos/seed/mohamed/100/100",
-  },
-  {
-    id: "PA-1032",
-    name: "منى عبد العزيز",
-    email: "laila.m@email.com",
-    phone: "015 1112 2233",
-    joinDate: "15 يوليو 2023",
-    status: "نشط",
-    image: "https://picsum.photos/seed/mona/100/100",
-  },
-  {
-    id: "PA-1033",
-    name: "ياسين مصطفى",
-    email: "youssef.g@email.com",
-    phone: "010 7778 8999",
-    joinDate: "02 يونيو 2023",
-    status: "غير نشط",
-    image: "https://picsum.photos/seed/yassin/100/100",
-  },
-];
-
-const stats = [
-  {
-    title: "إجمالي المرضى",
-    value: "1,240",
-    subValue: "+12% من الشهر الماضي",
-    icon: Users,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-  },
-  {
-    title: "المرضى النشطون",
-    value: "850",
-    subValue: "68.5% من الإجمالي",
-    icon: UserCheck,
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-  },
-  {
-    title: "مرضى جدد",
-    value: "120",
-    subValue: "خلال الـ 30 يوم الماضية",
-    icon: UserPlus,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-  },
-  {
-    title: "معدل المواعيد",
-    value: "45",
-    subValue: "موعد/يوم كمتوسط",
-    icon: Calendar,
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
-  },
-];
+function toArabicDate(value?: string) {
+  if (!value) return "-";
+  const d = new Date(value);
+  if (!Number.isFinite(d.getTime())) return "-";
+  return d.toLocaleDateString("ar-EG", { dateStyle: "medium" });
+}
 
 export default function AdminPatientsView() {
+  const PAGE_SIZE = 10;
+  const [rows, setRows] = React.useState<AdminUser[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [query, setQuery] = React.useState("");
+  const [page, setPage] = React.useState(1);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await adminService.listUsers();
+        if (mounted) setRows(data);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    void load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((u) => {
+      return (
+        (u.name || "").toLowerCase().includes(q) ||
+        (u.email || "").toLowerCase().includes(q) ||
+        (u.phone || "").toLowerCase().includes(q)
+      );
+    });
+  }, [rows, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [query]);
+
+  React.useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const pagedRows = React.useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page]);
+
+  const visiblePages = React.useMemo(() => {
+    if (totalPages <= 3) return Array.from({ length: totalPages }, (_, idx) => idx + 1);
+    let start = Math.max(1, page - 1);
+    let end = Math.min(totalPages, start + 2);
+    start = Math.max(1, end - 2);
+    return Array.from({ length: end - start + 1 }, (_, idx) => start + idx);
+  }, [page, totalPages]);
+
+  const stats = React.useMemo(() => {
+    const total = rows.length;
+    const active = rows.length;
+    const now = Date.now();
+    const last30 = rows.filter((u) => {
+      const d = new Date(u.created_at).getTime();
+      return Number.isFinite(d) && now - d <= 30 * 24 * 60 * 60 * 1000;
+    }).length;
+    return { total, active, last30 };
+  }, [rows]);
+
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-slate-50/50">
       <main className="flex-1 overflow-y-auto p-8">
@@ -107,7 +91,12 @@ export default function AdminPatientsView() {
         </section>
 
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
+          {[
+            { title: "إجمالي المرضى", value: stats.total.toLocaleString("ar-EG"), subValue: "بيانات حقيقية", icon: Users, color: "text-blue-600", bgColor: "bg-blue-50" },
+            { title: "المرضى النشطون", value: stats.active.toLocaleString("ar-EG"), subValue: "100% من الإجمالي", icon: UserCheck, color: "text-green-600", bgColor: "bg-green-50" },
+            { title: "مرضى جدد", value: stats.last30.toLocaleString("ar-EG"), subValue: "خلال آخر 30 يوم", icon: UserPlus, color: "text-purple-600", bgColor: "bg-purple-50" },
+            { title: "معدل الانضمام", value: (stats.last30 / 30).toFixed(1), subValue: "مريض/يوم", icon: Calendar, color: "text-orange-600", bgColor: "bg-orange-50" },
+          ].map((stat, index) => (
             <motion.div
               key={stat.title}
               initial={{ opacity: 0, y: 20 }}
@@ -121,13 +110,7 @@ export default function AdminPatientsView() {
               <div className="text-right">
                 <p className="mb-4 text-sm text-slate-500">{stat.title}</p>
                 <h3 className="mb-1 text-2xl font-bold text-slate-900">{stat.value}</h3>
-                <p
-                  className={`text-xs ${
-                    stat.title === "إجمالي المرضى" ? "text-green-600" : "text-slate-400"
-                  }`}
-                >
-                  {stat.subValue}
-                </p>
+                <p className="text-xs text-slate-400">{stat.subValue}</p>
               </div>
             </motion.div>
           ))}
@@ -139,6 +122,8 @@ export default function AdminPatientsView() {
               <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="بحث عن مريض بالاسم، البريد الإلكتروني أو رقم الهاتف..."
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pr-10 pl-3 text-sm outline-none ring-blue-500/20 focus:ring-2"
               />
@@ -158,95 +143,75 @@ export default function AdminPatientsView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {patients.map((patient, index) => (
-                  <tr key={index} className="transition-colors hover:bg-slate-50/50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={patient.image}
-                          alt=""
-                          className="h-10 w-10 rounded-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div>
-                          <p className="font-bold text-slate-900">{patient.name}</p>
-                          <p className="text-xs text-slate-500">ID: {patient.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600">{patient.email}</td>
-                    <td className="px-6 py-4 text-slate-600">{patient.phone}</td>
-                    <td className="px-6 py-4 text-slate-600">{patient.joinDate}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={
-                          patient.status === "نشط"
-                            ? "inline-flex rounded-md border-none bg-green-50 px-2 py-1 text-xs font-medium text-green-700"
-                            : "inline-flex rounded-md border-none bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600"
-                        }
-                      >
-                        {patient.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-blue-600"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-blue-600"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">جاري تحميل بيانات المرضى...</td>
                   </tr>
-                ))}
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">لا توجد بيانات مطابقة.</td>
+                  </tr>
+                ) : (
+                  pagedRows.map((patient) => (
+                    <tr key={patient.id} className="transition-colors hover:bg-slate-50/50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=patient-${patient.id}`}
+                            alt=""
+                            className="h-10 w-10 rounded-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div>
+                            <p className="font-bold text-slate-900">{patient.name || "-"}</p>
+                            <p className="text-xs text-slate-500">ID: PA-{patient.id}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600">{patient.email || "-"}</td>
+                      <td className="px-6 py-4 text-slate-600">{patient.phone || "-"}</td>
+                      <td className="px-6 py-4 text-slate-600">{toArabicDate(patient.created_at)}</td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700">نشط</span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-400">—</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-100 p-6 sm:flex-row">
-            <p className="order-2 text-sm text-slate-500 sm:order-1">عرض 1 إلى 5 من أصل 1,240 مريض</p>
-            <div className="order-1 flex items-center gap-2 sm:order-2">
+            <p className="text-sm text-slate-500">
+              عرض <span className="font-bold text-slate-900">{filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}</span> إلى{" "}
+              <span className="font-bold text-slate-900">{Math.min(page * PAGE_SIZE, filtered.length)}</span> من أصل{" "}
+              <span className="font-bold text-slate-900">{filtered.length.toLocaleString("ar-EG")}</span> مريض
+            </p>
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white hover:bg-slate-50"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:bg-slate-50 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
+              {visiblePages.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPage(p)}
+                  className={`h-10 min-w-10 rounded-lg px-3 text-sm font-bold ${p === page ? "bg-brand text-white shadow-md" : "border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                >
+                  {p}
+                </button>
+              ))}
               <button
                 type="button"
-                className="h-9 w-9 rounded-md bg-blue-600 text-sm font-medium text-white hover:bg-blue-700"
-              >
-                1
-              </button>
-              <button
-                type="button"
-                className="h-9 w-9 rounded-md border border-slate-200 bg-white text-sm hover:bg-slate-50"
-              >
-                2
-              </button>
-              <button
-                type="button"
-                className="h-9 w-9 rounded-md border border-slate-200 bg-white text-sm hover:bg-slate-50"
-              >
-                3
-              </button>
-              <span className="px-2 text-slate-400">...</span>
-              <button
-                type="button"
-                className="h-9 w-9 rounded-md border border-slate-200 bg-white text-sm hover:bg-slate-50"
-              >
-                24
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white hover:bg-slate-50"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:bg-slate-50 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>

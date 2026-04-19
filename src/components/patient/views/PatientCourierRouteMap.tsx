@@ -85,6 +85,7 @@ function CourierAlongPath({
   lockAtEnd,
   runOnceToDestination,
   onReachedDestination,
+  progressStorageKey,
 }: {
   path: LatLngTuple[];
   delivery: boolean;
@@ -93,6 +94,8 @@ function CourierAlongPath({
   runOnceToDestination?: boolean;
   /** Fired once when runOnceToDestination reaches the patient. */
   onReachedDestination?: () => void;
+  /** Optional localStorage key for persisting animation progress. */
+  progressStorageKey?: string;
 }) {
   const [distKm, setDistKm] = useState(0);
   const pathOrdered = useMemo(() => {
@@ -118,9 +121,42 @@ function CourierAlongPath({
 
   useEffect(() => {
     reachedRef.current = false;
+
+    if (lockAtEnd) {
+      distAcc.current = totalKm;
+      setDistKm(totalKm);
+      return;
+    }
+
+    const key = (progressStorageKey || "").trim();
+    if (key && typeof window !== "undefined") {
+      try {
+        const raw = window.localStorage.getItem(key);
+        const saved = raw == null ? NaN : Number(raw);
+        if (Number.isFinite(saved) && saved >= 0) {
+          const clamped = Math.min(totalKm, saved);
+          distAcc.current = clamped;
+          setDistKm(clamped);
+          return;
+        }
+      } catch {
+        // ignore storage read failures
+      }
+    }
+
     distAcc.current = 0;
     setDistKm(0);
-  }, [pathOrdered, totalKm]);
+  }, [pathOrdered, totalKm, lockAtEnd, progressStorageKey]);
+
+  useEffect(() => {
+    const key = (progressStorageKey || "").trim();
+    if (!key || !Number.isFinite(distKm) || typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(key, String(Math.max(0, distKm)));
+    } catch {
+      // ignore storage write failures
+    }
+  }, [progressStorageKey, distKm]);
 
   useEffect(() => {
     if (lockAtEnd) {
@@ -185,6 +221,8 @@ type Props = {
   /** Delivery only: animate once to patient then invoke callback (mark delivered). */
   runDeliveryOnce?: boolean;
   onCarReachDestination?: () => void;
+  /** Optional localStorage key for persisting courier animation distance. */
+  progressStorageKey?: string;
 };
 
 export default function PatientCourierRouteMap({
@@ -194,6 +232,7 @@ export default function PatientCourierRouteMap({
   lockCarAtDestination = false,
   runDeliveryOnce = false,
   onCarReachDestination,
+  progressStorageKey,
 }: Props) {
   const valid =
     Number.isFinite(pharmacy[0]) &&
@@ -274,6 +313,7 @@ export default function PatientCourierRouteMap({
             lockAtEnd={lockCarAtDestination}
             runOnceToDestination={Boolean(runDeliveryOnce && delivery && onCarReachDestination)}
             onReachedDestination={onCarReachDestination}
+            progressStorageKey={progressStorageKey}
           />
         ) : null}
         <FitRouteBounds path={path} />

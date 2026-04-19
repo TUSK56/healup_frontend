@@ -1,63 +1,40 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Store,
   CheckCircle,
   Clock,
   Search,
   Filter,
-  Eye,
-  Edit2,
   ChevronRight,
   ChevronLeft,
   ChevronDown,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { adminService, AdminPharmacy } from "@/services/adminService";
 
-interface Pharmacy {
-  id: string;
-  name: string;
-  subtitle: string;
-  licenseNumber: string;
-  region: string;
-  joinDate: string;
-  status: "active" | "inactive" | "pending";
-  initials: string;
+function toArabicDate(value?: string) {
+  if (!value) return "-";
+  const d = new Date(value);
+  if (!Number.isFinite(d.getTime())) return "-";
+  return d.toLocaleDateString("ar-EG", { dateStyle: "medium" });
 }
 
-const MOCK_PHARMACIES: Pharmacy[] = [
-  {
-    id: "1",
-    name: "صيدلية العزبي",
-    subtitle: "فرع المعادي، القاهرة",
-    licenseNumber: "LIC-88291#",
-    region: "القاهرة",
-    joinDate: "12 مايو 2023",
-    status: "active",
-    initials: "ع",
-  },
-  {
-    id: "2",
-    name: "صيدلية مصر",
-    subtitle: "شارع التحرير، الدقي",
-    licenseNumber: "LIC-44512#",
-    region: "الجيزة",
-    joinDate: "05 يونيو 2023",
-    status: "inactive",
-    initials: "م",
-  },
-  {
-    id: "3",
-    name: "صيدلية 19011",
-    subtitle: "حي سموحة، الإسكندرية",
-    licenseNumber: "LIC-11902#",
-    region: "الإسكندرية",
-    joinDate: "21 أغسطس 2023",
-    status: "pending",
-    initials: "ص",
-  },
-];
+function toRegion(p: AdminPharmacy) {
+  const city = (p.city || "").trim();
+  const district = (p.district || "").trim();
+  if (city && district) return `${city}، ${district}`;
+  return city || district || "غير محدد";
+}
+
+function statusInfo(status: string) {
+  const s = (status || "").toLowerCase();
+  if (s === "approved") return { text: "نشط", cls: "bg-green-50 text-green-700" };
+  if (s === "pending") return { text: "قيد المراجعة", cls: "bg-amber-50 text-amber-700" };
+  if (s === "disabled") return { text: "غير نشط", cls: "bg-slate-100 text-slate-600" };
+  return { text: status || "غير معروف", cls: "bg-slate-100 text-slate-600" };
+}
 
 function StatCard({
   title,
@@ -89,11 +66,7 @@ function StatCard({
       <div className="flex flex-col items-start text-left">
         <h3 className="mb-1 text-3xl font-bold text-slate-800">{value}</h3>
         <div className="flex items-center gap-1">
-          <span
-            className={`text-xs font-bold ${change.startsWith("+") ? "text-emerald-600" : "text-rose-500"}`}
-          >
-            {change}
-          </span>
+          <span className={`text-xs font-bold ${change.startsWith("+") ? "text-emerald-600" : "text-rose-500"}`}>{change}</span>
           <span className="text-[10px] font-medium text-slate-400">هذا الشهر</span>
         </div>
       </div>
@@ -101,37 +74,92 @@ function StatCard({
   );
 }
 
-function StatusBadge({ status }: { status: Pharmacy["status"] }) {
-  const configs = {
-    active: { label: "نشط", bg: "bg-success-light", text: "text-success", dot: "bg-success" },
-    inactive: { label: "غير نشط", bg: "bg-slate-50", text: "text-slate-500", dot: "bg-slate-300" },
-    pending: { label: "قيد المراجعة", bg: "bg-warning-light", text: "text-warning", dot: "bg-warning" },
-  };
-  const config = configs[status];
-  return (
-    <div
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${config.bg} ${config.text}`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
-      {config.label}
-    </div>
-  );
-}
-
 function Toggle({ active }: { active: boolean }) {
   return (
-    <div
-      className={`relative h-5 w-10 cursor-pointer rounded-full transition-colors ${active ? "bg-success" : "bg-slate-200"}`}
-    >
-      <div
-        className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${active ? "left-1" : "left-6"}`}
-      />
+    <div className={`relative h-5 w-10 rounded-full transition-colors ${active ? "bg-success" : "bg-slate-200"}`}>
+      <div className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${active ? "left-1" : "left-6"}`} />
     </div>
   );
 }
 
 export default function AdminPharmaciesView() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const PAGE_SIZE = 10;
+  const [rows, setRows] = React.useState<AdminPharmacy[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [query, setQuery] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [actionId, setActionId] = React.useState<number | null>(null);
+
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await adminService.listPharmacies();
+      setRows(data);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    void load();
+  }, [load]);
+
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((p) => {
+      return (
+        (p.name || "").toLowerCase().includes(q) ||
+        (p.license_number || "").toLowerCase().includes(q) ||
+        (p.city || "").toLowerCase().includes(q) ||
+        (p.district || "").toLowerCase().includes(q)
+      );
+    });
+  }, [rows, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [query]);
+
+  React.useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const pagedRows = React.useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page]);
+
+  const visiblePages = React.useMemo(() => {
+    if (totalPages <= 3) return Array.from({ length: totalPages }, (_, idx) => idx + 1);
+    let start = Math.max(1, page - 1);
+    let end = Math.min(totalPages, start + 2);
+    start = Math.max(1, end - 2);
+    return Array.from({ length: end - start + 1 }, (_, idx) => start + idx);
+  }, [page, totalPages]);
+
+  const toggleStatus = async (p: AdminPharmacy) => {
+    setActionId(p.id);
+    try {
+      if ((p.status || "").toLowerCase() === "approved") {
+        await adminService.disablePharmacy(p.id);
+      } else {
+        await adminService.approvePharmacy(p.id);
+      }
+      await load();
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const stats = React.useMemo(() => {
+    const total = rows.length;
+    const active = rows.filter((x) => (x.status || "").toLowerCase() === "approved").length;
+    const pending = rows.filter((x) => (x.status || "").toLowerCase() === "pending").length;
+    return { total, active, pending };
+  }, [rows]);
 
   return (
     <div className="flex min-w-0 flex-1 flex-col bg-[#F8FAFC]">
@@ -144,24 +172,24 @@ export default function AdminPharmaciesView() {
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <StatCard
             title="إجمالي الصيدليات"
-            value="1,250"
-            change="+5%"
+            value={stats.total.toLocaleString("ar-EG")}
+            change="+0%"
             icon={Store}
             colorClass="text-brand"
             iconBgClass="bg-brand-light"
           />
           <StatCard
             title="صيدليات نشطة"
-            value="1,180"
-            change="+2%"
+            value={stats.active.toLocaleString("ar-EG")}
+            change="+0%"
             icon={CheckCircle}
             colorClass="text-emerald-600"
             iconBgClass="bg-emerald-50"
           />
           <StatCard
             title="طلبات انضمام جديدة"
-            value="45"
-            change="+12%"
+            value={stats.pending.toLocaleString("ar-EG")}
+            change="+0%"
             icon={Clock}
             colorClass="text-amber-600"
             iconBgClass="bg-amber-50"
@@ -175,30 +203,21 @@ export default function AdminPharmaciesView() {
               <input
                 type="text"
                 placeholder="ابحث باسم الصيدلية، رقم الترخيص، أو المنطقة..."
-                className="w-full rounded-2xl border border-slate-100 bg-slate-50 py-3 pl-4 pr-12 text-sm transition-all focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-2xl border border-slate-100 bg-slate-50 py-3 pl-4 pr-12 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
             </div>
             <div className="flex w-full gap-3 md:w-auto">
-              <button
-                type="button"
-                className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none"
-              >
+              <button type="button" className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none">
                 <span>كل المناطق</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              <button
-                type="button"
-                className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none"
-              >
+              <button type="button" className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none">
                 <span>كل الحالات</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-2xl bg-brand px-6 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-brand/90"
-              >
+              <button type="button" className="flex items-center gap-2 rounded-2xl bg-brand px-6 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-brand/90">
                 <Filter className="h-4 w-4" />
                 <span>تصفية</span>
               </button>
@@ -214,92 +233,93 @@ export default function AdminPharmaciesView() {
                   <th className="px-6 py-4">المنطقة</th>
                   <th className="px-6 py-4">تاريخ الانضمام</th>
                   <th className="px-6 py-4 text-center">الحالة</th>
-                  <th className="px-6 py-4 text-left">الإجراءات</th>
+                  <th className="px-6 py-4 text-center">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {MOCK_PHARMACIES.map((pharmacy, idx) => (
-                  <motion.tr
-                    key={pharmacy.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="group transition-colors hover:bg-slate-50/50"
-                  >
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light text-lg font-bold text-brand">
-                          {pharmacy.initials}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-800">{pharmacy.name}</p>
-                          <p className="text-[10px] font-medium text-slate-400">{pharmacy.subtitle}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 font-mono text-sm text-slate-500">{pharmacy.licenseNumber}</td>
-                    <td className="px-6 py-5 text-sm font-medium text-slate-600">{pharmacy.region}</td>
-                    <td className="px-6 py-5 text-sm text-slate-500">{pharmacy.joinDate}</td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center justify-center gap-4">
-                        {pharmacy.status !== "pending" && <Toggle active={pharmacy.status === "active"} />}
-                        <StatusBadge status={pharmacy.status} />
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          className="rounded-lg p-2 text-slate-400 transition-all hover:bg-brand-light hover:text-brand"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-lg p-2 text-slate-400 transition-all hover:bg-brand-light hover:text-brand"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-10 text-center text-slate-500">جاري تحميل الصيدليات...</td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-10 text-center text-slate-500">لا توجد بيانات مطابقة.</td>
+                  </tr>
+                ) : (
+                  pagedRows.map((pharmacy) => {
+                    const status = statusInfo(pharmacy.status);
+                    return (
+                      <tr key={pharmacy.id} className="transition-colors hover:bg-slate-50/50">
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light text-lg font-bold text-brand">
+                              {(pharmacy.name || "ص").slice(0, 1)}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-slate-800">{pharmacy.name}</p>
+                              <p className="text-[10px] font-medium text-slate-400">{toRegion(pharmacy)}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5 font-mono text-sm text-slate-500">{pharmacy.license_number || "-"}</td>
+                        <td className="px-6 py-5 text-sm text-slate-600">{toRegion(pharmacy)}</td>
+                        <td className="px-6 py-5 text-sm text-slate-500">{toArabicDate(pharmacy.created_at)}</td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center justify-center gap-4">
+                            {(pharmacy.status || "").toLowerCase() !== "pending" ? <Toggle active={(pharmacy.status || "").toLowerCase() === "approved"} /> : null}
+                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.text}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5 text-center">
+                          <button
+                            type="button"
+                            disabled={actionId === pharmacy.id}
+                            onClick={() => void toggleStatus(pharmacy)}
+                            className="rounded-lg bg-brand px-4 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+                          >
+                            {actionId === pharmacy.id
+                              ? "..."
+                              : (pharmacy.status || "").toLowerCase() === "approved"
+                                ? "تعطيل"
+                                : "تفعيل"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-100 p-6 md:flex-row">
             <p className="text-sm font-medium text-slate-400">
-              عرض <span className="font-bold text-slate-800">1-10</span> من أصل{" "}
-              <span className="font-bold text-slate-800">1,250</span> صيدلية
+              عرض <span className="font-bold text-slate-800">{filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}</span> إلى <span className="font-bold text-slate-800">{Math.min(page * PAGE_SIZE, filtered.length)}</span> من أصل <span className="font-bold text-slate-800">{filtered.length.toLocaleString("ar-EG")}</span> صيدلية
             </p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, "...", 125].map((page, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
-                      page === 1
-                        ? "bg-brand text-white shadow-lg"
-                        : page === "..."
-                          ? "cursor-default text-slate-400"
-                          : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
+              {visiblePages.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPage(p)}
+                  className={`h-10 min-w-10 rounded-xl px-3 text-sm font-bold ${p === page ? "bg-brand text-white shadow-lg" : "border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                >
+                  {p}
+                </button>
+              ))}
               <button
                 type="button"
-                className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -309,9 +329,7 @@ export default function AdminPharmaciesView() {
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-100 px-10 py-8 text-center">
-        <p className="text-xs font-medium text-slate-400">
-          © 2024 Healup. جميع الحقوق محفوظة لنظام إدارة الخدمات الطبية.
-        </p>
+        <p className="text-xs font-medium text-slate-400">© 2024 Healup. جميع الحقوق محفوظة لنظام إدارة الخدمات الطبية.</p>
       </footer>
     </div>
   );

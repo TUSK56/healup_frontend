@@ -6,7 +6,7 @@ Next.js frontend for **HealUp** – medicine request platform. See the main [Hea
 
 ```bash
 npm install
-# Add .env.local with NEXT_PUBLIC_API_URL=http://localhost:5000
+# Add .env.local with NEXT_PUBLIC_API_URL=http://localhost:8000
 npm run dev
 ```
 

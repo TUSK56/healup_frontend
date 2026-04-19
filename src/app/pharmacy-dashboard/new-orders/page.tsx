@@ -10,6 +10,7 @@ export default function PharmacyNewOrdersPage() {
   const searchParams = useSearchParams();
   const openRequestId = searchParams.get("openRequestId");
   const [modalOpen, setModalOpen] = React.useState(false);
+  const iframeVersion = "20260419-qty-fixed-1";
 
   React.useEffect(() => {
     void (async () => {
@@ -83,8 +84,8 @@ export default function PharmacyNewOrdersPage() {
   }, []);
 
   const iframeSrc = openRequestId
-    ? `/pharmacy_orders_1.html?openRequestId=${encodeURIComponent(openRequestId)}`
-    : "/pharmacy_orders_1.html";
+    ? `/pharmacy_orders_1.html?openRequestId=${encodeURIComponent(openRequestId)}&v=${iframeVersion}`
+    : `/pharmacy_orders_1.html?v=${iframeVersion}`;
 
   return (
     <div className="pharmacyDashboard">

@@ -3,6 +3,9 @@
 import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
+
+const LeafletPicker = dynamic(() => import("@/components/pharmacy/views/PharmacyProfileLeaflet"), { ssr: false });
 
 export default function SignupPage() {
   const [accountType, setAccountType] = useState("patient");
@@ -13,9 +16,62 @@ export default function SignupPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [governorate, setGovernorate] = useState("");
+  const [district, setDistrict] = useState("");
+  const [addressDetails, setAddressDetails] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [focusToken, setFocusToken] = useState(0);
   const [terms, setTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const onPickLocation = async (lat: number, lng: number) => {
+    setLatitude(lat);
+    setLongitude(lng);
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=ar`;
+      const response = await fetch(url, { headers: { Accept: "application/json" } });
+      const data = await response.json();
+      const address = data?.address ?? {};
+
+      const city = address.city || address.town || address.state || address.county || "";
+      const districtName = address.suburb || address.neighbourhood || address.quarter || address.city_district || "";
+      const details = data?.display_name || "";
+
+      setGovernorate(city);
+      setDistrict(districtName);
+      setAddressDetails(details);
+    } catch {
+      // Keep coordinates even if reverse geocoding fails.
+    }
+  };
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setError("المتصفح لا يدعم تحديد الموقع الجغرافي.");
+      return;
+    }
+
+    setError(null);
+    setLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = Number(position.coords.latitude.toFixed(6));
+        const lng = Number(position.coords.longitude.toFixed(6));
+        await onPickLocation(lat, lng);
+        setFocusToken((x) => x + 1);
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        setError("تعذر الحصول على موقعك الحالي. تأكد من السماح بخدمة الموقع.");
+      },
+      { enableHighAccuracy: true, timeout: 15000 }
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +94,11 @@ export default function SignupPage() {
           name: fullName,
           email,
           phone: phone || undefined,
+          city: governorate || undefined,
+          district: district || undefined,
+          addressDetails: addressDetails || undefined,
+          latitude: latitude ?? undefined,
+          longitude: longitude ?? undefined,
           password,
           passwordConfirmation: confirmPassword,
         });
@@ -164,6 +225,56 @@ export default function SignupPage() {
                 </div>
               </div>
             </div>
+
+            {/* Location Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, fontSize: 14, fontWeight: 800, color: '#1a2e4a', marginBottom: 12, direction: 'ltr' }}>
+              تحديد الموقع
+              <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#2356c8' }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </div>
+            <div style={{ display: 'flex', gap: 14, marginBottom: 12 }}>
+              <input
+                type="text"
+                value={governorate}
+                onChange={(e) => setGovernorate(e.target.value)}
+                placeholder="المحافظة / المدينة"
+                style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl' }}
+              />
+              <input
+                type="text"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                placeholder="الحي / المنطقة"
+                style={{ flex: 1, padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl' }}
+              />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <input
+                type="text"
+                value={addressDetails}
+                onChange={(e) => setAddressDetails(e.target.value)}
+                placeholder="العنوان بالتفصيل"
+                style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl' }}
+              />
+            </div>
+            <div style={{ position: 'relative', marginBottom: 20 }}>
+              <div style={{ width: '100%', height: 210, borderRadius: 12, border: '1.5px solid #dde3ed', position: 'relative', zIndex: 0, overflow: 'hidden' }}>
+                <LeafletPicker
+                  latitude={latitude ?? 30.0444}
+                  longitude={longitude ?? 31.2357}
+                  onPick={onPickLocation}
+                  focusToken={focusToken}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleGetCurrentLocation}
+                disabled={locating}
+                style={{ position: 'absolute', bottom: 10, left: 10, background: locating ? '#6b88de' : '#2356c8', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 12px', fontSize: 12, fontWeight: 700, cursor: locating ? 'not-allowed' : 'pointer', zIndex: 1000 }}
+              >
+                {locating ? 'جاري تحديد الموقع...' : 'تحديد موقعي الحالي'}
+              </button>
+            </div>
+
             {/* Terms */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, marginBottom: 20, direction: 'ltr' }}>
               <label htmlFor="terms" style={{ fontSize: 13, color: '#1a2e4a', fontWeight: 500, cursor: 'pointer', order: 1, direction: 'rtl' }}>أوافق على <a href="#" style={{ color: '#2356c8', textDecoration: 'none', fontWeight: 700 }}>شروط الاستخدام</a> و <a href="#" style={{ color: '#2356c8', textDecoration: 'none', fontWeight: 700 }}>سياسة الخصوصية</a></label>

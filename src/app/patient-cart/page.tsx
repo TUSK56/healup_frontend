@@ -326,12 +326,14 @@ export default function PatientCartPage() {
 
     try {
       const prescriptionFile = prescription ? dataUrlToFile(prescription, `rx-${Date.now()}.jpg`) : undefined;
+      let createdRequestId: number | null = null;
       try {
-        await requestService.create({ medicines, estimated_total: Number(total.toFixed(2)) }, prescriptionFile || undefined);
+        const created = await requestService.create({ medicines, estimated_total: Number(total.toFixed(2)) }, prescriptionFile || undefined);
+        createdRequestId = created?.request?.id ?? null;
       } catch {
         // Cloud upload may fail in some environments; keep supporting prescription-only by retrying with direct URL payload.
         if (!prescription) throw new Error("create_request_failed");
-        await requestService.create(
+        const created = await requestService.create(
           {
             medicines,
             prescription_url: prescription,
@@ -339,6 +341,22 @@ export default function PatientCartPage() {
           },
           undefined
         );
+        createdRequestId = created?.request?.id ?? null;
+      }
+
+      if (createdRequestId && typeof window !== "undefined") {
+        const key = `healup_checkout_pricing_${createdRequestId}`;
+        if (appliedCoupon) {
+          window.localStorage.setItem(
+            key,
+            JSON.stringify({
+              coupon_code: appliedCoupon.code,
+              coupon_percent: appliedCoupon.percent,
+            })
+          );
+        } else {
+          window.localStorage.removeItem(key);
+        }
       }
 
       setCart([]);
@@ -349,7 +367,7 @@ export default function PatientCartPage() {
     } catch {
       setCheckoutError("تعذر إرسال الطلب حالياً. حاول مرة أخرى.");
     }
-  }, [items, prescription, router, total]);
+  }, [appliedCoupon, items, prescription, router, total]);
 
   const handleCheckout = useCallback(() => {
     if (!items.length && !prescription) {

@@ -10,9 +10,10 @@
   min-height: 100vh;
   display: flex;
   direction: rtl;
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   max-width: 100%;
+  padding-right: var(--sidebar-width);
 }
 
 .pharmacyDashboard .sidebar {
@@ -25,7 +26,7 @@
   bottom: 0;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .pharmacyDashboard .sidebar-logo {
@@ -35,6 +36,7 @@
   align-items: center;
   gap: 8px;
   border-bottom: 1px solid var(--border);
+  overflow-x: clip;
 }
 
 .pharmacyDashboard .logo-btn {
@@ -57,6 +59,8 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  overflow-x: clip;
+  min-width: 0;
 }
 
 .pharmacyDashboard .nav-item {
@@ -75,6 +79,18 @@
   text-align: right;
   cursor: pointer;
   min-width: 0;
+  max-width: 100%;
+}
+
+.pharmacyDashboard .nav-item > div,
+.pharmacyDashboard .nav-item > span {
+  min-width: 0;
+}
+
+.pharmacyDashboard .nav-item > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pharmacyDashboard .nav-item.active {
@@ -100,16 +116,19 @@
   margin-top: auto;
   padding: 12px;
   border-top: 1px solid var(--border);
+  overflow-x: clip;
 }
 
 .pharmacyDashboard .main {
   flex: 1;
-  margin-right: var(--sidebar-width);
+  margin-right: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  max-width: calc(100vw - var(--sidebar-width));
+  min-width: 0;
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
 }
 
 .pharmacyDashboard .pharmacy-topbar {
@@ -120,6 +139,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  overflow-x: clip;
 }
 
 .pharmacyDashboard .search-bar {
@@ -130,7 +152,10 @@
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 8px 14px;
-  width: 360px;
+  width: min(360px, 42vw);
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 auto;
 }
 
 .pharmacyDashboard .search-bar input {
@@ -144,6 +169,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.pharmacyDashboard .notif-wrap {
+  position: relative;
 }
 
 .pharmacyDashboard .topbar-icon-btn {
@@ -174,11 +205,186 @@
   border: 2px solid #fff;
 }
 
+.pharmacyDashboard .notif-popup {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 340px;
+  max-height: 420px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+  z-index: 250;
+}
+
+.pharmacyDashboard .notif-popup-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e293b;
+  background: #f8fafc;
+  text-align: right;
+}
+
+.pharmacyDashboard .notif-popup-body {
+  max-height: 340px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.pharmacyDashboard .notif-popup-empty {
+  margin: 0;
+  padding: 16px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.pharmacyDashboard .notif-item {
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fff;
+  text-align: right;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+}
+
+.pharmacyDashboard .notif-item:hover {
+  background: #f8fbff;
+}
+
+.pharmacyDashboard .notif-item-msg {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+.pharmacyDashboard .notif-item-time {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.pharmacyDashboard .nav-badge {
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 0;
+  width: auto;
+  height: auto;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline;
+  min-width: 0;
+}
+
 .pharmacyDashboard .profile {
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.pharmacyDashboard .profile-menu-wrap {
+  position: relative;
+}
+
+.pharmacyDashboard .profile-trigger {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  text-align: inherit;
+}
+
+.pharmacyDashboard .profile-popup {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 230px;
+  border: 1px solid #dbe7f7;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 38px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+  z-index: 260;
+}
+
+.pharmacyDashboard .profile-popup-headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #f8fbff 0%, #f1f7ff 100%);
+}
+
+.pharmacyDashboard .profile-popup-headline-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: #c7d2fe;
+  border: 2px solid #fff;
+  box-shadow: 0 3px 10px rgba(26, 86, 219, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pharmacyDashboard .profile-popup-headline-text {
+  min-width: 0;
+}
+
+.pharmacyDashboard .profile-popup-headline-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pharmacyDashboard .profile-popup-headline-role {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.pharmacyDashboard .profile-popup-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: right;
+  text-decoration: none;
+  border: none;
+  background: #fff;
+  color: #1e293b;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.pharmacyDashboard .profile-popup-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.pharmacyDashboard .profile-popup-item-danger {
+  color: #b91c1c;
+}
+
+.pharmacyDashboard .profile-popup-item-danger:hover {
+  background: #fff1f2;
+  color: #9f1239;
 }
 
 .pharmacyDashboard .profile-avatar {
@@ -205,8 +411,19 @@
 .pharmacyDashboard .pharmacy-content-shell {
   flex: 1;
   min-height: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .pharmacyDashboard .pharmacy-topbar {
+    padding: 0 12px;
+  }
+
+  .pharmacyDashboard .search-bar {
+    width: min(280px, 38vw);
+  }
 }
 
 /* Keep only shared top navbar; hide page-level duplicate navbars/footers */

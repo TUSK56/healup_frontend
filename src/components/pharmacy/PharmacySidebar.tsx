@@ -7,6 +7,7 @@ import Link from "next/link";
 import React from "react";
 
 import api from "@/services/apiService";
+import HealupLogo from "@/components/HealupLogo";
 
 
 
@@ -55,13 +56,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
     <aside className="sidebar">
 
       <div className="sidebar-logo">
-        <Link href="/pharmacy-dashboard" className="logo-btn" aria-label="Healup — لوحة الصيدلية">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-            <path d="M20 8h-4V6a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V10a2 2 0 00-2-2z" />
-            <path d="M12 8v8M8 12h8" />
-          </svg>
-        </Link>
-        <span className="logo-text">Healup</span>
+        <HealupLogo href="/pharmacy-dashboard" />
       </div>
 
 

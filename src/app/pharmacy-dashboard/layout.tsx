@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@/components/pharmacy/pharmacy-sidebar.css";
+import RealtimeBridge from "@/components/RealtimeBridge";
 
 export const metadata: Metadata = {
   title: "Healup - ???? ????????",
@@ -11,5 +12,10 @@ export default function PharmacyDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <RealtimeBridge />
+      {children}
+    </>
+  );
 }

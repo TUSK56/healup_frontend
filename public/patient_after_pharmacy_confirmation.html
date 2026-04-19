@@ -59,12 +59,88 @@
     justify-content: center;
     text-decoration: none;
     cursor: pointer;
+    position: relative;
   }
   .topbar-icon-btn.active {
     border-radius: 999px;
     background: #e9f0ff;
     color: var(--blue);
     border: 2px solid #bfdbfe;
+  }
+  .topbar-notif-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #ef4444;
+    border: 2px solid #eceff4;
+    display: none;
+  }
+  .topbar-notif-wrap {
+    position: relative;
+  }
+  .topbar-notif-popup {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    width: 340px;
+    max-height: 380px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+    z-index: 350;
+    display: none;
+  }
+  .topbar-notif-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    background: #f8fafc;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .topbar-notif-list {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .topbar-notif-item {
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    background: #fff;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+  }
+  .topbar-notif-item:hover { background: #f8fbff; }
+  .topbar-notif-msg { font-size: 13px; font-weight: 700; color: #0f172a; line-height: 1.5; }
+  .topbar-notif-time { font-size: 11px; color: #64748b; }
+  .topbar-notif-empty {
+    text-align: center;
+    padding: 14px;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .topbar-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    object-fit: cover;
+    display: none;
+  }
+  .topbar-avatar-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   .patient-sidebar {
     position: fixed;
@@ -256,6 +332,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
+    direction: rtl;
   }
 
   .step {
@@ -263,6 +340,7 @@
     font-size: 12px; font-weight: 600; color: var(--text-light);
   }
   .step.active { color: var(--text); }
+  .step.done { color: var(--blue); }
 
   .step-icon {
     width: 44px; height: 44px; border-radius: 50%;
@@ -275,8 +353,9 @@
     border-color: var(--blue);
   }
   .step.done .step-icon {
-    background: #f1f5f9;
-    border-color: var(--border);
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
   }
 
   .step-connector {
@@ -545,11 +624,21 @@
 <header class="topbar">
   <div class="topbar-actions">
     <a href="/patient-profile" class="topbar-icon-btn active" aria-label="profile">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0 1 12 0"/></svg>
+      <img id="topbar-avatar" class="topbar-avatar" alt="">
+      <span id="topbar-avatar-fallback" class="topbar-avatar-fallback">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0 1 12 0"/></svg>
+      </span>
     </a>
-    <a href="/patient-review-orders" class="topbar-icon-btn" aria-label="notifications">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </a>
+    <div class="topbar-notif-wrap" id="topbar-notif-wrap">
+      <button type="button" class="topbar-icon-btn" id="topbar-notif-btn" aria-label="notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span id="topbar-notif-dot" class="topbar-notif-dot"></span>
+      </button>
+      <div id="topbar-notif-popup" class="topbar-notif-popup" role="dialog" aria-label="new notifications">
+        <div class="topbar-notif-header">الإشعارات الجديدة</div>
+        <div id="topbar-notif-list" class="topbar-notif-list"></div>
+      </div>
+    </div>
     <a href="/patient-cart" class="topbar-icon-btn" aria-label="cart">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
     </a>
@@ -620,7 +709,21 @@
       <div class="steps-bar"><div class="steps-bar-fill" id="checkout-steps-fill"></div></div>
       <div class="steps-list">
 
-        <div class="step done" data-step="1">
+        <div class="step" data-step="shipping">
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <rect x="1" y="3" width="15" height="13" rx="2"/>
+              <path d="M16 8h4l3 3v5h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <span>الشحن</span>
+        </div>
+
+        <div class="step-connector"></div>
+
+        <div class="step" data-step="payment">
           <div class="step-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <rect x="2" y="5" width="20" height="14" rx="2"/>
@@ -632,7 +735,7 @@
 
         <div class="step-connector"></div>
 
-        <div class="step active" data-step="2">
+        <div class="step" data-step="confirm">
           <div class="step-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
@@ -640,20 +743,6 @@
             </svg>
           </div>
           <span>التأكيد</span>
-        </div>
-
-        <div class="step-connector"></div>
-
-        <div class="step" data-step="3">
-          <div class="step-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="1" y="3" width="15" height="13" rx="2"/>
-              <path d="M16 8h4l3 3v5h-7V8z"/>
-              <circle cx="5.5" cy="18.5" r="2.5"/>
-              <circle cx="18.5" cy="18.5" r="2.5"/>
-            </svg>
-          </div>
-          <span>الشحن</span>
         </div>
 
       </div>
@@ -720,8 +809,8 @@
       <div class="payment-options">
 
         <!-- Credit Card -->
-        <div class="payment-option selected">
-          <div class="radio checked"></div>
+        <div class="payment-option">
+          <div class="radio"></div>
           <span class="payment-label">بطاقة ائتمان / خصم مباشر</span>
           <div class="payment-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
@@ -808,24 +897,198 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  let unreadTopbarNotifications = [];
+
+  function toArabicTime(value) {
+    const v = String(value || '').trim();
+    if (!v) return '';
+    const d = /Z$|[+-]\d{2}:?\d{2}$/.test(v) ? new Date(v) : new Date(`${v}Z`);
+    if (!Number.isFinite(d.getTime())) return '';
+    return d.toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+  }
+
+  function parseRequestIdFromRoute(route) {
+    const q = String(route || '').split('?')[1] || '';
+    const p = new URLSearchParams(q);
+    const raw = p.get('requestId') || p.get('requestid') || p.get('request_id');
+    const n = Number(raw || '0');
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+
+  async function resolveNotificationRoute(notification) {
+    const rawRoute = String(notification?.route || '').trim();
+    const type = String(notification?.type || '').toLowerCase();
+    if (rawRoute.startsWith('/patient_after_pharmacy_confirmation.html')) return rawRoute;
+
+    const requestId = parseRequestIdFromRoute(rawRoute);
+    if ((type === 'new_offer' || rawRoute.startsWith('/patient-offers')) && requestId) {
+      try {
+        const token = window.localStorage.getItem('healup_token');
+        const res = await fetch(`${getApiBase()}/api/requests/${requestId}/offers`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const payload = await res.json();
+          const offers = Array.isArray(payload?.offers) ? payload.offers : [];
+          const responseId = Number(offers[0]?.response?.id || 0);
+          if (Number.isFinite(responseId) && responseId > 0) {
+            return `/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(String(requestId))}&responseId=${encodeURIComponent(String(responseId))}`;
+          }
+        }
+      } catch {
+        // fallback below
+      }
+      return `/patient-review-orders?requestId=${encodeURIComponent(String(requestId))}`;
+    }
+
+    return rawRoute || '/patient-review-orders';
+  }
+
+  function renderTopbarNotifications() {
+    const list = document.getElementById('topbar-notif-list');
+    const dot = document.getElementById('topbar-notif-dot');
+    if (!list || !dot) return;
+
+    dot.style.display = unreadTopbarNotifications.length > 0 ? 'block' : 'none';
+
+    if (unreadTopbarNotifications.length === 0) {
+      list.innerHTML = '<div class="topbar-notif-empty">لا توجد إشعارات جديدة.</div>';
+      return;
+    }
+
+    list.innerHTML = unreadTopbarNotifications
+      .map(
+        (n) => `
+        <button type="button" class="topbar-notif-item" data-notif-id="${Number(n.id)}">
+          <span class="topbar-notif-msg">${String(n.message || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>
+          <span class="topbar-notif-time">${toArabicTime(n.created_at)}</span>
+        </button>
+      `,
+      )
+      .join('');
+  }
+
+  async function loadTopbarNotifications() {
+    try {
+      const token = window.localStorage.getItem('healup_token');
+      if (!token) {
+        unreadTopbarNotifications = [];
+        renderTopbarNotifications();
+        return;
+      }
+      const res = await fetch(`${getApiBase()}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('notifications');
+      const payload = await res.json();
+      const rows = Array.isArray(payload?.data) ? payload.data : [];
+      unreadTopbarNotifications = rows.filter((x) => !x.is_read);
+      renderTopbarNotifications();
+    } catch {
+      unreadTopbarNotifications = [];
+      renderTopbarNotifications();
+    }
+  }
+
+  async function markNotificationRead(id) {
+    try {
+      const token = window.localStorage.getItem('healup_token');
+      if (!token) return;
+      await fetch(`${getApiBase()}/api/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  function resolveAvatarIdentityToken() {
+    try {
+      const raw = window.localStorage.getItem('healup_user');
+      const user = raw ? JSON.parse(raw) : {};
+      const candidate = user?.id ?? user?.email ?? user?.phone ?? user?.name;
+      const normalized = String(candidate ?? '').trim().toLowerCase();
+      return normalized ? encodeURIComponent(normalized) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function readScopedAvatar() {
+    const identity = resolveAvatarIdentityToken();
+    const primaryKey = identity ? `healup_patient_avatar:${identity}` : 'healup_patient_avatar';
+    const backupKey = identity ? `healup_patient_avatar_backup:${identity}` : 'healup_patient_avatar_backup';
+
+    const scopedPrimary = window.localStorage.getItem(primaryKey);
+    if (scopedPrimary && scopedPrimary.length > 10) return scopedPrimary;
+
+    const scopedBackup = window.localStorage.getItem(backupKey);
+    if (scopedBackup && scopedBackup.length > 10) return scopedBackup;
+
+    const legacyPrimary = window.localStorage.getItem('healup_patient_avatar');
+    if (legacyPrimary && legacyPrimary.length > 10) {
+      if (identity) window.localStorage.setItem(primaryKey, legacyPrimary);
+      return legacyPrimary;
+    }
+
+    const legacyBackup = window.localStorage.getItem('healup_patient_avatar_backup');
+    if (legacyBackup && legacyBackup.length > 10) {
+      if (identity) window.localStorage.setItem(backupKey, legacyBackup);
+      return legacyBackup;
+    }
+
+    return null;
+  }
+
+  function writeScopedPatientAvatar(value, identityCandidate) {
+    const token = String(identityCandidate ?? '').trim().toLowerCase();
+    const identity = token ? encodeURIComponent(token) : resolveAvatarIdentityToken();
+    const key = identity ? `healup_patient_avatar:${identity}` : 'healup_patient_avatar';
+    window.localStorage.setItem(key, value);
+  }
+
+  async function loadTopbarAvatar() {
+    const img = document.getElementById('topbar-avatar');
+    const fallback = document.getElementById('topbar-avatar-fallback');
+    if (!img || !fallback) return;
+
+    const localAvatar = readScopedAvatar();
+    if (localAvatar) {
+      img.src = localAvatar;
+      img.style.display = 'block';
+      fallback.style.display = 'none';
+      return;
+    }
+
+    try {
+      const token = window.localStorage.getItem('healup_token');
+      if (!token) return;
+      const res = await fetch(`${getApiBase()}/api/patient/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const payload = await res.json();
+      const avatar = payload?.data?.avatar_url || null;
+      if (avatar && String(avatar).length > 10) {
+        writeScopedPatientAvatar(avatar, payload?.data?.id ?? payload?.data?.email);
+        img.src = avatar;
+        img.style.display = 'block';
+        fallback.style.display = 'none';
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   function formatMoney(value) {
     return `EGP ${Number(value || 0).toFixed(2)}`;
   }
 
-  const CheckoutStep = Object.freeze({
-    PAYMENT: 1,
-    CONFIRM: 2,
-    SHIPPING: 3,
-  });
-
-  function setCheckoutStep(step) {
-    const normalized = Math.max(CheckoutStep.PAYMENT, Math.min(CheckoutStep.SHIPPING, Number(step || CheckoutStep.PAYMENT)));
-    const percentByStep = {
-      [CheckoutStep.PAYMENT]: 33,
-      [CheckoutStep.CONFIRM]: 66,
-      [CheckoutStep.SHIPPING]: 100,
-    };
-    const percent = percentByStep[normalized] || 33;
+  function updateCheckoutProgressSteps(state) {
+    const stepsOrder = ['shipping', 'payment', 'confirm'];
+    const doneCount = stepsOrder.reduce((sum, key) => sum + (state[key] ? 1 : 0), 0);
+    const percent = Math.round((doneCount / stepsOrder.length) * 100);
 
     const percentEl = document.getElementById('checkout-steps-percent');
     const fillEl = document.getElementById('checkout-steps-fill');
@@ -833,10 +1096,11 @@
     if (fillEl) fillEl.style.width = `${percent}%`;
 
     document.querySelectorAll('.steps-list .step[data-step]').forEach((el) => {
-      const idx = Number(el.getAttribute('data-step') || 0);
+      const key = el.getAttribute('data-step');
       el.classList.remove('active', 'done');
-      if (idx < normalized) el.classList.add('done');
-      else if (idx === normalized) el.classList.add('active');
+      if (key && state[key]) {
+        el.classList.add('done');
+      }
     });
   }
 
@@ -854,6 +1118,11 @@
   }
 
   let shippingMode = 'delivery';
+  const checkoutState = {
+    shipping: false,
+    confirm: false,
+    payment: false,
+  };
   let pharmacyLat = null;
   let pharmacyLng = null;
   let pickupMap = null;
@@ -934,6 +1203,17 @@
     return Number.isFinite(value) && value > 0 ? value : null;
   }
 
+  function getStoredCheckoutPricing(requestId) {
+    if (!requestId) return null;
+    try {
+      const raw = window.localStorage.getItem(`healup_checkout_pricing_${requestId}`);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
   /** Line items and subtotal for the pharmacy offer the patient chose (URL responseId), not the cheapest offer. */
   function lineItemsForOffer(offerWrapper, requestMedicines) {
     if (!offerWrapper || !offerWrapper.response) return null;
@@ -966,8 +1246,7 @@
     renderOrderItems(meds, pharmacyName);
 
     const rid = getRequestId();
-    const pricingRaw = rid ? window.localStorage.getItem(`healup_checkout_pricing_${rid}`) : null;
-    const pricing = pricingRaw ? JSON.parse(pricingRaw) : null;
+    const pricing = getStoredCheckoutPricing(rid);
     const couponPercent = Number(pricing?.coupon_percent || 0);
     const qtySum = pricingBundle.qtySum ?? 0;
     const standardDelivery =
@@ -1009,19 +1288,7 @@
     }
     const etaEl = document.getElementById('delivery-eta-hint');
     if (etaEl) {
-      if (distanceKm == null || !Number.isFinite(distanceKm)) {
-        etaEl.textContent = '';
-      } else if (shippingMode === 'delivery') {
-        const travelMin = (distanceKm / 22) * 60;
-        const low = Math.max(12, Math.round(travelMin * 0.75));
-        const high = Math.min(95, Math.max(low + 5, Math.round(travelMin * 1.35)));
-        etaEl.textContent = `الوقت المتوقع للتوصيل: تقريبًا ${low} - ${high} دقيقة (حسب المسافة بين عنوان التوصيل وموقع الصيدلية).`;
-      } else {
-        const travelMin = (distanceKm / 22) * 60;
-        const low = Math.max(10, Math.round(travelMin * 0.65));
-        const high = Math.min(75, Math.max(low + 4, Math.round(travelMin * 1.15)));
-        etaEl.textContent = `الوقت المتوقع للاستلام من الفرع: تقريبًا ${low} - ${high} دقيقة (حسب المسافة إلى الصيدلية).`;
-      }
+      etaEl.textContent = '';
     }
   }
 
@@ -1178,7 +1445,9 @@
 
   void loadLiveConfirmationData();
   void fillDeliveryFromSavedProfileChoice();
-  setCheckoutStep(CheckoutStep.CONFIRM);
+
+  checkoutState.shipping = Boolean(document.querySelector('.shipping-tab.active'));
+  updateCheckoutProgressSteps(checkoutState);
 
   document.getElementById('location-dot-btn').addEventListener('click', () => {
     void detectAndFillLocation();
@@ -1201,12 +1470,18 @@
     const original = btn.innerHTML;
     btn.disabled = true;
     btn.textContent = 'جاري التأكيد...';
-    setCheckoutStep(CheckoutStep.CONFIRM);
+    checkoutState.confirm = true;
+    updateCheckoutProgressSteps(checkoutState);
     try {
       const targetOffer =
         cachedOffers.find((x) => Number(x?.response?.id) === responseId) || cachedOffers[0] || null;
       const ph = targetOffer?.response?.pharmacy;
       const payLabel = document.querySelector('.payment-option.selected .payment-label')?.textContent?.trim() || '';
+      const rid = getRequestId();
+      const pricing = getStoredCheckoutPricing(rid);
+      const couponCode = (pricing?.coupon_code || '').toString().trim();
+      const couponPercentRaw = Number(pricing?.coupon_percent || 0);
+      const couponPercent = Number.isFinite(couponPercentRaw) ? Math.max(0, Math.min(100, couponPercentRaw)) : 0;
       let deliveryAddr = '';
       if (shippingMode === 'delivery') {
         const city = document.getElementById('city-input')?.value?.trim() || '';
@@ -1228,6 +1503,8 @@
           delivery: shippingMode === 'delivery',
           payment_method: payLabel.slice(0, 200),
           delivery_address: (deliveryAddr || '').slice(0, 500) || null,
+          coupon_code: couponCode || null,
+          coupon_percent: couponPercent > 0 ? couponPercent : null,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -1255,7 +1532,6 @@
         }
         alert(msg);
       } else {
-        setCheckoutStep(CheckoutStep.SHIPPING);
         const oid = data?.order?.id;
         window.setTimeout(() => {
           window.location.href = oid
@@ -1293,6 +1569,8 @@
       shippingMode = tab.getAttribute('data-mode') === 'pickup' ? 'pickup' : 'delivery';
       document.getElementById('delivery-form').style.display = shippingMode === 'delivery' ? 'grid' : 'none';
       document.getElementById('pickup-map-wrap').style.display = shippingMode === 'pickup' ? 'block' : 'none';
+      checkoutState.shipping = true;
+      updateCheckoutProgressSteps(checkoutState);
       refreshOrderSummaryPricing();
       initPickupMapIfNeeded();
     });
@@ -1312,8 +1590,51 @@
       });
       opt.classList.add('selected');
       opt.querySelector('.radio').classList.add('checked');
+      checkoutState.payment = true;
+      updateCheckoutProgressSteps(checkoutState);
     });
   });
+
+  (function setupTopbarNotificationsAndAvatar() {
+    const wrap = document.getElementById('topbar-notif-wrap');
+    const popup = document.getElementById('topbar-notif-popup');
+    const btn = document.getElementById('topbar-notif-btn');
+    const list = document.getElementById('topbar-notif-list');
+    if (!wrap || !popup || !btn || !list) return;
+
+    btn.addEventListener('click', () => {
+      const isOpen = popup.style.display === 'block';
+      popup.style.display = isOpen ? 'none' : 'block';
+    });
+
+    window.addEventListener('mousedown', (e) => {
+      if (!wrap.contains(e.target)) {
+        popup.style.display = 'none';
+      }
+    });
+
+    list.addEventListener('click', async (e) => {
+      const item = e.target.closest('[data-notif-id]');
+      if (!item) return;
+      const id = Number(item.getAttribute('data-notif-id') || '0');
+      const notification = unreadTopbarNotifications.find((x) => Number(x.id) === id);
+      if (!notification) return;
+
+      await markNotificationRead(id);
+      unreadTopbarNotifications = unreadTopbarNotifications.filter((x) => Number(x.id) !== id);
+      renderTopbarNotifications();
+      popup.style.display = 'none';
+
+      const target = await resolveNotificationRoute(notification);
+      window.location.href = target;
+    });
+
+    void loadTopbarAvatar();
+    void loadTopbarNotifications();
+    window.setInterval(() => {
+      void loadTopbarNotifications();
+    }, 15000);
+  })();
 </script>
 
 </body>

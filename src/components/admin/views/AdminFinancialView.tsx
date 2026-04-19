@@ -1,14 +1,73 @@
 "use client";
 
+import React from "react";
 import { Download } from "lucide-react";
 import StatsGrid from "@/components/admin/financial/StatsGrid";
 import Filters from "@/components/admin/financial/Filters";
 import SalesChart from "@/components/admin/financial/SalesChart";
 import RevenueByCity from "@/components/admin/financial/RevenueByCity";
-import TransactionsTable from "@/components/admin/financial/TransactionsTable";
-import TopPharmacies from "@/components/admin/financial/TopPharmacies";
+import TransactionsTable, { TransactionRow } from "@/components/admin/financial/TransactionsTable";
+import TopPharmacies, { TopPharmacyRow } from "@/components/admin/financial/TopPharmacies";
+import { adminService } from "@/services/adminService";
 
 export default function AdminFinancialView() {
+  const [topPharmacies, setTopPharmacies] = React.useState<TopPharmacyRow[]>([]);
+  const [transactions, setTransactions] = React.useState<TransactionRow[]>([]);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const orders = await adminService.listOrders();
+
+        const tx = orders.slice(0, 8).map((o) => ({
+          id: o.id,
+          date: o.created_at,
+          pharmacy: o.pharmacy?.name || "-",
+          amount: Number(o.total_price || 0),
+          status: o.status,
+        }));
+
+        const totals = new Map<string, { name: string; branch: string; total: number }>();
+        for (const o of orders) {
+          const key = String(o.pharmacy?.id || 0);
+          const name = o.pharmacy?.name || "غير محدد";
+          const city = o.pharmacy?.city || "غير محدد";
+          const district = o.pharmacy?.district || "";
+          const branch = district ? `${city}، ${district}` : city;
+          const current = totals.get(key) || { name, branch, total: 0 };
+          current.total += Number(o.total_price || 0);
+          totals.set(key, current);
+        }
+
+        const top = Array.from(totals.values())
+          .sort((a, b) => b.total - a.total)
+          .slice(0, 5)
+          .map((x, idx) => ({
+            name: x.name,
+            branch: x.branch,
+            sales: x.total,
+            rank: idx + 1,
+          }));
+
+        if (mounted) {
+          setTransactions(tx);
+          setTopPharmacies(top);
+        }
+      } catch {
+        if (mounted) {
+          setTransactions([]);
+          setTopPharmacies([]);
+        }
+      }
+    };
+
+    void load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-0 min-w-0 flex-1 bg-[#F8FAFC] pb-12 font-sans rtl">
       <main className="w-full min-w-0 px-6 py-8 sm:px-8 lg:px-10">
@@ -45,10 +104,10 @@ export default function AdminFinancialView() {
 
         <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-1">
-            <TopPharmacies />
+            <TopPharmacies items={topPharmacies} />
           </div>
           <div className="lg:col-span-2">
-            <TransactionsTable />
+            <TransactionsTable items={transactions} />
           </div>
         </section>
 
