@@ -11,6 +11,8 @@ import { patientService } from "@/services/patientService";
 import api from "@/services/apiService";
 import { authService } from "@/services/authService";
 import { isAvatarStorageKey, readAvatar, writeAvatar } from "@/lib/avatarStorage";
+import RealtimeBridge from "@/components/RealtimeBridge";
+import { getNotifications, markNotificationRead } from "@/lib/notificationCenter";
 
 type ActiveKey = "home" | "cart" | "orders" | "history" | "profile";
 
@@ -51,10 +53,10 @@ export default function PatientShell({ children, active }: { children: ReactNode
   const profileWrapRef = React.useRef<HTMLDivElement | null>(null);
 
   const loadNotifications = React.useCallback(async () => {
+    if (document.visibilityState !== "visible") return;
     setLoadingNotifications(true);
     try {
-      const res = await api.get<{ unread_count?: number; data?: PatientNotification[] }>("/notifications");
-      const rows = Array.isArray(res.data?.data) ? res.data.data : [];
+      const rows = (await getNotifications({ force: true })) as PatientNotification[];
       setUnreadNotifications(rows.filter((x) => !x.is_read));
     } catch {
       setUnreadNotifications([]);
@@ -107,7 +109,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
 
   const onOpenNotification = React.useCallback(async (notification: PatientNotification) => {
     try {
-      await api.patch(`/notifications/${notification.id}/read`);
+      await markNotificationRead(notification.id);
     } catch {
       // best effort, continue navigation
     }
@@ -164,16 +166,24 @@ export default function PatientShell({ children, active }: { children: ReactNode
     void loadNotifications();
     const id = window.setInterval(() => {
       void loadNotifications();
-    }, 15000);
+    }, 30000);
 
     const onRealtime = () => {
       void loadNotifications();
     };
 
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void loadNotifications();
+      }
+    };
+
     window.addEventListener("healup:notification", onRealtime as EventListener);
+    window.addEventListener("visibilitychange", onVisibility);
     return () => {
       window.clearInterval(id);
       window.removeEventListener("healup:notification", onRealtime as EventListener);
+      window.removeEventListener("visibilitychange", onVisibility);
     };
   }, [loadNotifications]);
 
@@ -194,6 +204,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
 
   return (
     <div className={styles.shell}>
+      <RealtimeBridge />
       <PatientSidebar mode="static" active={active} />
       <main className={`${styles.shellMain} ${showSharedNavbar ? styles.withTopbar : styles.homeMain}`}>
         {showSharedNavbar ? (

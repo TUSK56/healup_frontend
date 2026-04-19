@@ -5,6 +5,7 @@ import { Bell, LogOut, Search, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { adminService, AdminNotification } from "@/services/adminService";
 import { authService } from "@/services/authService";
+import { getNotifications } from "@/lib/notificationCenter";
 
 function toArabicTime(value?: string | null): string {
   const v = (value || "").trim();
@@ -24,10 +25,10 @@ export default function AdminTopNavbar() {
   const profileRef = React.useRef<HTMLDivElement | null>(null);
 
   const loadNotifications = React.useCallback(async () => {
+    if (document.visibilityState !== "visible") return;
     setLoading(true);
     try {
-      const res = await adminService.listNotifications();
-      const rows = Array.isArray(res.data) ? res.data : [];
+      const rows = (await getNotifications({ force: true })) as AdminNotification[];
       setUnread(rows.filter((x) => !x.is_read));
     } catch {
       setUnread([]);
@@ -55,16 +56,24 @@ export default function AdminTopNavbar() {
 
     const id = window.setInterval(() => {
       void loadNotifications();
-    }, 15000);
+    }, 30000);
 
     const onRealtime = () => {
       void loadNotifications();
     };
 
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void loadNotifications();
+      }
+    };
+
     window.addEventListener("healup:notification", onRealtime as EventListener);
+    window.addEventListener("visibilitychange", onVisibility);
     return () => {
       window.clearInterval(id);
       window.removeEventListener("healup:notification", onRealtime as EventListener);
+      window.removeEventListener("visibilitychange", onVisibility);
     };
   }, [loadNotifications]);
 

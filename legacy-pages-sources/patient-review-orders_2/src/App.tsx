@@ -48,6 +48,8 @@ const toRelativeArabic = (value: string) => {
 };
 
 export default function App() {
+  const REQUESTS_CACHE_KEY = 'healup_patient_review_orders_requests_v1';
+  const ORDERS_BY_REQUEST_CACHE_KEY = 'healup_patient_review_orders_ordermap_v1';
   const [activeTab, setActiveTab] = useState('الكل');
   const [requests, setRequests] = useState<Request[]>([]);
   const [orderByRequest, setOrderByRequest] = useState<Record<number, { id: number; status: string; created_at: string }>>({});
@@ -56,11 +58,28 @@ export default function App() {
   const tabs = ['الكل', 'قيد التنفيذ', 'المكتملة', 'الملغاة'];
 
   useEffect(() => {
+    try {
+      const cachedRequests = localStorage.getItem(REQUESTS_CACHE_KEY);
+      const cachedOrderMap = localStorage.getItem(ORDERS_BY_REQUEST_CACHE_KEY);
+      const parsedRequests = cachedRequests ? (JSON.parse(cachedRequests) as Request[]) : [];
+      const parsedOrderMap = cachedOrderMap
+        ? (JSON.parse(cachedOrderMap) as Record<number, { id: number; status: string; created_at: string }>)
+        : {};
+      if (Array.isArray(parsedRequests) && parsedRequests.length) {
+        setRequests(parsedRequests);
+        setOrderByRequest(parsedOrderMap || {});
+        setLoading(false);
+      }
+    } catch {
+      // ignore cache parse errors
+    }
+
     const load = async () => {
       setLoading(true);
       try {
         const [reqRes, orderRes] = await Promise.all([requestService.list(), orderService.list().catch(() => ({ data: [] }))]);
-        setRequests(reqRes.data || []);
+        const nextRequests = reqRes.data || [];
+        setRequests(nextRequests);
 
         const byRequest: Record<number, { id: number; status: string; created_at: string }> = {};
         for (const order of orderRes.data || []) {
@@ -85,6 +104,12 @@ export default function App() {
           }
         }
         setOrderByRequest(byRequest);
+        try {
+          localStorage.setItem(REQUESTS_CACHE_KEY, JSON.stringify(nextRequests));
+          localStorage.setItem(ORDERS_BY_REQUEST_CACHE_KEY, JSON.stringify(byRequest));
+        } catch {
+          // ignore storage errors
+        }
       } finally {
         setLoading(false);
       }

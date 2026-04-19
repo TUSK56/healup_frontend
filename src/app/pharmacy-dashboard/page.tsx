@@ -13,6 +13,8 @@ import "@/components/pharmacy/pharmacy-sidebar.css";
 export default function PharmacyDashboardPage() {
   const router = useRouter();
   const [nowTick, setNowTick] = React.useState(0);
+  const incomingInFlightRef = React.useRef(false);
+  const activityInFlightRef = React.useRef(false);
   const parseServerDate = React.useCallback((value: string) => {
     const v = (value || "").trim();
     if (!v) return new Date(0);
@@ -61,6 +63,8 @@ export default function PharmacyDashboardPage() {
   }, [parseServerDate]);
 
   const loadActivity = React.useCallback(async () => {
+    if (activityInFlightRef.current) return;
+    activityInFlightRef.current = true;
     try {
       const res = await api.get<{
         data: Array<{
@@ -118,10 +122,14 @@ export default function PharmacyDashboardPage() {
       setInProgressTotal(0);
       setCompletedTodayTotal(0);
       setRevenueTotal(0);
+    } finally {
+      activityInFlightRef.current = false;
     }
   }, [parseServerDate]);
 
   const loadIncoming = React.useCallback(async () => {
+    if (incomingInFlightRef.current) return;
+    incomingInFlightRef.current = true;
     try {
       const res = await api.get<{
         data: Array<{
@@ -155,17 +163,31 @@ export default function PharmacyDashboardPage() {
     } catch {
       setNewRequests([]);
       setIncomingTotal(0);
+    } finally {
+      incomingInFlightRef.current = false;
     }
   }, [parseServerDate]);
 
   React.useEffect(() => {
     void Promise.all([loadIncoming(), loadActivity()]);
     const timer = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
       setNowTick((x) => x + 1);
       void loadIncoming();
       void loadActivity();
-    }, 15000);
-    return () => window.clearInterval(timer);
+    }, 20000);
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void Promise.all([loadIncoming(), loadActivity()]);
+      }
+    };
+
+    window.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [loadIncoming, loadActivity]);
 
   return (

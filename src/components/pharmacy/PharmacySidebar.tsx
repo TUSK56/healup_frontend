@@ -26,6 +26,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
   React.useEffect(() => {
 
     const run = async () => {
+      if (document.visibilityState !== "visible") return;
 
       try {
 
@@ -43,9 +44,20 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
     void run();
 
-    const t = window.setInterval(run, 60_000);
+    const t = window.setInterval(run, 90_000);
 
-    return () => window.clearInterval(t);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void run();
+      }
+    };
+
+    window.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.clearInterval(t);
+      window.removeEventListener("visibilitychange", onVisibility);
+    };
 
   }, []);
 

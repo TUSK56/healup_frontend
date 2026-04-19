@@ -86,11 +86,14 @@ export default function PatientOrderTrackingView() {
 
   React.useEffect(() => {
     if (!Number.isFinite(orderId) || orderId < 1) return;
+    const status = (order?.status || "").toLowerCase();
+    if (status === "completed" || status === "rejected") return;
     const id = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
       void loadOrder().catch(() => {});
-    }, 4000);
+    }, 10000);
     return () => window.clearInterval(id);
-  }, [orderId, loadOrder]);
+  }, [orderId, loadOrder, order?.status]);
 
   const rejected = order && (order.status || "").toLowerCase() === "rejected";
 

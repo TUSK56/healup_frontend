@@ -1,4 +1,4 @@
-import api from "@/services/apiService";
+import { getNotifications, markManyNotificationsRead } from "@/lib/notificationCenter";
 
 type PharmacyNotificationRow = {
   id: number;
@@ -8,8 +8,7 @@ type PharmacyNotificationRow = {
 
 export async function consumePharmacyCurrentOrderNotifications(): Promise<void> {
   try {
-    const res = await api.get<{ data?: PharmacyNotificationRow[] }>("/notifications");
-    const rows = Array.isArray(res.data?.data) ? res.data.data : [];
+    const rows = (await getNotifications({ force: true })) as PharmacyNotificationRow[];
     const targets = rows.filter(
       (n) =>
         !n.is_read &&
@@ -20,13 +19,7 @@ export async function consumePharmacyCurrentOrderNotifications(): Promise<void> 
 
     if (targets.length === 0) return;
 
-    await Promise.all(
-      targets.map((n) =>
-        api.patch(`/notifications/${n.id}/read`).catch(() => {
-          // best effort
-        })
-      )
-    );
+    await markManyNotificationsRead(targets.map((n) => n.id));
 
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("healup:notification"));

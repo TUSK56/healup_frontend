@@ -7,6 +7,7 @@ import { LogOut, Settings } from "lucide-react";
 import api from "@/services/apiService";
 import { authService } from "@/services/authService";
 import { readAvatar } from "@/lib/avatarStorage";
+import { getNotifications, markNotificationRead } from "@/lib/notificationCenter";
 
 type PharmacyNotification = {
   id: number;
@@ -38,12 +39,10 @@ export default function PharmacyTopNavbar() {
 
   React.useEffect(() => {
     const loadNotifs = async () => {
+      if (document.visibilityState !== "visible") return;
       setLoadingNotifs(true);
       try {
-        const res = await api.get<{
-          data: PharmacyNotification[];
-        }>("/notifications");
-        const rows = res.data?.data || [];
+        const rows = (await getNotifications({ force: true })) as PharmacyNotification[];
         setUnread(rows.filter((x) => !x.is_read));
       } catch {
         setUnread([]);
@@ -52,16 +51,24 @@ export default function PharmacyTopNavbar() {
       }
     };
     void loadNotifs();
-    const t = window.setInterval(loadNotifs, 30_000);
+    const t = window.setInterval(loadNotifs, 45_000);
 
     const onRealtime = () => {
       void loadNotifs();
     };
 
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void loadNotifs();
+      }
+    };
+
     window.addEventListener("healup:notification", onRealtime as EventListener);
+    window.addEventListener("visibilitychange", onVisibility);
     return () => {
       window.clearInterval(t);
       window.removeEventListener("healup:notification", onRealtime as EventListener);
+      window.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
@@ -147,7 +154,7 @@ export default function PharmacyTopNavbar() {
                       onClick={() => {
                         void (async () => {
                           try {
-                            await api.patch(`/notifications/${n.id}/read`);
+                            await markNotificationRead(n.id);
                           } catch {
                             // non-blocking
                           }
