@@ -66,6 +66,42 @@ function relativeArabic(iso: string) {
   return days === 1 ? "منذ يوم" : `منذ ${days} يوم`;
 }
 
+function contentsLabelFromRequestLike(input: {
+  medicines?: Array<{ medicine_name: string; quantity: number }>;
+  prescription_url?: string | null;
+}) {
+  const hasRx = Boolean(input.prescription_url && String(input.prescription_url).trim());
+  const hasMeds = Boolean(input.medicines && input.medicines.length > 0);
+  if (hasMeds && hasRx) return "علاج + روشتة";
+  if (hasMeds) return "علاج";
+  if (hasRx) return "روشتة";
+  return "—";
+}
+
+async function downloadFileFromUrl(url: string, filenameBase: string) {
+  const safeUrl = String(url || "").trim();
+  if (!safeUrl) return;
+  try {
+    const res = await fetch(safeUrl, { mode: "cors" });
+    if (!res.ok) throw new Error("download_failed");
+    const blob = await res.blob();
+    const ct = (res.headers.get("content-type") || blob.type || "").toLowerCase();
+    const ext = ct.includes("pdf") ? "pdf" : ct.includes("png") ? "png" : "jpg";
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = `${filenameBase}.${ext}`;
+    a.rel = "noopener";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 200);
+  } catch {
+    window.open(safeUrl, "_blank", "noopener,noreferrer");
+  }
+}
+
 /** UI label + bucket for tabs */
 function classifyOrder(order: ApiOrder): { label: string; tab: "wait" | "prep" | "out" | "done" } {
   const st = normalizeOrderStatus(order);
@@ -92,8 +128,7 @@ const AwaitPatientCard = ({
   row: AwaitingPatientOrderRow;
   onDetails: (r: AwaitingPatientOrderRow) => void;
 }) => {
-  const med =
-    row.medicines?.map((m) => `${m.medicine_name} ×${m.quantity}`).join("، ") || "—";
+  const label = contentsLabelFromRequestLike(row);
 
   return (
     <motion.div
@@ -123,7 +158,22 @@ const AwaitPatientCard = ({
             <div className="rounded-lg bg-white/80 p-2">
               <Pill size={16} className="text-slate-400" />
             </div>
-            <span className="text-sm font-medium">{med}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-extrabold text-slate-700">المحتويات:</span>
+              <span className="text-sm font-bold text-slate-700">{label}</span>
+              {row.prescription_url ? (
+                <button
+                  type="button"
+                  className="text-sm font-black text-[#1a56db] underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void downloadFileFromUrl(row.prescription_url!, `prescription-${row.request_id}`);
+                  }}
+                >
+                  تحميل الروشتة
+                </button>
+              ) : null}
+            </div>
           </div>
 
           <div className="flex items-center gap-3 text-slate-500">
@@ -520,10 +570,21 @@ export default function PharmacyCurrentOrdersApp() {
                 <p className="mb-2 text-sm text-slate-600">
                   المريض: <strong>{detail.row.patient_name?.trim() || "—"}</strong>
                 </p>
-                <p className="mb-2 text-sm font-bold text-amber-800">بانتظار المريض — لم يُنشَأ طلب بيع بعد من نفس العرض.</p>
+                <p className="mb-2 text-sm font-bold text-amber-800">
+                  بانتظار المريض — <span className="text-slate-800">المحتويات: {contentsLabelFromRequestLike(detail.row)}</span>
+                </p>
                 <p className="mb-4 text-sm text-slate-500">
                   رقم العرض: {detail.row.response_id} — تاريخ الطلب: {relativeArabic(detail.row.created_at)}
                 </p>
+                {detail.row.prescription_url ? (
+                  <button
+                    type="button"
+                    className="mb-4 inline-flex w-full items-center justify-center rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-black text-[#1a56db]"
+                    onClick={() => void downloadFileFromUrl(detail.row.prescription_url!, `prescription-${detail.row.request_id}`)}
+                  >
+                    تحميل الروشتة
+                  </button>
+                ) : null}
                 <ul className="space-y-2 border-t border-slate-100 pt-4 text-right">
                   {(detail.row.medicines || []).map((m, idx) => (
                     <li key={idx} className="flex justify-between text-sm">

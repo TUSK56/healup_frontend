@@ -251,6 +251,7 @@ export default function App() {
     if (orderStatus === 'completed') return 4;
     if (orderStatus === 'out_for_delivery') return 3;
     if (orderStatus === 'preparing') return 2;
+    if (orderStatus === 'pending_pharmacy_confirmation') return 1;
     if (orderStatus === 'confirmed') return 1;
     return 0;
   })();
@@ -264,6 +265,8 @@ export default function App() {
         ? 'خرج للتوصيل'
         : orderStatus === 'preparing'
           ? 'قيد التحضير'
+          : orderStatus === 'pending_pharmacy_confirmation'
+            ? 'تم التأكيد'
           : orderStatus === 'confirmed'
             ? 'تم التأكيد'
             : 'بانتظار التأكيد';

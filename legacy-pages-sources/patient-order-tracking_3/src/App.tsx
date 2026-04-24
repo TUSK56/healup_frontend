@@ -24,8 +24,61 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { orderService } from '../../../src/services/orderService';
 
 export default function App() {
+  const searchParams = useSearchParams();
+  const orderId = useMemo(() => {
+    const raw = searchParams.get('orderId') || searchParams.get('id') || '';
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }, [searchParams]);
+
+  const [orderStatus, setOrderStatus] = useState<string | null>(null);
+  const delivered = (orderStatus || '').toLowerCase() === 'completed';
+  const outForDelivery = (orderStatus || '').toLowerCase() === 'out_for_delivery';
+
+  useEffect(() => {
+    if (!orderId) return;
+    let mounted = true;
+    const poll = async () => {
+      try {
+        const ord = await orderService.getById(orderId);
+        if (!mounted) return;
+        setOrderStatus(String(ord?.status || '').trim() || null);
+      } catch {
+        // keep last known status
+      }
+    };
+    void poll();
+    const id = window.setInterval(poll, 3000);
+    return () => {
+      mounted = false;
+      window.clearInterval(id);
+    };
+  }, [orderId]);
+
+  useEffect(() => {
+    if (!orderId) return;
+    // When the pharmacy presses "توصيل الطلب", status becomes out_for_delivery.
+    // Then after a short simulated drive, patient marks it delivered → completed.
+    if (!outForDelivery || delivered) return;
+    const t = window.setTimeout(() => {
+      void (async () => {
+        try {
+          await orderService.patientMarkDelivered(orderId);
+          const ord = await orderService.getById(orderId);
+          setOrderStatus(String(ord?.status || '').trim() || null);
+        } catch {
+          // ignore
+        }
+      })();
+    }, 15000);
+    return () => window.clearTimeout(t);
+  }, [orderId, outForDelivery, delivered]);
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans rtl" dir="rtl">
       {/* Navbar */}
@@ -71,7 +124,9 @@ export default function App() {
         >
           <div>
             <h1 className="text-3xl font-bold text-slate-900 mb-1">تتبع الطلب</h1>
-            <p className="text-slate-500">رقم الطلب: <span className="font-mono text-slate-700">HP-9872541#</span></p>
+            <p className="text-slate-500">
+              رقم الطلب: <span className="font-mono text-slate-700">{orderId ? `#${orderId}` : '—'}</span>
+            </p>
           </div>
           <div className="bg-primary-light border border-primary/20 rounded-2xl p-4 flex items-center gap-4">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
@@ -97,8 +152,8 @@ export default function App() {
               <div className="relative">
                 {/* Vertical Line Segments */}
                 <div className="absolute right-6 top-6 h-24 w-0.5 bg-[#00B87E]"></div>
-                <div className="absolute right-6 top-[120px] h-24 w-0.5 bg-[#0456AE]"></div>
-                <div className="absolute right-6 top-[216px] h-24 w-0.5 bg-slate-100"></div>
+                <div className={`absolute right-6 top-[120px] h-24 w-0.5 ${delivered ? 'bg-[#00B87E]' : 'bg-[#0456AE]'}`}></div>
+                <div className={`absolute right-6 top-[216px] h-24 w-0.5 ${delivered ? 'bg-[#00B87E]' : 'bg-slate-100'}`}></div>
 
                 <div className="space-y-12">
                   {/* Step 1 */}
@@ -144,13 +199,15 @@ export default function App() {
                     transition={{ delay: 0.2 }}
                     className="relative flex items-start gap-8"
                   >
-                    <div className="absolute right-0 w-12 h-12 bg-[#0456AE] rounded-full flex items-center justify-center z-10 border-4 border-white shadow-lg shadow-primary/20">
-                      <Truck className="text-white w-6 h-6" />
+                    <div className={`absolute right-0 w-12 h-12 rounded-full flex items-center justify-center z-10 border-4 border-white shadow-lg shadow-primary/20 ${delivered ? 'bg-[#00B87E]' : 'bg-[#0456AE]'}`}>
+                      {delivered ? <CheckCircle2 className="text-white w-6 h-6" /> : <Truck className="text-white w-6 h-6" />}
                     </div>
                     <div className="mr-16">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-primary">خارج للتوصيل</h3>
-                        <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">جاري الآن</span>
+                        <h3 className={`font-bold ${delivered ? 'text-emerald-700' : 'text-primary'}`}>خارج للتوصيل</h3>
+                        {!delivered ? (
+                          <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">جاري الآن</span>
+                        ) : null}
                       </div>
                       <p className="text-sm text-slate-500">السائق في طريقه إليك الآن</p>
                     </div>
@@ -162,14 +219,16 @@ export default function App() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3 }}
-                    className="relative flex items-start gap-8 opacity-40"
+                    className={`relative flex items-start gap-8 ${delivered ? '' : 'opacity-40'}`}
                   >
-                    <div className="absolute right-0 w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center z-10 border-4 border-white">
-                      <Home className="text-slate-400 w-6 h-6" />
+                    <div className={`absolute right-0 w-12 h-12 rounded-full flex items-center justify-center z-10 border-4 border-white ${delivered ? 'bg-[#00B87E]' : 'bg-slate-100'}`}>
+                      {delivered ? <CheckCircle2 className="text-white w-6 h-6" /> : <Home className="text-slate-400 w-6 h-6" />}
                     </div>
                     <div className="mr-16">
                       <h3 className="font-bold text-slate-900">تم التسليم</h3>
-                      <p className="text-sm text-slate-500">متوقع خلال 15 دقيقة</p>
+                      <p className={`text-sm ${delivered ? 'text-emerald-700 font-bold' : 'text-slate-500'}`}>
+                        {delivered ? 'تم التسليم' : 'متوقع خلال 15 دقيقة'}
+                      </p>
                     </div>
                   </motion.div>
                 </div>

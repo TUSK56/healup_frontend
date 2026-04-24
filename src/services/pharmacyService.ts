@@ -36,6 +36,7 @@ export type AwaitingPatientOrderRow = {
   response_id: number;
   created_at: string;
   patient_name?: string | null;
+  prescription_url?: string | null;
   medicines?: Array<{ medicine_name: string; quantity: number }>;
 };
 

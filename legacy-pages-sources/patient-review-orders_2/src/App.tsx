@@ -98,6 +98,7 @@ export default function App() {
       const linkedStatus = (linkedOrder?.status || '').toLowerCase();
       const hasLinkedOrder = Boolean(linkedOrder?.id);
       const isCompletedOrder = linkedStatus === 'completed';
+      const isOutForDelivery = linkedStatus === 'out_for_delivery' || linkedStatus === 'ready_for_pickup';
 
       const status: OrderCardView['status'] =
         request.status === 'cancelled'
@@ -113,10 +114,14 @@ export default function App() {
           ? 'ملغي'
           : isCompletedOrder
           ? 'تم التسليم'
+          : isOutForDelivery
+          ? 'في الطريق'
           : hasLinkedOrder
           ? 'قيد التنفيذ'
           : request.status === 'active'
-          ? 'بانتظار رد من الصيدليه'
+          ? request.has_offers
+            ? 'تم رد من الصيدليه'
+            : 'بانتظار رد من الصيدليه'
           : 'قيد التنفيذ';
 
       const fromOffer =
@@ -138,12 +143,14 @@ export default function App() {
         pharmacy: pharmacyName,
         price: typeof priceNum === 'number' && Number.isFinite(priceNum) ? `${priceNum.toFixed(2)}` : '--',
         priceIsEstimate: !fromOffer,
-        contents:
-          request.medicines && request.medicines.length > 0
-            ? request.medicines.map((m) => `${m.medicine_name} × ${m.quantity}`).join('، ')
-            : request.prescription_url
-            ? 'طلب بوصفة طبية'
-            : 'طلب جديد',
+        contents: (() => {
+          const hasRx = Boolean(request.prescription_url && String(request.prescription_url).trim());
+          const hasMeds = Boolean(request.medicines && request.medicines.length > 0);
+          if (hasMeds && hasRx) return 'علاج + روشتة';
+          if (hasMeds) return 'علاج';
+          if (hasRx) return 'روشتة';
+          return 'طلب جديد';
+        })(),
         hasOffers: Boolean(request.has_offers),
         latestOfferResponseId: typeof request.latest_offer_response_id === 'number' ? request.latest_offer_response_id : null,
       };

@@ -1343,6 +1343,29 @@
     window.setTimeout(() => input.classList.remove('input-error'), 500);
   }
 
+  function markPaymentError() {
+    const card = document.querySelector('.card-title')?.closest('.card') || null;
+    const options = document.querySelector('.payment-options');
+    if (!options) return;
+    options.style.border = '1px solid #ef4444';
+    options.style.borderRadius = '10px';
+    options.style.padding = '6px';
+    options.style.background = '#fff5f5';
+    options.classList.add('input-error');
+    window.setTimeout(() => {
+      options.classList.remove('input-error');
+      options.style.border = '';
+      options.style.borderRadius = '';
+      options.style.padding = '';
+      options.style.background = '';
+      void card;
+    }, 550);
+  }
+
+  function hasSelectedPayment() {
+    return Boolean(document.querySelector('.payment-option.selected'));
+  }
+
   function readRequiredFields() {
     const city = document.getElementById('city-input');
     const district = document.getElementById('district-input');
@@ -1396,11 +1419,20 @@
   }
 
   function validateBeforeConfirm() {
-    if (shippingMode !== 'delivery') return true;
-    const { missing } = readRequiredFields();
-    missing.forEach(markFieldError);
+    let ok = true;
 
-    return missing.length === 0;
+    if (shippingMode === 'delivery') {
+      const { missing } = readRequiredFields();
+      missing.forEach(markFieldError);
+      if (missing.length > 0) ok = false;
+    }
+
+    if (!hasSelectedPayment()) {
+      markPaymentError();
+      ok = false;
+    }
+
+    return ok;
   }
 
   async function loadLiveConfirmationData() {

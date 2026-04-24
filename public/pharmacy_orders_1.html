@@ -980,8 +980,12 @@
     cardsGrid.innerHTML = rows.map((entry, idx) => {
       const request = entry.request;
       const medicine = request.medicines?.[0];
-      const medTitle = medicine?.medicine_name || (request.prescription_url ? "وصفة طبية" : "طلب دواء");
-      const medQty = medicine?.quantity ? `الكمية: ${medicine.quantity}` : "الكمية: حسب الوصفة";
+      const hasRx = Boolean(request.prescription_url);
+      const hasMed = Boolean(medicine?.medicine_name);
+      const medTitle = hasMed ? (medicine.medicine_name || "") : (hasRx ? "روشتة" : "طلب دواء");
+      const medQty = hasMed
+        ? `الكمية: ${Math.max(1, Number(medicine.quantity || 1))}`
+        : (hasRx ? "الكمية: حسب الوصفة" : "");
       return `
         <div class="order-card ${idx % 3 === 0 ? "urgent" : ""}" data-request-id="${request.id}">
           <div class="card-top">
@@ -995,11 +999,11 @@
           <div class="card-med">
             <div class="card-med-info">
               <div class="card-med-name">${medTitle}</div>
-              <div class="card-med-qty">${medQty}</div>
+              ${medQty ? `<div class="card-med-qty">${medQty}</div>` : ``}
               ${
                 request.prescription_url
-                  ? `<button type="button" class="card-med-link" data-rx-for-request="${request.id}">عرض الوصفة الطبية</button>`
-                  : `<div class="card-med-note">لا توجد وصفة مرافقة</div>`
+                  ? `<button type="button" class="card-med-link" data-rx-for-request="${request.id}" style="color:var(--blue);font-weight:800;">روشيته</button>`
+                  : ``
               }
             </div>
             <div class="card-med-thumb">💊</div>

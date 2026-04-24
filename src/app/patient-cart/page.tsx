@@ -331,17 +331,9 @@ export default function PatientCartPage() {
         const created = await requestService.create({ medicines, estimated_total: Number(total.toFixed(2)) }, prescriptionFile || undefined);
         createdRequestId = created?.request?.id ?? null;
       } catch {
-        // Cloud upload may fail in some environments; keep supporting prescription-only by retrying with direct URL payload.
-        if (!prescription) throw new Error("create_request_failed");
-        const created = await requestService.create(
-          {
-            medicines,
-            prescription_url: prescription,
-            estimated_total: Number(total.toFixed(2)),
-          },
-          undefined
-        );
-        createdRequestId = created?.request?.id ?? null;
+        // IMPORTANT: Never fall back to sending base64 in `prescription_url`.
+        // List endpoints intentionally truncate long URLs, which makes the pharmacy unable to download it.
+        throw new Error("prescription_upload_failed");
       }
 
       if (createdRequestId && typeof window !== "undefined") {
@@ -365,7 +357,11 @@ export default function PatientCartPage() {
 
       router.push("/patient-review-orders");
     } catch {
-      setCheckoutError("تعذر إرسال الطلب حالياً. حاول مرة أخرى.");
+      setCheckoutError(
+        prescription
+          ? "تعذر رفع الروشتة وإرسالها للصيدلية حالياً. حاول مرة أخرى."
+          : "تعذر إرسال الطلب حالياً. حاول مرة أخرى.",
+      );
     }
   }, [appliedCoupon, items, prescription, router, total]);
 
