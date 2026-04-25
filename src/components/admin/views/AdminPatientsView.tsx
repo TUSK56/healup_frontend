@@ -104,15 +104,17 @@ export default function AdminPatientsView() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="relative h-full overflow-hidden rounded-xl border border-slate-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              className="h-full overflow-hidden rounded-xl border border-slate-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
             >
-              <div className={`absolute start-6 top-6 shrink-0 rounded-xl p-2.5 ${stat.bgColor}`}>
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
-              </div>
-              <div className="ps-14 text-start">
-                <p className="mb-4 text-sm text-slate-500">{stat.title}</p>
-                <h3 className="mb-1 text-2xl font-bold text-slate-900">{stat.value}</h3>
-                <p className="text-xs text-slate-400">{stat.subValue}</p>
+              <div className="flex items-start justify-between gap-4">
+                <div className={dir === "rtl" ? "text-end" : "text-start"}>
+                  <p className="mb-2 text-sm text-slate-500">{stat.title}</p>
+                  <h3 className="mb-1 text-2xl font-bold text-slate-900">{stat.value}</h3>
+                  <p className="text-xs text-slate-400">{stat.subValue}</p>
+                </div>
+                <div className={`shrink-0 rounded-xl p-2.5 ${stat.bgColor}`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
               </div>
             </motion.div>
           ))}
