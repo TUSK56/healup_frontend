@@ -28,7 +28,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { requestService, Offer, Request } from '../../../src/services/requestService';
-import api from '../../../src/services/apiService';
+import { orderRequestId, orderService } from '../../../src/services/orderService';
 import { getDrugPrice } from '../../../src/lib/drugs';
 
 const PatientPharmacyMap = dynamic(() => import('../../../src/components/patient/views/PatientPharmacyMap'), { ssr: false });
@@ -96,22 +96,13 @@ export default function App() {
         setRequest(res.request || null);
         setOffers(res.offers || []);
         try {
-          const ordRes = await api.get<{
-            data: Array<{
-              request_id: number;
-              delivery: boolean;
-              status?: string | null;
-              payment_method?: string | null;
-              delivery_address_snapshot?: string | null;
-              coupon_code?: string | null;
-              coupon_percent?: number | null;
-            }>;
-          }>('/orders');
-          const row = (ordRes.data?.data || []).find((o) => Number(o.request_id) === Number(requestId));
+          const ordRes = await orderService.list();
+          const rows = Array.isArray(ordRes.data) ? ordRes.data : [];
+          const row = rows.find((o) => orderRequestId(o) === Number(requestId));
           setOrderSnapshot(
             row
               ? {
-                  delivery: Boolean(row.delivery),
+                  delivery: Boolean(row.delivery ?? (row as { Delivery?: boolean }).Delivery),
                   status: row.status,
                   payment_method: row.payment_method,
                   delivery_address_snapshot: row.delivery_address_snapshot,
@@ -154,22 +145,42 @@ export default function App() {
   const pharmacyLat = typeof pharmacy?.latitude === 'number' ? pharmacy.latitude : null;
   const pharmacyLng = typeof pharmacy?.longitude === 'number' ? pharmacy.longitude : null;
 
-  const computedSubtotal = useMemo(() => {
-    if (!request?.medicines || request.medicines.length === 0) return null;
-    if (!selectedOffer?.response?.response_medicines) return null;
-
-    const priceMap = new Map<string, number>();
-    selectedOffer.response.response_medicines.forEach((m) => {
-      if (m?.medicine_name) priceMap.set(m.medicine_name.trim().toLowerCase(), Number(m.price || 0));
-    });
-
-    let sum = 0;
-    request.medicines.forEach((m) => {
+  /** Same qty rules as checkout HTML / order create: request qty when listed, else quantity_available. */
+  const offerLineItems = useMemo(() => {
+    const meds = selectedOffer?.response?.response_medicines;
+    if (!meds?.length) return null;
+    const requestedQtyMap = new Map<string, number>();
+    (request?.medicines || []).forEach((m) => {
       const key = (m.medicine_name || '').trim().toLowerCase();
-      const unit = priceMap.get(key);
-      if (typeof unit === 'number') sum += unit * (m.quantity || 0);
+      if (!key) return;
+      requestedQtyMap.set(key, Math.max(1, Number(m.quantity || 1)));
     });
-    return sum;
+    const lines: Array<{
+      key: string;
+      displayName: string;
+      unitPrice: number;
+      qty: number;
+      lineTotal: number;
+      fromOfferOnly: boolean;
+    }> = [];
+    meds.forEach((m, idx) => {
+      if (!m.available) return;
+      const key = (m.medicine_name || '').trim().toLowerCase();
+      if (!key) return;
+      const rq = requestedQtyMap.get(key);
+      const qty = typeof rq === 'number' && rq > 0 ? rq : Math.max(1, Number(m.quantity_available || 1));
+      const unitPrice = Number(m.price || 0);
+      if (qty <= 0) return;
+      lines.push({
+        key: `${key}-${idx}`,
+        displayName: String(m.medicine_name || 'دواء').trim(),
+        unitPrice,
+        qty,
+        lineTotal: unitPrice * qty,
+        fromOfferOnly: !requestedQtyMap.has(key),
+      });
+    });
+    return lines.length ? lines : null;
   }, [request?.medicines, selectedOffer?.response?.response_medicines]);
 
   /** Medicine lines only (same basis as VAT); never use estimated_total here — that value is the full cart total. */
@@ -188,15 +199,23 @@ export default function App() {
     selectedOffer?.response?.response_medicines?.some((m) => m.available && Number(m.price) > 0),
   );
 
+  const pharmacyPricedSubtotal = useMemo(() => {
+    if (!offerLineItems) return null;
+    return offerLineItems.reduce((s, l) => s + l.lineTotal, 0);
+  }, [offerLineItems]);
+
   const medicineSubtotal = useMemo(() => {
-    if (hasRealPharmacyPricing && typeof computedSubtotal === 'number') return computedSubtotal;
+    if (hasRealPharmacyPricing && typeof pharmacyPricedSubtotal === 'number') return pharmacyPricedSubtotal;
     if (typeof estimatedMedicineSubtotal === 'number') return estimatedMedicineSubtotal;
     return null;
-  }, [hasRealPharmacyPricing, computedSubtotal, estimatedMedicineSubtotal]);
+  }, [hasRealPharmacyPricing, pharmacyPricedSubtotal, estimatedMedicineSubtotal]);
 
   const totalDrugQty = useMemo(() => {
+    if (hasRealPharmacyPricing && offerLineItems?.length) {
+      return offerLineItems.reduce((s, l) => s + l.qty, 0);
+    }
     return (request?.medicines || []).reduce((sum, m) => sum + Number(m.quantity || 0), 0);
-  }, [request?.medicines]);
+  }, [hasRealPharmacyPricing, offerLineItems, request?.medicines]);
 
   const couponPercent = useMemo(() => {
     const raw = Number(orderSnapshot?.coupon_percent || 0);
@@ -308,9 +327,9 @@ export default function App() {
           throw new Error(maybeJsonText || 'invoice_not_ready');
         }
         const pdfBlob = mime.includes('application/pdf') ? blob : new Blob([blob], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(pdfBlob);
+        a.href = url;
         a.download = `healup-receipt-request-${requestId}.pdf`;
         a.target = '_self';
         a.rel = 'noopener';
@@ -445,39 +464,82 @@ export default function App() {
             <motion.section variants={itemVariants} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
               <h2 className="mb-6 text-lg font-bold text-slate-900">الأدوية المطلوبة</h2>
               <div className="space-y-4">
-                {request?.medicines && request.medicines.length > 0 ? request.medicines.map((m, idx) => {
-                  const unitPrice =
-                    selectedOffer?.response?.response_medicines?.find((x) => (x.medicine_name || '').trim().toLowerCase() === (m.medicine_name || '').trim().toLowerCase())
-                      ?.price ?? null;
-                  const fallbackUnit = unitPrice === null || unitPrice === undefined ? getDrugPrice(m.medicine_name || '') : null;
-                  const effectiveUnit = typeof unitPrice === 'number' ? unitPrice : (typeof fallbackUnit === 'number' ? fallbackUnit : null);
-                  const isEstimateUnit = typeof unitPrice !== 'number';
-                  const lineTotal = typeof effectiveUnit === 'number' ? effectiveUnit * (m.quantity || 0) : null;
-                  return (
-                  <div key={m.id ?? idx} className="flex items-center justify-between rounded-2xl border border-slate-50 bg-slate-50/30 p-4 hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-primary shadow-sm">
-                        <Pill size={28} />
+                {offerLineItems && offerLineItems.length > 0 ? (
+                  offerLineItems.map((line) => (
+                    <div
+                      key={line.key}
+                      className="flex items-center justify-between rounded-2xl border border-slate-50 bg-slate-50/30 p-4 transition-colors hover:bg-slate-50"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-primary shadow-sm">
+                          <Pill size={28} />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900">
+                            {line.displayName}
+                            {line.fromOfferOnly ? (
+                              <span className="mr-1 text-xs font-extrabold text-amber-800"> (من الوصفة)</span>
+                            ) : null}
+                          </h3>
+                          <p className="text-sm text-slate-500">
+                            {line.unitPrice > 0
+                              ? `سعر الوحدة: ${line.unitPrice.toFixed(2)} ج.م`
+                              : 'بانتظار تحديد السعر من الصيدلية'}
+                          </p>
+                          <p className="mt-1 text-xs font-medium text-slate-400">الكمية: {line.qty}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-slate-900">{m.medicine_name}</h3>
-                        <p className="text-sm text-slate-500">
-                          {typeof effectiveUnit === 'number'
-                            ? `سعر الوحدة: ${effectiveUnit.toFixed(2)} ج.م${isEstimateUnit ? ' (تقديري من دليل الأسعار)' : ''}`
-                            : 'بانتظار تحديد السعر من الصيدلية'}
-                        </p>
-                        <p className="mt-1 text-xs font-medium text-slate-400">الكمية: {m.quantity}</p>
+                      <div className="text-left">
+                        <span className="text-lg font-bold text-slate-900">
+                          {line.unitPrice > 0 ? `${line.lineTotal.toFixed(2)} ج.م` : '—'}
+                        </span>
                       </div>
                     </div>
-                    <div className="text-left">
-                      <span className="text-lg font-bold text-slate-900">
-                        {typeof lineTotal === 'number' ? `${lineTotal.toFixed(2)} ج.م` : '—'}
-                      </span>
-                    </div>
-                  </div>
-                )}) : (
+                  ))
+                ) : request?.medicines && request.medicines.length > 0 ? (
+                  request.medicines.map((m, idx) => {
+                    const unitPrice =
+                      selectedOffer?.response?.response_medicines?.find(
+                        (x) => (x.medicine_name || '').trim().toLowerCase() === (m.medicine_name || '').trim().toLowerCase(),
+                      )?.price ?? null;
+                    const fallbackUnit = unitPrice === null || unitPrice === undefined ? getDrugPrice(m.medicine_name || '') : null;
+                    const effectiveUnit = typeof unitPrice === 'number' ? unitPrice : typeof fallbackUnit === 'number' ? fallbackUnit : null;
+                    const isEstimateUnit = typeof unitPrice !== 'number';
+                    const lineTotal = typeof effectiveUnit === 'number' ? effectiveUnit * (m.quantity || 0) : null;
+                    return (
+                      <div
+                        key={m.id ?? idx}
+                        className="flex items-center justify-between rounded-2xl border border-slate-50 bg-slate-50/30 p-4 transition-colors hover:bg-slate-50"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-primary shadow-sm">
+                            <Pill size={28} />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-slate-900">{m.medicine_name}</h3>
+                            <p className="text-sm text-slate-500">
+                              {typeof effectiveUnit === 'number'
+                                ? `سعر الوحدة: ${effectiveUnit.toFixed(2)} ج.م${isEstimateUnit ? ' (تقديري من دليل الأسعار)' : ''}`
+                                : 'بانتظار تحديد السعر من الصيدلية'}
+                            </p>
+                            <p className="mt-1 text-xs font-medium text-slate-400">الكمية: {m.quantity}</p>
+                          </div>
+                        </div>
+                        <div className="text-left">
+                          <span className="text-lg font-bold text-slate-900">
+                            {typeof lineTotal === 'number' ? `${lineTotal.toFixed(2)} ج.م` : '—'}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
                   <div className="rounded-2xl border border-slate-50 bg-slate-50/30 p-4 text-slate-500">
-                    {request?.prescription_url ? 'طلب بوصفة طبية (سيتم تحديد الأدوية بعد مراجعة الصيدلية).' : (loading ? 'جاري تحميل الأدوية...' : 'لا توجد أدوية في هذا الطلب.')}
+                    {request?.prescription_url
+                      ? 'طلب بوصفة طبية (سيتم تحديد الأدوية بعد مراجعة الصيدلية).'
+                      : loading
+                        ? 'جاري تحميل الأدوية...'
+                        : 'لا توجد أدوية في هذا الطلب.'}
                   </div>
                 )}
               </div>

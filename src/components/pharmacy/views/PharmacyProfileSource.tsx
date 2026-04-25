@@ -86,12 +86,6 @@ export default function PharmacyProfileSource() {
   }, []);
 
   useEffect(() => {
-    const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!isDirty) return;
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
     const onDocumentClick = (event: MouseEvent) => {
       if (!isDirty) return;
       const target = event.target as HTMLElement | null;
@@ -105,10 +99,8 @@ export default function PharmacyProfileSource() {
       setShowUnsavedModal(true);
     };
 
-    window.addEventListener("beforeunload", onBeforeUnload);
     document.addEventListener("click", onDocumentClick, true);
     return () => {
-      window.removeEventListener("beforeunload", onBeforeUnload);
       document.removeEventListener("click", onDocumentClick, true);
     };
   }, [isDirty]);
@@ -122,16 +114,44 @@ export default function PharmacyProfileSource() {
     updateDraft("longitude", longitude);
 
     try {
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar`;
-      const response = await fetch(url, { headers: { Accept: "application/json" } });
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(String(latitude))}&lon=${encodeURIComponent(String(longitude))}&accept-language=ar`;
+      const response = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "HealUpPharmacyProfile/1.0 (contact: support@healup.local)",
+        },
+      });
+      if (!response.ok) return;
       const data = await response.json();
       const address = data?.address ?? {};
-      const city = address.city || address.town || address.state || "";
-      const district = address.suburb || address.neighbourhood || address.county || "";
-      const details = data?.display_name || "";
-      updateDraft("city", city);
-      updateDraft("district", district);
-      updateDraft("address_details", details);
+      const display = String(data?.display_name || "").trim();
+      const city =
+        address.city ||
+        address.town ||
+        address.village ||
+        address.municipality ||
+        address.state_district ||
+        address.county ||
+        address.state ||
+        "";
+      const district =
+        address.suburb ||
+        address.neighbourhood ||
+        address.city_district ||
+        address.quarter ||
+        address.hamlet ||
+        address.county ||
+        "";
+      const roadLine = [address.road, address.house_number].filter(Boolean).join(" ").trim();
+      const details =
+        roadLine ||
+        address.pedestrian ||
+        address.residential ||
+        display ||
+        "";
+      updateDraft("city", String(city));
+      updateDraft("district", String(district));
+      updateDraft("address_details", String(details).slice(0, 500));
     } catch {
       // Keep picked lat/lng even if reverse geocoding fails.
     }

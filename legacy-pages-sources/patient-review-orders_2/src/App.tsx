@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { requestService, Request } from '../../../src/services/requestService';
-import { orderService } from '../../../src/services/orderService';
+import { orderRequestId, orderService } from '../../../src/services/orderService';
 
 interface OrderCardView {
   id: string;
@@ -91,10 +91,11 @@ export default function App() {
           .then((orderRes) => {
             const byRequest: Record<number, { id: number; status: string; created_at: string }> = {};
             for (const order of orderRes.data || []) {
-              if (!Number.isFinite(order.request_id)) continue;
-              const existing = byRequest[order.request_id];
+              const rq = orderRequestId(order);
+              if (!Number.isFinite(rq) || rq < 1) continue;
+              const existing = byRequest[rq];
               if (!existing) {
-                byRequest[order.request_id] = {
+                byRequest[rq] = {
                   id: order.id,
                   status: order.status,
                   created_at: order.created_at,
@@ -104,7 +105,7 @@ export default function App() {
               const existingTs = parseServerDate(existing.created_at).getTime();
               const nextTs = parseServerDate(order.created_at).getTime();
               if (nextTs >= existingTs) {
-                byRequest[order.request_id] = {
+                byRequest[rq] = {
                   id: order.id,
                   status: order.status,
                   created_at: order.created_at,
@@ -183,12 +184,14 @@ export default function App() {
         pharmacy: pharmacyName,
         price: typeof priceNum === 'number' && Number.isFinite(priceNum) ? `${priceNum.toFixed(2)}` : '--',
         priceIsEstimate: !fromOffer,
-        contents:
-          request.medicines && request.medicines.length > 0
-            ? request.medicines.map((m) => `${m.medicine_name} × ${m.quantity}`).join('، ')
-            : request.prescription_url
-            ? 'طلب بوصفة طبية'
-            : 'طلب جديد',
+        contents: (() => {
+          const hasRx = Boolean(request.prescription_url && String(request.prescription_url).trim());
+          if (request.medicines && request.medicines.length > 0) {
+            const base = request.medicines.map((m) => `${m.medicine_name} × ${m.quantity}`).join('، ');
+            return hasRx ? `${base} + روشته` : base;
+          }
+          return hasRx ? 'طلب بوصفة طبية' : 'طلب جديد';
+        })(),
         hasOffers: Boolean(request.has_offers),
         latestOfferResponseId: typeof request.latest_offer_response_id === 'number' ? request.latest_offer_response_id : null,
       };

@@ -871,10 +871,8 @@
         parseServerDate(a.request.created_at).getTime(),
     );
 
-  const isManualPrescriptionPricing = (request) =>
-    Boolean(request.prescription_url) &&
-    (!(request.medicines?.length) ||
-      (request.medicines || []).every((m) => !String(m.medicine_name || "").trim()));
+  const hasNamedMedicines = (request) =>
+    Boolean((request.medicines || []).some((m) => String(m.medicine_name || "").trim()));
 
   const manualRowHtml = (qty = 1) => `
     <div class="price-row price-row-manual" data-manual-row>
@@ -1050,7 +1048,7 @@
     cardsGrid.innerHTML = rows.map((entry, idx) => {
       const request = entry.request;
       const medicine = request.medicines?.[0];
-      const medTitle = medicine?.medicine_name || (request.prescription_url ? "وصفة طبية" : "طلب دواء");
+      const medTitle = request.prescription_url ? "روشتة" : (medicine?.medicine_name || "طلب دواء");
       const medQty = medicine?.quantity ? `الكمية: ${medicine.quantity}` : "الكمية: حسب الوصفة";
       return `
         <div class="order-card ${idx % 3 === 0 ? "urgent" : ""}" data-request-id="${request.id}">
@@ -1068,7 +1066,7 @@
               <div class="card-med-qty">${medQty}</div>
               ${
                 request.prescription_url
-                  ? `<button type="button" class="card-med-link" data-rx-for-request="${request.id}">عرض الوصفة الطبية</button>`
+                  ? `<button type="button" class="card-med-link" data-rx-for-request="${request.id}">تحميل الروشتة</button>`
                   : `<div class="card-med-note">لا توجد وصفة مرافقة</div>`
               }
             </div>
@@ -1114,17 +1112,11 @@
     if (!entry) return;
     selectedRequest = entry.request;
     const prescriptionRequest = Boolean(selectedRequest.prescription_url);
+    const meds = hasNamedMedicines(selectedRequest)
+      ? selectedRequest.medicines
+      : [{ medicine_name: "دواء", quantity: 1 }];
 
-    if (isManualPrescriptionPricing(selectedRequest)) {
-      priceGrid.innerHTML = manualRowHtml(1);
-      updateManualRemoveButtons();
-      if (addMedRowBtn) addMedRowBtn.style.display = "inline-flex";
-    } else {
-      if (addMedRowBtn) addMedRowBtn.style.display = "none";
-      const meds = selectedRequest.medicines?.length
-        ? selectedRequest.medicines
-        : [{ medicine_name: "دواء", quantity: 1 }];
-      priceGrid.innerHTML = meds
+    const fixedRowsHtml = meds
         .map(
           (m, idx) => `
       <div class="price-row">
@@ -1134,11 +1126,7 @@
         </div>
         <div class="price-field">
           <label class="price-label">الكمية</label>
-          ${
-            prescriptionRequest
-              ? `<input type="number" min="1" step="1" value="${Math.max(1, Number(m.quantity) || 1)}" data-qty="${idx}" />`
-              : `<input type="text" value="${Math.max(1, Number(m.quantity) || 1)}" class="price-unit-fixed" data-qty-fixed="${Math.max(1, Number(m.quantity) || 1)}" readonly disabled />`
-          }
+          <input type="text" value="${Math.max(1, Number(m.quantity) || 1)}" class="price-unit-fixed" data-qty-fixed="${Math.max(1, Number(m.quantity) || 1)}" readonly disabled />
         </div>
         <div class="price-field">
           <label class="price-label">سعر القطعة (ج.م)</label>
@@ -1151,7 +1139,11 @@
     `,
         )
         .join("");
-    }
+
+    const manualSectionHtml = prescriptionRequest ? manualRowHtml(1) : "";
+    priceGrid.innerHTML = `${fixedRowsHtml}${manualSectionHtml}`;
+    if (addMedRowBtn) addMedRowBtn.style.display = prescriptionRequest ? "inline-flex" : "none";
+    updateManualRemoveButtons();
     priceModalOverlay.style.display = "flex";
     window.parent?.postMessage({ type: "healup-price-modal", open: true, requestId }, "*");
   };
@@ -1169,7 +1161,7 @@
   });
 
   addMedRowBtn?.addEventListener("click", () => {
-    if (!priceGrid || !selectedRequest || !isManualPrescriptionPricing(selectedRequest)) return;
+    if (!priceGrid || !selectedRequest || !selectedRequest.prescription_url) return;
     priceGrid.insertAdjacentHTML("beforeend", manualRowHtml());
     updateManualRemoveButtons();
   });
@@ -1221,8 +1213,7 @@
     let medicines = [];
 
     const manualRows = priceGrid.querySelectorAll(".price-row-manual");
-    if (manualRows.length) {
-      medicines = Array.from(manualRows)
+    const manualMedicines = Array.from(manualRows)
         .map((row) => {
           const name = row.querySelector("[data-name-input]")?.value?.trim() || "";
           const price = Number(row.querySelector("[data-price-input]")?.value || 0);
@@ -1230,29 +1221,26 @@
           return { medicine_name: name, available: true, quantity_available: qty, price };
         })
         .filter((m) => m.medicine_name && m.price >= 0);
-    } else {
-      const rows = Array.from(priceGrid.querySelectorAll(".price-row"));
-      medicines = rows
-        .map((row) => {
-          const name = row.querySelector("[data-name]")?.value?.trim() || "";
-          const price = Number(row.querySelector("[data-price]")?.value || 0);
-          const qtyEditable = row.querySelector("[data-qty]");
-          const qtyFixed = row.querySelector("[data-qty-fixed]");
-          const qty = Math.max(
-            1,
-            Math.floor(
-              Number(
-                qtyEditable?.value ||
-                  qtyFixed?.getAttribute("data-qty-fixed") ||
-                  qtyFixed?.value ||
-                  1
-              )
+    const rows = Array.from(priceGrid.querySelectorAll(".price-row:not(.price-row-manual)"));
+    const fixedMedicines = rows
+      .map((row) => {
+        const name = row.querySelector("[data-name]")?.value?.trim() || "";
+        const price = Number(row.querySelector("[data-price]")?.value || 0);
+        const qtyFixed = row.querySelector("[data-qty-fixed]");
+        const qty = Math.max(
+          1,
+          Math.floor(
+            Number(
+              qtyFixed?.getAttribute("data-qty-fixed") ||
+              qtyFixed?.value ||
+              1
             )
-          );
-          return { medicine_name: name, available: true, quantity_available: qty, price };
-        })
-        .filter((m) => m.medicine_name && m.price >= 0);
-    }
+          )
+        );
+        return { medicine_name: name, available: true, quantity_available: qty, price };
+      })
+      .filter((m) => m.medicine_name && m.price >= 0);
+    medicines = [...fixedMedicines, ...manualMedicines];
 
     if (!medicines.length) return;
 

@@ -206,7 +206,8 @@ function CourierAlongPath({
     return positionAlongPath(pathOrdered, d);
   }, [pathOrdered, distKm, totalKm, lockAtEnd]);
 
-  const icon = useMemo(() => makeCarIcon(bearing - 88), [bearing]);
+  /** Bearing 0° = north; emoji 🚗 is treated as east-facing at 0° rotation → align with travel direction. */
+  const icon = useMemo(() => makeCarIcon(bearing - 90), [bearing]);
 
   if (pathOrdered.length < 2) return null;
   return <Marker position={pos} icon={icon} />;

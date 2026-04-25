@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ChevronDown, Eye, FileText, Loader2, MapPin, Pill, Search, User, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { orderService, type Order } from "@/services/orderService";
+import { orderRequestId, orderService, type Order } from "@/services/orderService";
 import { requestService } from "@/services/requestService";
 
 type FilterTab = "الكل" | "اليوم" | "هذا الأسبوع" | "هذا الشهر";
@@ -46,6 +46,8 @@ function matchesDateFilter(order: Order, filter: FilterTab) {
   return true;
 }
 
+const COMPLETED_PAGE_SIZE = 4;
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<FilterTab>("الكل");
   const [query, setQuery] = useState("");
@@ -54,6 +56,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [downloadingRequestId, setDownloadingRequestId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [visibleCount, setVisibleCount] = useState(COMPLETED_PAGE_SIZE);
 
   const loadOrders = useMemo(() => {
     return async () => {
@@ -63,6 +66,7 @@ export default function App() {
         const res = await orderService.list();
         const data = Array.isArray(res.data) ? res.data : [];
         setOrders(data.filter((order) => isCompleted(order)));
+        setVisibleCount(COMPLETED_PAGE_SIZE);
       } catch {
         setError("تعذر تحميل الطلبات المكتملة حالياً.");
         setOrders([]);
@@ -96,6 +100,18 @@ export default function App() {
       .sort((a, b) => parseServerDate(b.created_at).getTime() - parseServerDate(a.created_at).getTime());
   }, [activeTab, orders, query]);
 
+  useEffect(() => {
+    setVisibleCount(COMPLETED_PAGE_SIZE);
+  }, [activeTab, query]);
+
+  const displayedOrders = useMemo(
+    () => filteredOrders.slice(0, Math.min(visibleCount, filteredOrders.length)),
+    [filteredOrders, visibleCount],
+  );
+
+  const showLoadMoreCompleted =
+    filteredOrders.length > COMPLETED_PAGE_SIZE && displayedOrders.length < filteredOrders.length;
+
   const totals = useMemo(
     () => ({
       all: orders.length,
@@ -107,10 +123,11 @@ export default function App() {
   );
 
   const onDownloadInvoice = async (order: Order) => {
-    if (!order.request_id) return;
-    setDownloadingRequestId(order.request_id);
+    const rid = orderRequestId(order);
+    if (!rid) return;
+    setDownloadingRequestId(rid);
     try {
-      const blob = await requestService.downloadInvoice(order.request_id);
+      const blob = await requestService.downloadInvoice(rid);
       if (!blob || blob.size === 0) throw new Error("empty_invoice");
       const mime = (blob.type || "").toLowerCase();
       if (mime.includes("application/json")) {
@@ -122,7 +139,7 @@ export default function App() {
       const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `healup-receipt-request-${order.request_id}.pdf`;
+      a.download = `healup-receipt-request-${rid}.pdf`;
       a.style.display = "none";
       document.body.appendChild(a);
       a.click();
@@ -221,7 +238,7 @@ export default function App() {
         ) : null}
 
         <div className="space-y-4">
-          {filteredOrders.map((order, index) => (
+          {displayedOrders.map((order, index) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, y: 20 }}
@@ -264,11 +281,11 @@ export default function App() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      disabled={downloadingRequestId === order.request_id}
+                      disabled={downloadingRequestId === orderRequestId(order)}
                       onClick={() => void onDownloadInvoice(order)}
                       className="inline-flex items-center gap-2 rounded-lg border border-slate-100 bg-white px-6 py-2 text-xs font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {downloadingRequestId === order.request_id ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                      {downloadingRequestId === orderRequestId(order) ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
                       <span>عرض الفاتورة</span>
                     </button>
                     <button
@@ -286,12 +303,18 @@ export default function App() {
           ))}
         </div>
 
-        <div className="mt-10 flex justify-center">
-          <button className="group flex items-center gap-2 rounded-full border-2 border-brand-blue px-8 py-2.5 text-sm font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white">
-            <span>تحميل المزيد من الطلبات</span>
-            <ChevronDown size={18} className="transition-transform group-hover:translate-y-0.5" />
-          </button>
-        </div>
+        {showLoadMoreCompleted ? (
+          <div className="mt-10 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((v) => Math.min(v + COMPLETED_PAGE_SIZE, filteredOrders.length))}
+              className="group flex items-center gap-2 rounded-full border-2 border-brand-blue px-8 py-2.5 text-sm font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white"
+            >
+              <span>تحميل المزيد من الطلبات</span>
+              <ChevronDown size={18} className="transition-transform group-hover:translate-y-0.5" />
+            </button>
+          </div>
+        ) : null}
       </main>
 
       <AnimatePresence>

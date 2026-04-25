@@ -504,6 +504,30 @@
     75% { transform: translateX(-3px); }
   }
 
+  @keyframes shakePanel {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  .checkout-shake {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+    animation: shakePanel 0.38s ease-in-out;
+  }
+
+  .step.step-pending {
+    opacity: 0.42;
+  }
+
+  .step.step-pending .step-icon {
+    background: #e2e8f0;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+  }
+
   /* ── PAYMENT ── */
   .payment-options { display: flex; flex-direction: column; gap: 10px; }
 
@@ -649,7 +673,7 @@
 <div class="page">
 
   <!-- LEFT: ORDER SUMMARY -->
-  <div class="order-summary-wrap card order-summary">
+  <div id="order-summary-panel" class="order-summary-wrap card order-summary">
     <div class="card-title">ملخص الطلب</div>
 
     <div id="order-items-list">
@@ -701,7 +725,7 @@
   <div class="right-col">
 
     <!-- STEPS -->
-    <div class="card steps-card">
+    <div id="steps-progress-card" class="card steps-card">
       <div class="steps-header">
         <span class="steps-percent" id="checkout-steps-percent">66% مكتمل</span>
         <span class="steps-title">خطوات إتمام الطلب</span>
@@ -1086,21 +1110,67 @@
   }
 
   function updateCheckoutProgressSteps(state) {
-    const stepsOrder = ['shipping', 'payment', 'confirm'];
-    const doneCount = stepsOrder.reduce((sum, key) => sum + (state[key] ? 1 : 0), 0);
-    const percent = Math.round((doneCount / stepsOrder.length) * 100);
+    const ship = Boolean(state.shipping);
+    const pay = Boolean(state.payment);
+    const percent = Math.round(((ship ? 0.5 : 0) + (pay ? 0.5 : 0)) * 100);
 
     const percentEl = document.getElementById('checkout-steps-percent');
     const fillEl = document.getElementById('checkout-steps-fill');
     if (percentEl) percentEl.textContent = `${percent}% مكتمل`;
-    if (fillEl) fillEl.style.width = `${percent}%`;
+    if (fillEl) fillEl.style.width = `${Math.max(8, percent)}%`;
 
     document.querySelectorAll('.steps-list .step[data-step]').forEach((el) => {
       const key = el.getAttribute('data-step');
-      el.classList.remove('active', 'done');
-      if (key && state[key]) {
-        el.classList.add('done');
+      el.classList.remove('active', 'done', 'step-pending');
+      if (key === 'shipping') {
+        if (ship) el.classList.add('done');
+        else el.classList.add('active');
+      } else if (key === 'payment') {
+        if (pay) el.classList.add('done');
+        else if (ship) el.classList.add('active');
+        else el.classList.add('step-pending');
+      } else if (key === 'confirm') {
+        if (ship && pay) el.classList.add('active');
+        else el.classList.add('step-pending');
       }
+    });
+  }
+
+  function isDeliveryShippingComplete() {
+    if (shippingMode !== 'delivery') return true;
+    const { missing } = readRequiredFields();
+    if (missing.length) return false;
+    return (
+      deliveryCoords.lat != null &&
+      deliveryCoords.lng != null &&
+      Number.isFinite(Number(deliveryCoords.lat)) &&
+      Number.isFinite(Number(deliveryCoords.lng))
+    );
+  }
+
+  function isPaymentSelected() {
+    return Boolean(document.querySelector('.payment-option.selected'));
+  }
+
+  function isCheckoutReadyForConfirm() {
+    return isDeliveryShippingComplete() && isPaymentSelected();
+  }
+
+  function syncCheckoutReadiness() {
+    checkoutState.shipping = isDeliveryShippingComplete();
+    checkoutState.payment = isPaymentSelected();
+    updateCheckoutProgressSteps(checkoutState);
+  }
+
+  function shakeCheckoutPanels() {
+    const stepsCard = document.getElementById('steps-progress-card');
+    const summary = document.getElementById('order-summary-panel');
+    [stepsCard, summary].forEach((el) => {
+      if (!el) return;
+      el.classList.remove('checkout-shake');
+      void el.offsetWidth;
+      el.classList.add('checkout-shake');
+      window.setTimeout(() => el.classList.remove('checkout-shake'), 420);
     });
   }
 
@@ -1177,6 +1247,7 @@
         deliveryCoords = { lat: null, lng: null };
       }
       refreshOrderSummaryPricing();
+      syncCheckoutReadiness();
     } catch {
       /* silent */
     }
@@ -1333,7 +1404,12 @@
 
   async function reverseGeocode(lat, lng) {
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&format=jsonv2&accept-language=ar`;
-    const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const response = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'HealUpPatientCheckout/1.0 (contact: support@healup.local)',
+      },
+    });
     if (!response.ok) throw new Error('reverse_geocode_failed');
     return response.json();
   }
@@ -1381,9 +1457,29 @@
       try {
         const geo = await reverseGeocode(currentLat, currentLng);
         const a = geo.address || {};
-        cityInput.value = a.city || a.town || a.village || a.state || cityInput.value;
-        districtInput.value = a.suburb || a.neighbourhood || a.county || districtInput.value;
-        streetInput.value = [a.road, a.house_number].filter(Boolean).join(' ') || (a.residential || a.road || streetInput.value);
+        const display = String(geo.display_name || '').trim();
+        cityInput.value =
+          a.city ||
+          a.town ||
+          a.village ||
+          a.municipality ||
+          a.state_district ||
+          a.county ||
+          a.state ||
+          cityInput.value;
+        districtInput.value =
+          a.suburb ||
+          a.neighbourhood ||
+          a.city_district ||
+          a.quarter ||
+          a.hamlet ||
+          a.county ||
+          districtInput.value;
+        const roadLine = [a.road, a.house_number].filter(Boolean).join(' ').trim();
+        const streetGuess = roadLine || a.pedestrian || a.residential || a.path || '';
+        if (streetGuess) streetInput.value = streetGuess;
+        else if (display) streetInput.value = display.slice(0, 240);
+        else if (a.road) streetInput.value = a.road;
       } catch {
         /* reverse geocode failed; coords still set */
       }
@@ -1392,6 +1488,7 @@
     } finally {
       locationBtn.classList.remove('loading');
       refreshOrderSummaryPricing();
+      syncCheckoutReadiness();
     }
   }
 
@@ -1427,6 +1524,7 @@
       if (!bundle) return;
       pricingBundle = bundle;
       refreshOrderSummaryPricing();
+      syncCheckoutReadiness();
 
       const pharmacy = targetOffer?.response?.pharmacy;
       if (typeof pharmacy?.latitude === 'number' && typeof pharmacy?.longitude === 'number') {
@@ -1444,17 +1542,27 @@
   }
 
   void loadLiveConfirmationData();
-  void fillDeliveryFromSavedProfileChoice();
+  void fillDeliveryFromSavedProfileChoice().then(() => syncCheckoutReadiness());
 
-  checkoutState.shipping = Boolean(document.querySelector('.shipping-tab.active'));
-  updateCheckoutProgressSteps(checkoutState);
+  syncCheckoutReadiness();
+  ['city-input', 'district-input', 'street-input'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => syncCheckoutReadiness());
+  });
 
   document.getElementById('location-dot-btn').addEventListener('click', () => {
     void detectAndFillLocation();
   });
 
   document.getElementById('confirm-order-btn').addEventListener('click', async () => {
-    if (!validateBeforeConfirm()) return;
+    if (!isCheckoutReadyForConfirm()) {
+      shakeCheckoutPanels();
+      return;
+    }
+    if (!validateBeforeConfirm()) {
+      shakeCheckoutPanels();
+      return;
+    }
     const responseId = getResponseId();
     if (!responseId) {
       alert('لا يمكن تأكيد الطلب: responseId غير موجود.');
@@ -1470,8 +1578,6 @@
     const original = btn.innerHTML;
     btn.disabled = true;
     btn.textContent = 'جاري التأكيد...';
-    checkoutState.confirm = true;
-    updateCheckoutProgressSteps(checkoutState);
     try {
       const targetOffer =
         cachedOffers.find((x) => Number(x?.response?.id) === responseId) || cachedOffers[0] || null;
@@ -1505,6 +1611,14 @@
           delivery_address: (deliveryAddr || '').slice(0, 500) || null,
           coupon_code: couponCode || null,
           coupon_percent: couponPercent > 0 ? couponPercent : null,
+          patient_latitude:
+            shippingMode === 'delivery' && deliveryCoords.lat != null && Number.isFinite(Number(deliveryCoords.lat))
+              ? Number(deliveryCoords.lat)
+              : null,
+          patient_longitude:
+            shippingMode === 'delivery' && deliveryCoords.lng != null && Number.isFinite(Number(deliveryCoords.lng))
+              ? Number(deliveryCoords.lng)
+              : null,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -1569,8 +1683,7 @@
       shippingMode = tab.getAttribute('data-mode') === 'pickup' ? 'pickup' : 'delivery';
       document.getElementById('delivery-form').style.display = shippingMode === 'delivery' ? 'grid' : 'none';
       document.getElementById('pickup-map-wrap').style.display = shippingMode === 'pickup' ? 'block' : 'none';
-      checkoutState.shipping = true;
-      updateCheckoutProgressSteps(checkoutState);
+      syncCheckoutReadiness();
       refreshOrderSummaryPricing();
       initPickupMapIfNeeded();
     });
@@ -1590,8 +1703,7 @@
       });
       opt.classList.add('selected');
       opt.querySelector('.radio').classList.add('checked');
-      checkoutState.payment = true;
-      updateCheckoutProgressSteps(checkoutState);
+      syncCheckoutReadiness();
     });
   });
 

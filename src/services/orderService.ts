@@ -11,7 +11,9 @@ export interface Order {
   id: number;
   patient_id: number;
   pharmacy_id: number;
+  /** API may send camelCase `requestId` from ASP.NET JSON. */
   request_id: number;
+  requestId?: number;
   delivery?: boolean;
   /** Some responses may use PascalCase */
   Delivery?: boolean;
@@ -43,6 +45,13 @@ export interface Order {
   items?: OrderItem[];
 }
 
+/** Normalize API row so `request_id` is always set (handles `requestId` camelCase). */
+export function orderRequestId(order: Pick<Order, 'request_id'> & { requestId?: number }): number {
+  const v = order.request_id ?? order.requestId;
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
 export const orderService = {
   async create(responseId: number, delivery: boolean = true, couponCode?: string | null, couponPercent?: number | null) {
     const res = await api.post<{ message: string; order: Order }>('/orders', {
@@ -56,13 +65,21 @@ export const orderService = {
 
   async list() {
     const res = await api.get<{ data: Order[] }>('/orders');
-    return res.data;
+    const body = res.data;
+    const rows = Array.isArray(body?.data) ? body.data : [];
+    return {
+      data: rows.map((o) => ({
+        ...o,
+        request_id: orderRequestId(o),
+      })),
+    };
   },
 
   /** GET /orders/{id} — order JSON at response root */
   async getById(id: number) {
-    const res = await api.get<Order>(`/orders/${id}`);
-    return res.data;
+    const res = await api.get<Order & { requestId?: number }>(`/orders/${id}`);
+    const o = res.data;
+    return { ...o, request_id: orderRequestId(o) };
   },
 
   async updateStatus(orderId: number, status: string) {

@@ -84,7 +84,10 @@ export const requestService = {
   },
 
   async downloadInvoice(requestId: number) {
-    const res = await api.get<Blob>(`/requests/${requestId}/invoice`, { responseType: 'blob' });
+    const res = await api.get<Blob>(`/requests/${requestId}/invoice`, {
+      responseType: 'blob',
+      headers: { Accept: 'application/pdf, application/octet-stream;q=0.9, */*;q=0.8' },
+    });
     return res.data;
   },
 };

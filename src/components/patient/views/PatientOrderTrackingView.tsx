@@ -57,6 +57,32 @@ export default function PatientOrderTrackingView() {
     setPatientPhone(phoneFromOrder || phoneFromMe || null);
   }, [orderId]);
 
+  const orderRef = React.useRef<Order | null>(null);
+  orderRef.current = order;
+
+  const courierAutoDeliveredRef = React.useRef(false);
+  React.useEffect(() => {
+    courierAutoDeliveredRef.current = false;
+  }, [orderId]);
+
+  const handleCourierReachedPatient = React.useCallback(() => {
+    const o = orderRef.current;
+    if (!o) return;
+    const s = (o.status || "").toLowerCase();
+    if (s !== "out_for_delivery") return;
+    if (!orderDeliveryFlag(o)) return;
+    if (courierAutoDeliveredRef.current) return;
+    courierAutoDeliveredRef.current = true;
+    void (async () => {
+      try {
+        await orderService.patientMarkDelivered(o.id);
+        await loadOrder();
+      } catch {
+        courierAutoDeliveredRef.current = false;
+      }
+    })();
+  }, [loadOrder]);
+
   React.useEffect(() => {
     if (!Number.isFinite(orderId) || orderId < 1) {
       setLoading(false);
@@ -230,7 +256,8 @@ export default function PatientOrderTrackingView() {
   const orderCompleted = (order.status || "").toLowerCase() === "completed";
   const statusLower = (order.status || "").toLowerCase();
   const isDelivery = orderDeliveryFlag(order);
-  const mapProgressKey = `healup_tracking_car_km_${order.id}_${statusLower}_${isDelivery ? "delivery" : "pickup"}`;
+  const runCourierOnceToPatient =
+    isDelivery && statusLower === "out_for_delivery" && !orderCompleted;
 
   return (
     <div className="patient-order-tracking-wrap min-h-screen bg-slate-50 px-4 py-6 font-sans rtl" dir="rtl">
@@ -338,7 +365,8 @@ export default function PatientOrderTrackingView() {
                   patient={patientCoords!}
                   delivery={isDelivery}
                   lockCarAtDestination={orderCompleted}
-                  progressStorageKey={mapProgressKey}
+                  runDeliveryOnce={runCourierOnceToPatient}
+                  onCarReachDestination={handleCourierReachedPatient}
                 />
               </section>
             ) : showCourierMap && !isDelivery ? (
@@ -351,7 +379,6 @@ export default function PatientOrderTrackingView() {
                   patient={patientCoords!}
                   delivery={false}
                   lockCarAtDestination={orderCompleted}
-                  progressStorageKey={mapProgressKey}
                 />
               </section>
             ) : (
