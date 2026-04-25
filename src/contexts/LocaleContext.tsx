@@ -24,7 +24,6 @@ const AR_WORD_TO_EN_ENTRIES = Object.entries(AR_WORD_TO_EN_DICTIONARY).sort((a, 
 const EN_WORD_TO_AR_ENTRIES = Object.entries(AR_WORD_TO_EN_DICTIONARY)
   .map(([ar, en]) => [en, ar] as const)
   .sort((a, b) => b[0].length - a[0].length);
-const ARABIC_CHAR_REGEX = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
 
 function transformByEntries(input: string, entries: ReadonlyArray<readonly [string, string]>): string {
   let out = input;
@@ -37,43 +36,13 @@ function transformByEntries(input: string, entries: ReadonlyArray<readonly [stri
 
 function transformByWordFallback(input: string, locale: HealupLocale): string {
   const entries = locale === "en" ? AR_WORD_TO_EN_ENTRIES : EN_WORD_TO_AR_ENTRIES;
-  const tokens = input.split(/(\s+|[.,!?;:(){}\[\]<>/\\|"'`~@#$%^&*\-_=+]+)/);
-  return tokens
-    .map((token) => {
-      const trimmed = token.trim();
-      if (!trimmed) return token;
-
-      for (const [from, to] of entries) {
-        if (trimmed === from) return token.replace(trimmed, to);
-      }
-
-      return token;
-    })
-    .join("");
-}
-
-function replaceUnknownArabicTokens(input: string): string {
-  const tokens = input.split(/(\s+|[.,!?;:(){}\[\]<>/\\|"'`~@#$%^&*\-_=+]+)/);
-  return tokens
-    .map((token) => {
-      if (!token.trim()) return token;
-      return ARABIC_CHAR_REGEX.test(token) ? "text" : token;
-    })
-    .join("");
+  return transformByEntries(input, entries);
 }
 
 function transformTextForLocale(input: string, locale: HealupLocale): string {
   const entries = locale === "en" ? AR_TO_EN_ENTRIES : EN_TO_AR_ENTRIES;
   let nextValue = transformByEntries(input, entries);
-  if (nextValue === input) {
-    nextValue = transformByWordFallback(input, locale);
-  }
-  if (locale === "en" && ARABIC_CHAR_REGEX.test(nextValue)) {
-    nextValue = transformByWordFallback(nextValue, locale);
-    if (ARABIC_CHAR_REGEX.test(nextValue)) {
-      nextValue = replaceUnknownArabicTokens(nextValue);
-    }
-  }
+  nextValue = transformByWordFallback(nextValue, locale);
   return nextValue;
 }
 
