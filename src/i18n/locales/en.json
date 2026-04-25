@@ -1,0 +1,31 @@
+{
+  "common": {
+    "changeLanguage": "Change language",
+    "notifications": "Notifications",
+    "newNotifications": "New notifications",
+    "loadingNotifications": "Loading notifications...",
+    "noNewNotifications": "No new notifications.",
+    "settings": "Settings",
+    "logout": "Logout",
+    "searchPlaceholderAdmin": "Search orders, patients, or pharmacies...",
+    "searchPlaceholderPharmacy": "Search for a patient or medicine...",
+    "systemManager": "System manager",
+    "pharmacyManager": "Pharmacy manager"
+  },
+  "admin": {
+    "panel": "Admin panel",
+    "nav": {
+      "dashboard": "Dashboard",
+      "pharmacies": "Pharmacy management",
+      "patients": "Patient management",
+      "orders": "Orders",
+      "reports": "Reports"
+    }
+  },
+  "patient": {
+    "profileMenu": "Profile menu"
+  },
+  "pharmacy": {
+    "defaultName": "Pharmacy"
+  }
+}

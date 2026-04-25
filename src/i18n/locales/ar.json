@@ -1,0 +1,31 @@
+{
+  "common": {
+    "changeLanguage": "تغيير اللغة",
+    "notifications": "الإشعارات",
+    "newNotifications": "الإشعارات الجديدة",
+    "loadingNotifications": "جاري تحميل الإشعارات...",
+    "noNewNotifications": "لا توجد إشعارات جديدة.",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "searchPlaceholderAdmin": "البحث عن طلبات، مرضى، أو صيدليات...",
+    "searchPlaceholderPharmacy": "بحث عن مريض أو دواء...",
+    "systemManager": "مدير النظام",
+    "pharmacyManager": "مدير الصيدلية"
+  },
+  "admin": {
+    "panel": "لوحة الإدارة",
+    "nav": {
+      "dashboard": "لوحة القيادة",
+      "pharmacies": "إدارة الصيدليات",
+      "patients": "إدارة المرضى",
+      "orders": "الطلبات",
+      "reports": "التقارير"
+    }
+  },
+  "patient": {
+    "profileMenu": "قائمة الحساب"
+  },
+  "pharmacy": {
+    "defaultName": "صيدلية"
+  }
+}
