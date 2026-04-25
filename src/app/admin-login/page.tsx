@@ -8,6 +8,7 @@ import { useLocale } from "@/contexts/LocaleContext";
 export default function AdminLogin() {
   const { locale } = useLocale();
   const isAr = locale === "ar";
+  const tr = (ar: string, en: string) => (isAr ? ar : en);
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +30,7 @@ export default function AdminLogin() {
       authService.setSession(res, "admin");
       router.push("/admin/dashboard");
     } catch (e: unknown) {
-      setError(getAuthErrorMessage(e, "بيانات الدخول غير صحيحة"));
+      setError(getAuthErrorMessage(e, tr("بيانات الدخول غير صحيحة", "Invalid login credentials")));
     } finally {
       setLoading(false);
     }
@@ -42,15 +43,15 @@ export default function AdminLogin() {
       <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
         <div style={{ display: "flex", flexDirection: "row", width: "100%", maxWidth: 900, borderRadius: 20, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.10)" }}>
           {/* Form Panel - now left */}
-          <form onSubmit={handleSubmit} style={{ flex: 1, background: "#fff", padding: "48px 44px 36px", display: "flex", flexDirection: "column", direction: "rtl" }}>
+          <form onSubmit={handleSubmit} style={{ flex: 1, background: "#fff", padding: "48px 44px 36px", display: "flex", flexDirection: "column", direction: isAr ? "rtl" : "ltr" }}>
             <div style={{ textAlign: "right", marginBottom: 28 }}>
-              <h1 style={{ fontSize: 26, fontWeight: 900, color: "#1a2e4a", marginBottom: 8 }}>تسجيل دخول الإدارة</h1>
-              <p style={{ fontSize: 13, color: "#9aa3b0", fontWeight: 400, lineHeight: 1.7 }}>يرجى إدخال بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم</p>
+              <h1 style={{ fontSize: 26, fontWeight: 900, color: "#1a2e4a", marginBottom: 8 }}>{tr("تسجيل دخول الإدارة", "Admin login")}</h1>
+              <p style={{ fontSize: 13, color: "#9aa3b0", fontWeight: 400, lineHeight: 1.7 }}>{tr("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم", "Please enter your credentials to access the control panel")}</p>
             </div>
             <div style={{ marginBottom: 18 }}>
-              <span style={{ display: "block", marginBottom: 8, fontSize: 12.5, fontWeight: 700, color: "#1a2e4a" }}>البريد الإلكتروني أو اسم المستخدم</span>
+              <span style={{ display: "block", marginBottom: 8, fontSize: 12.5, fontWeight: 700, color: "#1a2e4a" }}>{tr("البريد الإلكتروني أو اسم المستخدم", "Email or username")}</span>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="example@healup.com" style={{ width: "100%", padding: "13px 42px 13px 16px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: "right", direction: "rtl", transition: "border-color 0.2s" }} />
+                <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="example@healup.com" style={{ width: "100%", padding: "13px 42px 13px 16px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: isAr ? "right" : "left", direction: isAr ? "rtl" : "ltr", transition: "border-color 0.2s" }} />
                 <span style={{ position: "absolute", right: 13, pointerEvents: "none", display: "flex", alignItems: "center" }}>
                   <svg viewBox="0 0 24 24" width={17} height={17} fill="#9aa3b0"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                 </span>
@@ -58,11 +59,11 @@ export default function AdminLogin() {
             </div>
             <div style={{ marginBottom: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a2e4a" }}>كلمة المرور</span>
-                <a href="#" style={{ fontSize: 12, fontWeight: 700, color: "#2356c8", textDecoration: "none" }}>نسيت كلمة المرور؟</a>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a2e4a" }}>{tr("كلمة المرور", "Password")}</span>
+                <a href="#" style={{ fontSize: 12, fontWeight: 700, color: "#2356c8", textDecoration: "none" }}>{tr("نسيت كلمة المرور؟", "Forgot password?")}</a>
               </div>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" id="adminPass" style={{ width: "100%", padding: "13px 42px 13px 16px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: "right", direction: "rtl", transition: "border-color 0.2s" }} />
+                <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" id="adminPass" style={{ width: "100%", padding: "13px 42px 13px 16px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: isAr ? "right" : "left", direction: isAr ? "rtl" : "ltr", transition: "border-color 0.2s" }} />
                 <span style={{ position: "absolute", right: 13, pointerEvents: "none", display: "flex", alignItems: "center" }}>
                   <svg viewBox="0 0 24 24" width={17} height={17} fill="#9aa3b0"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
                 </span>
@@ -77,15 +78,15 @@ export default function AdminLogin() {
             </div>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: 8, marginBottom: 22, direction: "rtl", textAlign: "right" }}>
               <input type="checkbox" id="remember" checked={remember} onChange={e => setRemember(e.target.checked)} style={{ width: 15, height: 15, accentColor: "#2356c8", cursor: "pointer" }} />
-              <label htmlFor="remember" style={{ fontSize: 13, color: "#1a2e4a", fontWeight: 500, cursor: "pointer" }}>تذكرني على هذا الجهاز</label>
+              <label htmlFor="remember" style={{ fontSize: 13, color: "#1a2e4a", fontWeight: 500, cursor: "pointer" }}>{tr("تذكرني على هذا الجهاز", "Remember me on this device")}</label>
             </div>
             {error && <div style={{ color: '#e74c3c', fontSize: 13, textAlign: 'center', marginBottom: 6 }}>{error}</div>}
             <button type="submit" style={{ width: "100%", padding: 15, background: "#2356c8", color: "white", border: "none", borderRadius: 12, fontFamily: "'Cairo', sans-serif", fontSize: 16, fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', transition: "background 0.2s, transform 0.15s", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }} disabled={loading}>
-              دخول إلى لوحة التحكم
+              {tr("دخول إلى لوحة التحكم", "Sign in to dashboard")}
               <svg viewBox="0 0 24 24" width={18} height={18} fill="white"><path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></svg>
             </button>
             <p style={{ fontSize: 11.5, color: "#9aa3b0", textAlign: "center", lineHeight: 1.8, marginTop: "auto", paddingTop: 20, borderTop: "1px solid #dde3ed" }}>
-              هذا النظام مخصص للموظفين المصرح لهم فقط. يتم مراقبة جميع الأنشطة وتسجيلها لضمان أمن البيانات والخصوصية.
+              {tr("هذا النظام مخصص للموظفين المصرح لهم فقط. يتم مراقبة جميع الأنشطة وتسجيلها لضمان أمن البيانات والخصوصية.", "This system is restricted to authorized staff only. All activities are monitored and logged to ensure data security and privacy.")}
             </p>
           </form>
           {/* Info Panel - now right */}
@@ -103,7 +104,7 @@ export default function AdminLogin() {
             justifyContent: 'space-between',
             position: 'relative',
             overflow: 'hidden',
-            direction: 'rtl',
+            direction: isAr ? "rtl" : "ltr",
           }}>
             {/* Blue overlay layer */}
             <div style={{
@@ -122,18 +123,18 @@ export default function AdminLogin() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", marginBottom: 20 }}>
                 <svg viewBox="0 0 24 24" width={60} height={60} fill="#2356c8"><path d="M12 2L4 5v6c0 5.25 3.4 10.15 8 11.35C16.6 21.15 20 16.25 20 11V5l-8-3z"/><circle cx="12" cy="9" r="2.5" fill="white"/><path d="M12 13c-2.5 0-4.5 1.1-4.5 2.5v.5h9v-.5c0-1.4-2-2.5-4.5-2.5z" fill="white"/></svg>
               </div>
-              <h2 style={{ fontSize: 26, fontWeight: 900, color: "#0456AE", marginBottom: 14, lineHeight: 1.4 }}>أهلاً بك في نظام الإدارة</h2>
+              <h2 style={{ fontSize: 26, fontWeight: 900, color: "#0456AE", marginBottom: 14, lineHeight: 1.4 }}>{tr("أهلاً بك في نظام الإدارة", "Welcome to the admin system")}</h2>
               <p style={{ fontSize: 13, color: "#3678BE", lineHeight: 1.9, fontWeight: 400 }}>
-                منصة <span style={{ color: "#3678BE", fontWeight: 700 }}>Healup</span> توفر لك كافة الأدوات اللازمة لإدارة المرافق الطبية والبيانات الصحية بأمان وكفاءة عالية.
+                {tr("منصة ", "The ")}<span style={{ color: "#3678BE", fontWeight: 700 }}>Healup</span>{tr(" توفر لك كافة الأدوات اللازمة لإدارة المرافق الطبية والبيانات الصحية بأمان وكفاءة عالية.", " platform gives you all tools needed to manage medical facilities and health data securely and efficiently.")}
               </p>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 20, zIndex: 1, direction: "rtl" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 20, zIndex: 1, direction: isAr ? "rtl" : "ltr" }}>
                 <div style={{ display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: "#1a2e4a" }}>
-                اتصال مشفر
+                {tr("اتصال مشفر", "Encrypted connection")}
                 <svg viewBox="0 0 24 24" width={16} height={16} fill="#2356c8"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.5 13.5l-3-3 1.41-1.41 1.59 1.58 4.09-4.08 1.41 1.41-5.5 5.5z"/></svg>
               </div>
               <div style={{ display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: "#1a2e4a" }}>
-                حماية البيانات
+                {tr("حماية البيانات", "Data protection")}
                 <svg viewBox="0 0 24 24" width={16} height={16} fill="#2356c8"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
               </div>
               
@@ -141,7 +142,7 @@ export default function AdminLogin() {
           </div>
         </div>
       </main>
-      <footer style={{ textAlign: "center", padding: 16, fontSize: 12.5, color: "#9aa3b0", direction: "rtl" }}>© 2024 Healup Medical Solutions. جميع الحقوق محفوظة.</footer>
+      <footer style={{ textAlign: "center", padding: 16, fontSize: 12.5, color: "#9aa3b0", direction: isAr ? "rtl" : "ltr" }}>© 2024 Healup Medical Solutions. {tr("جميع الحقوق محفوظة.", "All rights reserved.")}</footer>
     </div>
   );
 }
