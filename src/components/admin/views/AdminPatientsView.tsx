@@ -109,7 +109,7 @@ export default function AdminPatientsView() {
               <div className={`absolute start-6 top-6 shrink-0 rounded-xl p-2.5 ${stat.bgColor}`}>
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
-              <div className="text-start">
+              <div className="ps-14 text-start">
                 <p className="mb-4 text-sm text-slate-500">{stat.title}</p>
                 <h3 className="mb-1 text-2xl font-bold text-slate-900">{stat.value}</h3>
                 <p className="text-xs text-slate-400">{stat.subValue}</p>

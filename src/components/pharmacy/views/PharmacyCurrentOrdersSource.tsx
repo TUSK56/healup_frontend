@@ -2,12 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { Pill, MapPin, Clock, ArrowLeft, ChevronDown, CheckCircle2, Loader2 } from "lucide-react";
+import { Pill, MapPin, Clock, ArrowLeft, ArrowRight, ChevronDown, CheckCircle2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import api from "@/services/apiService";
 import { orderService } from "@/services/orderService";
 import { pharmacyService, type AwaitingPatientOrderRow } from "@/services/pharmacyService";
 import { consumePharmacyCurrentOrderNotifications } from "@/lib/pharmacyNotifications";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type ApiOrder = {
   id: number;
@@ -88,9 +89,11 @@ function classifyOrder(order: ApiOrder): { label: string; tab: "wait" | "prep" |
 const AwaitPatientCard = ({
   row,
   onDetails,
+  dir,
 }: {
   row: AwaitingPatientOrderRow;
   onDetails: (r: AwaitingPatientOrderRow) => void;
+  dir: "rtl" | "ltr";
 }) => {
   const med =
     row.medicines?.map((m) => `${m.medicine_name} ×${m.quantity}`).join("، ") || "—";
@@ -141,7 +144,11 @@ const AwaitPatientCard = ({
         onClick={() => onDetails(row)}
       >
         <span>عرض التفاصيل</span>
-        <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+        {dir === "rtl" ? (
+          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+        ) : (
+          <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+        )}
       </button>
     </motion.div>
   );
@@ -152,11 +159,13 @@ const OrderCard = ({
   onDetails,
   onConfirmPreparing,
   confirmingId,
+  dir,
 }: {
   order: ApiOrder;
   onDetails: (o: ApiOrder) => void;
   onConfirmPreparing: (o: ApiOrder) => void;
   confirmingId: number | null;
+  dir: "rtl" | "ltr";
 }) => {
   const { label, tab } = classifyOrder(order);
   const st = normalizeOrderStatus(order);
@@ -245,7 +254,11 @@ const OrderCard = ({
             onClick={() => onDetails(order)}
           >
             <span>عرض التفاصيل</span>
-            <ArrowLeft size={16} className="shrink-0 transition-transform group-hover:-translate-x-1" />
+            {dir === "rtl" ? (
+              <ArrowLeft size={16} className="shrink-0 transition-transform group-hover:-translate-x-1" />
+            ) : (
+              <ArrowRight size={16} className="shrink-0 transition-transform group-hover:translate-x-1" />
+            )}
           </button>
         </div>
       ) : (
@@ -255,7 +268,11 @@ const OrderCard = ({
           onClick={() => onDetails(order)}
         >
           <span>عرض التفاصيل</span>
-          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          {dir === "rtl" ? (
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          ) : (
+            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+          )}
         </button>
       )}
     </motion.div>
@@ -265,6 +282,7 @@ const OrderCard = ({
 type TabKey = "all" | "wait" | "prep" | "out" | "done";
 
 export default function PharmacyCurrentOrdersApp() {
+  const { dir } = useLocale();
   const [orders, setOrders] = React.useState<ApiOrder[]>([]);
   const [completedOrders, setCompletedOrders] = React.useState<ApiOrder[]>([]);
   const [awaitingRows, setAwaitingRows] = React.useState<AwaitingPatientOrderRow[]>([]);
@@ -446,6 +464,7 @@ export default function PharmacyCurrentOrdersApp() {
                   key={`await-rq-${entry.row.request_id}`}
                   row={entry.row}
                   onDetails={(r) => setDetail({ kind: "awaiting", row: r })}
+                  dir={dir}
                 />
               ) : (
                 <OrderCard
@@ -454,6 +473,7 @@ export default function PharmacyCurrentOrdersApp() {
                   onDetails={(o) => setDetail({ kind: "order", order: o })}
                   onConfirmPreparing={handleConfirmPreparing}
                   confirmingId={confirmingId}
+                  dir={dir}
                 />
               ),
             )}
