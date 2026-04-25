@@ -59,7 +59,7 @@ function isActiveStatus(status: string) {
 }
 
 export default function AdminOrdersView() {
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const PAGE_SIZE = 10;
   const [rows, setRows] = React.useState<AdminOrder[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -264,7 +264,7 @@ export default function AdminOrdersView() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:bg-slate-50 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ChevronRight className="h-5 w-5" />
+                {dir === "rtl" ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
               </button>
               {visiblePages.map((p) => (
                 <button
@@ -282,7 +282,7 @@ export default function AdminOrdersView() {
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:bg-slate-50 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ChevronLeft className="h-5 w-5" />
+                {dir === "rtl" ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
               </button>
             </div>
           </div>

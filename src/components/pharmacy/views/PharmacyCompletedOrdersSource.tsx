@@ -254,7 +254,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="flex flex-1 flex-col justify-between text-right">
+              <div className="flex flex-1 flex-col justify-between text-start">
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-brand-blue">#HLP-{order.id}</span>

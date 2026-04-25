@@ -14,7 +14,7 @@ function toLocaleDate(value: string | undefined, locale: "ar" | "en") {
 }
 
 export default function AdminPatientsView() {
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const PAGE_SIZE = 10;
   const [rows, setRows] = React.useState<AdminUser[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -87,7 +87,7 @@ export default function AdminPatientsView() {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-slate-50/50">
       <main className="flex-1 overflow-y-auto p-8">
-        <section className="mb-8 text-right">
+        <section className="mb-8 text-start">
           <h2 className="mb-1 text-3xl font-bold text-[#0355AE]">{t("admin.patientsView.title", "Patient management")}</h2>
           <p className="text-sm text-slate-500">{t("admin.patientsView.subtitle", "Overview of all patients registered on the platform")}</p>
         </section>
@@ -109,7 +109,7 @@ export default function AdminPatientsView() {
               <div className={`absolute start-6 top-6 shrink-0 rounded-xl p-2.5 ${stat.bgColor}`}>
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
-              <div className="text-right">
+              <div className="text-start">
                 <p className="mb-4 text-sm text-slate-500">{stat.title}</p>
                 <h3 className="mb-1 text-2xl font-bold text-slate-900">{stat.value}</h3>
                 <p className="text-xs text-slate-400">{stat.subValue}</p>
@@ -197,7 +197,7 @@ export default function AdminPatientsView() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:bg-slate-50 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ChevronRight className="h-4 w-4" />
+                {dir === "rtl" ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               </button>
               {visiblePages.map((p) => (
                 <button
@@ -215,7 +215,7 @@ export default function AdminPatientsView() {
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:bg-slate-50 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ChevronLeft className="h-4 w-4" />
+                {dir === "rtl" ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
               </button>
             </div>
           </div>

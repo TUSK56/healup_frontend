@@ -160,7 +160,7 @@ export default function PatientOrderConfirmationContent() {
             transition={{ delay: 0.08 }}
             className="flex items-center justify-between rounded-3xl border border-gray-100 bg-white p-6 shadow-sm"
           >
-            <div className="text-right">
+            <div className="text-start">
               <p className="mb-1 text-sm text-gray-400">
                 {order.delivery ? "وقت التوصيل المتوقع" : "الوقت للوصول للصيدلية (تقريبي)"}
               </p>
@@ -180,7 +180,7 @@ export default function PatientOrderConfirmationContent() {
             transition={{ delay: 0.08 }}
             className="flex items-center justify-between rounded-3xl border border-gray-100 bg-white p-6 shadow-sm"
           >
-            <div className="text-right">
+            <div className="text-start">
               <p className="mb-1 text-sm text-gray-400">طريقة الاستلام</p>
               <h3 className="text-xl font-bold text-gray-900">{deliveryLabel}</h3>
             </div>
@@ -210,7 +210,7 @@ export default function PatientOrderConfirmationContent() {
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-blue-600">
                     <Pill className="h-6 w-6" />
                   </div>
-                  <div className="min-w-0 text-right">
+                  <div className="min-w-0 text-start">
                     <h4 className="font-bold text-gray-900">{item.medicine_name}</h4>
                     <p className="text-xs text-gray-400">
                       {pharmacyName}

@@ -66,7 +66,7 @@ function StatCard({
           <Icon className={`h-6 w-6 ${colorClass}`} />
         </div>
       </div>
-      <div className="flex flex-col items-start text-left">
+      <div className="flex flex-col items-start text-start">
         <h3 className="mb-1 text-3xl font-bold text-slate-800">{value}</h3>
         <div className="flex items-center gap-1">
           <span className={`text-xs font-bold ${change.startsWith("+") ? "text-emerald-600" : "text-rose-500"}`}>{change}</span>
@@ -77,16 +77,20 @@ function StatCard({
   );
 }
 
-function Toggle({ active }: { active: boolean }) {
+function Toggle({ active, dir }: { active: boolean; dir: "rtl" | "ltr" }) {
   return (
     <div className={`relative h-5 w-10 rounded-full transition-colors ${active ? "bg-success" : "bg-slate-200"}`}>
-      <div className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${active ? "left-1" : "left-6"}`} />
+      <div
+        className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${
+          dir === "rtl" ? (active ? "start-1" : "end-1") : (active ? "end-1" : "start-1")
+        }`}
+      />
     </div>
   );
 }
 
 export default function AdminPharmaciesView() {
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const PAGE_SIZE = 10;
   const [rows, setRows] = React.useState<AdminPharmacy[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -273,7 +277,9 @@ export default function AdminPharmaciesView() {
                         <td className="px-6 py-5 text-sm text-slate-500">{toLocaleDate(pharmacy.created_at, locale)}</td>
                         <td className="px-6 py-5">
                           <div className="flex items-center justify-center gap-4">
-                            {(pharmacy.status || "").toLowerCase() !== "pending" ? <Toggle active={(pharmacy.status || "").toLowerCase() === "approved"} /> : null}
+                            {(pharmacy.status || "").toLowerCase() !== "pending" ? (
+                              <Toggle active={(pharmacy.status || "").toLowerCase() === "approved"} dir={dir} />
+                            ) : null}
                             <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.text}</span>
                           </div>
                         </td>
@@ -310,7 +316,7 @@ export default function AdminPharmaciesView() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ChevronRight className="h-4 w-4" />
+                {dir === "rtl" ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               </button>
               {visiblePages.map((p) => (
                 <button
@@ -328,7 +334,7 @@ export default function AdminPharmaciesView() {
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 className="rounded-xl border border-slate-200 p-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ChevronLeft className="h-4 w-4" />
+                {dir === "rtl" ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
               </button>
             </div>
           </div>

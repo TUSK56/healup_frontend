@@ -387,14 +387,14 @@ export default function PharmacyCurrentOrdersApp() {
   return (
     <div className="flex min-h-screen flex-col font-sans">
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8 md:py-12">
-        <div className="mb-12 text-center md:text-right">
+        <div className="mb-12 text-center md:text-start">
           <h1 className="mb-3 text-4xl font-black text-slate-900">الطلبات الحالية</h1>
           <p className="text-lg text-slate-500">تابع حالة طلبات الأدوية الجارية (بعد العرض) والتسليم</p>
         </div>
 
         {shipError ? (
           <div
-            className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-right text-sm font-medium text-red-800"
+            className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-start text-sm font-medium text-red-800"
             role="alert"
           >
             {shipError}
@@ -503,7 +503,7 @@ export default function PharmacyCurrentOrdersApp() {
                 <p className="mb-4 text-sm text-slate-600">
                   الإجمالي: <strong>{Number(detail.order.total_price || 0).toFixed(2)} ج.م</strong>
                 </p>
-                <ul className="space-y-2 border-t border-slate-100 pt-4 text-right">
+                <ul className="space-y-2 border-t border-slate-100 pt-4 text-start">
                   {(detail.order.items || []).map((i, idx) => (
                     <li key={idx} className="flex justify-between text-sm">
                       <span>{i.medicine_name}</span>
@@ -524,7 +524,7 @@ export default function PharmacyCurrentOrdersApp() {
                 <p className="mb-4 text-sm text-slate-500">
                   رقم العرض: {detail.row.response_id} — تاريخ الطلب: {relativeArabic(detail.row.created_at)}
                 </p>
-                <ul className="space-y-2 border-t border-slate-100 pt-4 text-right">
+                <ul className="space-y-2 border-t border-slate-100 pt-4 text-start">
                   {(detail.row.medicines || []).map((m, idx) => (
                     <li key={idx} className="flex justify-between text-sm">
                       <span>{m.medicine_name}</span>

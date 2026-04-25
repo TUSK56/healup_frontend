@@ -269,7 +269,7 @@ export default function PharmacyProfileSource() {
   };
 
   if (loading || !me || !draft) {
-    return <div className="p-8 text-right text-slate-500">جاري تحميل بيانات الصيدلية...</div>;
+    return <div className="p-8 text-start text-slate-500">جاري تحميل بيانات الصيدلية...</div>;
   }
 
   return (
@@ -343,7 +343,7 @@ export default function PharmacyProfileSource() {
               </label>
             </div>
 
-            <div className="text-right md:-mt-8">
+            <div className="text-start md:-mt-8">
               <h1 className="text-2xl font-bold text-slate-900 font-arabic">{me.name}</h1>
               <div className="flex items-center justify-start gap-1 text-slate-400 text-sm mt-1">
                 <CheckCircle2 size={14} className="text-slate-400" />
@@ -411,7 +411,7 @@ export default function PharmacyProfileSource() {
             </InfoCard>
 
             <InfoCard title="الأمان" icon={Shield}>
-              <div className="text-right space-y-4">
+              <div className="text-start space-y-4">
                 <p className="text-sm text-slate-500 font-arabic leading-relaxed">
                   قم بتغيير كلمة المرور بشكل دوري للحفاظ على أمان حسابك.
                 </p>
@@ -485,7 +485,7 @@ export default function PharmacyProfileSource() {
 
       {showUnsavedModal ? (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 text-right shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 text-start shadow-2xl">
             <h3 className="mb-2 text-lg font-bold text-slate-900">يوجد تغييرات غير محفوظة</h3>
             <p className="mb-5 text-sm text-slate-600">هل تريد حفظ التغييرات قبل الانتقال؟</p>
             <div className="flex items-center justify-end gap-2">
@@ -567,7 +567,7 @@ function InputField({
   dir?: "rtl" | "ltr";
 }) {
   return (
-    <div className="space-y-1.5 text-right">
+    <div className="space-y-1.5 text-start">
       <label className="text-sm font-medium text-slate-500 font-arabic">{label}</label>
       <div className="relative">
         <input
@@ -600,7 +600,7 @@ function PasswordField({
   shake?: boolean;
 }) {
   return (
-    <div className="space-y-1 text-right">
+    <div className="space-y-1 text-start">
       <label className="text-xs font-medium text-slate-500">{label}</label>
       <input
         type="password"

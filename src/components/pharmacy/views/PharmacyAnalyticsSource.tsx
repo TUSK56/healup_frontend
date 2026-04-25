@@ -242,11 +242,11 @@ export default function Dashboard() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="text-right text-[#5A6C85]">الفئة</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">عدد الطلبات</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">الإيرادات</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">النمو</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">الحالة</TableHead>
+                  <TableHead className="text-start text-[#5A6C85]">الفئة</TableHead>
+                  <TableHead className="text-start text-[#5A6C85]">عدد الطلبات</TableHead>
+                  <TableHead className="text-start text-[#5A6C85]">الإيرادات</TableHead>
+                  <TableHead className="text-start text-[#5A6C85]">النمو</TableHead>
+                  <TableHead className="text-start text-[#5A6C85]">الحالة</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
