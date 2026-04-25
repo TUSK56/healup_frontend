@@ -495,23 +495,7 @@
       document.documentElement.dir = dir;
       document.body.style.direction = dir;
       if (locale !== "en") return;
-      var map = {
-        "ا":"a","أ":"a","إ":"i","آ":"aa","ب":"b","ت":"t","ث":"th","ج":"j","ح":"h","خ":"kh","د":"d","ذ":"dh","ر":"r","ز":"z","س":"s","ش":"sh","ص":"s","ض":"d","ط":"t","ظ":"z","ع":"a","غ":"gh","ف":"f","ق":"q","ك":"k","ل":"l","م":"m","ن":"n","ه":"h","ة":"h","و":"w","ؤ":"w","ي":"y","ى":"a","ئ":"y","ء":"a"
-      };
-      var rx = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+/g;
-      function translit(s){ return String(s || "").replace(rx, function(run){ return run.split("").map(function(ch){ return map[ch] || ""; }).join("") || "word"; }); }
-      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-      var n = walker.nextNode();
-      while (n) {
-        if ((n.nodeValue || "").trim()) n.nodeValue = translit(n.nodeValue);
-        n = walker.nextNode();
-      }
-      ["placeholder","title","aria-label","alt"].forEach(function(attr){
-        document.querySelectorAll("[" + attr + "]").forEach(function(el){
-          var raw = el.getAttribute(attr);
-          if (raw) el.setAttribute(attr, translit(raw));
-        });
-      });
+      // No transliteration (Franco) fallback here. Static page remains key/dictionary-driven only.
     } catch {}
   })();
 </script>

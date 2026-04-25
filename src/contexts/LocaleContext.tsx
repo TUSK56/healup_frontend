@@ -22,7 +22,6 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 const TRANSFORM_ATTRS = ["placeholder", "title", "aria-label", "alt"] as const;
 const AR_TO_EN_ENTRIES = Object.entries(AR_TO_EN_DICTIONARY).sort((a, b) => b[0].length - a[0].length);
 const AR_WORD_TO_EN_ENTRIES = Object.entries(AR_WORD_TO_EN_DICTIONARY).sort((a, b) => b[0].length - a[0].length);
-const ARABIC_RUN_REGEX = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+/g;
 
 function transformByEntries(input: string, entries: ReadonlyArray<readonly [string, string]>): string {
   let out = input;
@@ -33,31 +32,9 @@ function transformByEntries(input: string, entries: ReadonlyArray<readonly [stri
   return out;
 }
 
-function transliterateArabicChar(ch: string): string {
-  const map: Record<string, string> = {
-    "ا": "a", "أ": "a", "إ": "i", "آ": "aa", "ب": "b", "ت": "t", "ث": "th",
-    "ج": "j", "ح": "h", "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z",
-    "س": "s", "ش": "sh", "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "a",
-    "غ": "gh", "ف": "f", "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n",
-    "ه": "h", "ة": "h", "و": "w", "ؤ": "w", "ي": "y", "ى": "a", "ئ": "y",
-    "ء": "a"
-  };
-  return map[ch] ?? "";
-}
-
-function transliterateArabicText(input: string): string {
-  return input.replace(ARABIC_RUN_REGEX, (run) => {
-    const transliterated = Array.from(run).map(transliterateArabicChar).join("");
-    return transliterated || "word";
-  });
-}
-
 function transformTextForEnglish(input: string): string {
   let nextValue = transformByEntries(input, AR_TO_EN_ENTRIES);
   nextValue = transformByEntries(nextValue, AR_WORD_TO_EN_ENTRIES);
-  if (ARABIC_RUN_REGEX.test(nextValue)) {
-    nextValue = transliterateArabicText(nextValue);
-  }
   return nextValue;
 }
 
