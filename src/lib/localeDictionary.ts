@@ -48,6 +48,12 @@ export const AR_TO_EN_DICTIONARY: Record<string, string> = {
   "شروط الاستخدام": "Terms of Use",
   "سياسة الخصوصية": "Privacy Policy",
   "لوحة التحكم": "Dashboard",
+  "لوحة القيادة": "Dashboard",
+  "لوحة الإدارة": "Admin panel",
+  "إدارة الصيدليات": "Pharmacy management",
+  "إدارة المرضى": "Patient management",
+  "الطلبات": "Orders",
+  "التقارير": "Reports",
   "الإشعارات الجديدة": "New notifications",
   "لا توجد إشعارات جديدة.": "No new notifications.",
   "جاري تحميل الإشعارات...": "Loading notifications...",
@@ -87,7 +93,10 @@ export const AR_TO_EN_DICTIONARY: Record<string, string> = {
   "يمكنك طلب كود جديد خلال 00:59": "You can request a new code in 00:59",
   "أهلاً بك في نظام الإدارة": "Welcome to the admin system",
   "اتصال مشفر": "Encrypted connection",
-  "حماية البيانات": "Data protection"
+  "حماية البيانات": "Data protection",
+  "أسبوعية": "Weekly",
+  "اتجاهات": "Trends",
+  "قيادة": "leadership"
 };
 
 export const AR_WORD_TO_EN_DICTIONARY: Record<string, string> = {
