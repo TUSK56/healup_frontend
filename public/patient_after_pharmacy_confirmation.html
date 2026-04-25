@@ -621,6 +621,17 @@
 </style>
 </head>
 <body>
+<script>
+  (function initLocaleDirection() {
+    try {
+      var locale = localStorage.getItem("healup_locale") === "en" ? "en" : "ar";
+      var dir = locale === "ar" ? "rtl" : "ltr";
+      document.documentElement.lang = locale;
+      document.documentElement.dir = dir;
+      document.body.style.direction = dir;
+    } catch {}
+  })();
+</script>
 
 <aside class="patient-sidebar">
   <div class="patient-sidebar-header">

@@ -16,6 +16,7 @@ import {
 import { formatDeliveryEtaRangeKm, haversineKm } from "@/lib/deliveryEta";
 import { computeOrderPricingDisplay } from "@/lib/orderPricingDisplay";
 import { orderService, type Order } from "@/services/orderService";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const brand = "#0456AE";
 
@@ -24,6 +25,7 @@ function formatMoney(n: number) {
 }
 
 export default function PatientOrderConfirmationContent() {
+  const { dir } = useLocale();
   const searchParams = useSearchParams();
   const rawId = searchParams.get("orderId") ?? searchParams.get("id");
   const orderId = rawId ? parseInt(rawId, 10) : NaN;
@@ -91,7 +93,7 @@ export default function PatientOrderConfirmationContent() {
 
   if (loading) {
     return (
-      <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 rtl font-sans">
+      <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 font-sans" dir={dir}>
         <div className="mx-auto max-w-3xl rounded-3xl border border-gray-100 bg-white p-10 text-center text-gray-500 shadow-sm">
           جاري التحميل…
         </div>
@@ -101,7 +103,7 @@ export default function PatientOrderConfirmationContent() {
 
   if (error || !order) {
     return (
-      <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 rtl font-sans">
+      <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 font-sans" dir={dir}>
         <div className="mx-auto max-w-3xl rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm">
           <p className="text-gray-700">{error || "الطلب غير موجود."}</p>
           <Link
@@ -127,7 +129,7 @@ export default function PatientOrderConfirmationContent() {
   const payLabel = order.payment_method?.trim() || "—";
 
   return (
-    <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 rtl font-sans">
+    <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 font-sans" dir={dir}>
       <main className="mx-auto max-w-3xl space-y-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}

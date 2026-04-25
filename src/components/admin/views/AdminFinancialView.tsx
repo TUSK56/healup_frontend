@@ -9,8 +9,10 @@ import RevenueByCity from "@/components/admin/financial/RevenueByCity";
 import TransactionsTable, { TransactionRow } from "@/components/admin/financial/TransactionsTable";
 import TopPharmacies, { TopPharmacyRow } from "@/components/admin/financial/TopPharmacies";
 import { adminService } from "@/services/adminService";
+import { useLocale } from "@/contexts/LocaleContext";
 
 export default function AdminFinancialView() {
+  const { dir } = useLocale();
   const [topPharmacies, setTopPharmacies] = React.useState<TopPharmacyRow[]>([]);
   const [transactions, setTransactions] = React.useState<TransactionRow[]>([]);
 
@@ -69,7 +71,7 @@ export default function AdminFinancialView() {
   }, []);
 
   return (
-    <div className="min-h-0 min-w-0 flex-1 bg-[#F8FAFC] pb-12 font-sans rtl">
+    <div className="min-h-0 min-w-0 flex-1 bg-[#F8FAFC] pb-12 font-sans" dir={dir}>
       <main className="w-full min-w-0 px-6 py-8 sm:px-8 lg:px-10">
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>

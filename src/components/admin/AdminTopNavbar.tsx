@@ -8,16 +8,16 @@ import { authService } from "@/services/authService";
 import { getNotifications } from "@/lib/notificationCenter";
 import { useLocale } from "@/contexts/LocaleContext";
 
-function toArabicTime(value?: string | null): string {
+function toLocaleTime(value: string | null | undefined, locale: "ar" | "en"): string {
   const v = (value || "").trim();
   if (!v) return "";
   const d = /[zZ]$/.test(v) || /[+-]\d\d:?\d\d$/.test(v) ? new Date(v) : new Date(`${v}Z`);
   if (!Number.isFinite(d.getTime())) return "";
-  return d.toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" });
+  return d.toLocaleString(locale === "ar" ? "ar-EG" : "en-US", { dateStyle: "short", timeStyle: "short" });
 }
 
 export default function AdminTopNavbar() {
-  const { locale, toggleLocale } = useLocale();
+  const { locale, isRTL, t, toggleLocale } = useLocale();
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
@@ -97,12 +97,12 @@ export default function AdminTopNavbar() {
   return (
     <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
       <div className="relative w-full max-w-md min-w-0 sm:max-w-lg md:w-96">
-        <Search className="pointer-events-none absolute right-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
+        <Search className="pointer-events-none absolute end-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
         <input
           type="search"
           name="admin-global-search"
-          placeholder="البحث عن طلبات، مرضى، أو صيدليات..."
-          className="w-full rounded-xl border-none bg-slate-50 py-2.5 pl-4 pr-11 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
+          placeholder={t("common.searchPlaceholderAdmin")}
+          className="w-full rounded-xl border-none bg-slate-50 py-2.5 ps-4 pe-11 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
           autoComplete="off"
         />
       </div>
@@ -112,31 +112,31 @@ export default function AdminTopNavbar() {
           <button
             type="button"
             className="relative rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100"
-            aria-label="الإشعارات"
+            aria-label={t("common.notifications")}
             onClick={() => setOpen((v) => !v)}
           >
             <Bell size={22} />
-            {unread.length > 0 ? <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500" /> : null}
+            {unread.length > 0 ? <span className="absolute end-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500" /> : null}
           </button>
 
           {open ? (
-            <div className="absolute left-0 top-12 z-40 w-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-              <div className="border-b border-slate-100 px-4 py-3 text-sm font-bold text-slate-900">الإشعارات الجديدة</div>
+            <div className="absolute start-0 top-12 z-40 w-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+              <div className="border-b border-slate-100 px-4 py-3 text-sm font-bold text-slate-900">{t("common.newNotifications")}</div>
               <div className="max-h-80 overflow-y-auto">
                 {loading ? (
-                  <p className="px-4 py-4 text-sm text-slate-500">جاري تحميل الإشعارات...</p>
+                  <p className="px-4 py-4 text-sm text-slate-500">{t("common.loadingNotifications")}</p>
                 ) : unread.length === 0 ? (
-                  <p className="px-4 py-4 text-sm text-slate-500">لا توجد إشعارات جديدة.</p>
+                  <p className="px-4 py-4 text-sm text-slate-500">{t("common.noNewNotifications")}</p>
                 ) : (
                   unread.map((n) => (
                     <button
                       key={n.id}
                       type="button"
                       onClick={() => void onOpenNotification(n)}
-                      className="block w-full border-b border-slate-100 px-4 py-3 text-right transition-colors hover:bg-slate-50"
+                      className="block w-full border-b border-slate-100 px-4 py-3 text-start transition-colors hover:bg-slate-50"
                     >
                       <div className="text-sm font-medium text-slate-800">{n.message}</div>
-                      <div className="mt-1 text-xs text-slate-400">{toArabicTime(n.created_at)}</div>
+                      <div className="mt-1 text-xs text-slate-400">{toLocaleTime(n.created_at, locale)}</div>
                     </button>
                   ))
                 )}
@@ -148,8 +148,8 @@ export default function AdminTopNavbar() {
         <button
           type="button"
           className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100"
-          aria-label={locale === "ar" ? "تغيير اللغة" : "Change language"}
-          title={locale === "ar" ? "تغيير اللغة" : "Change language"}
+          aria-label={t("common.changeLanguage")}
+          title={t("common.changeLanguage")}
           onClick={toggleLocale}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -166,11 +166,11 @@ export default function AdminTopNavbar() {
           <button
             type="button"
             onClick={() => setProfileOpen((v) => !v)}
-            className="flex items-center gap-3 rounded-xl border-r border-slate-200 pr-4 transition-colors hover:bg-slate-50 sm:pr-6"
+            className="flex items-center gap-3 rounded-xl border-e border-slate-200 pe-4 transition-colors hover:bg-slate-50 sm:pe-6"
           >
-            <div className="text-left">
+            <div className={isRTL ? "text-right" : "text-left"}>
               <p className="text-sm font-bold text-slate-900">أحمد علي</p>
-              <p className="text-[10px] font-medium text-slate-400">مدير النظام</p>
+              <p className="text-[10px] font-medium text-slate-400">{t("common.systemManager")}</p>
             </div>
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-orange-100 shadow-sm">
               <img
@@ -183,17 +183,17 @@ export default function AdminTopNavbar() {
           </button>
 
           {profileOpen ? (
-            <div className="absolute left-0 top-12 z-40 w-[190px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+            <div className="absolute start-0 top-12 z-40 w-[190px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
               <button
                 type="button"
                 onClick={() => {
                   setProfileOpen(false);
                   router.push("/admin/settings");
                 }}
-                className="flex w-full items-center gap-2 border-b border-slate-100 px-4 py-3 text-right text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                className="flex w-full items-center gap-2 border-b border-slate-100 px-4 py-3 text-start text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
               >
                 <Settings size={15} />
-                الإعدادات
+                {t("common.settings")}
               </button>
               <button
                 type="button"
@@ -202,10 +202,10 @@ export default function AdminTopNavbar() {
                   setProfileOpen(false);
                   router.push("/admin-login");
                 }}
-                className="flex w-full items-center gap-2 px-4 py-3 text-right text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50"
+                className="flex w-full items-center gap-2 px-4 py-3 text-start text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50"
               >
                 <LogOut size={15} />
-                تسجيل الخروج
+                {t("common.logout")}
               </button>
             </div>
           ) : null}

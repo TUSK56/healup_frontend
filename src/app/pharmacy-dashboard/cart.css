@@ -679,3 +679,28 @@ body {
   color: #fff;
 }
 
+[dir="ltr"] .pharmacyDashboard {
+  direction: ltr;
+  padding-left: var(--sidebar-width);
+  padding-right: 0;
+}
+
+[dir="ltr"] .pharmacyDashboard .sidebar {
+  left: 0;
+  right: auto;
+  border-right: 1px solid var(--border);
+  border-left: none;
+}
+
+[dir="ltr"] .pharmacyDashboard .search-bar input,
+[dir="ltr"] .pharmacyDashboard .orders-table th,
+[dir="ltr"] .pharmacyDashboard .profile-info {
+  text-align: left;
+  direction: ltr;
+}
+
+[dir="ltr"] .pharmacyDashboard .bell-dot {
+  right: 4px;
+  left: auto;
+}
+

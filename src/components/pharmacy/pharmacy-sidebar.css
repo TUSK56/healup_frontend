@@ -431,3 +431,36 @@
 .pharmacyDashboard .pharmacy-content-shell > * > footer {
   display: none !important;
 }
+
+[dir="ltr"] .pharmacyDashboard {
+  direction: ltr;
+  padding-left: var(--sidebar-width);
+  padding-right: 0;
+}
+
+[dir="ltr"] .pharmacyDashboard .sidebar {
+  left: 0;
+  right: auto;
+  border-right: 1px solid var(--border);
+  border-left: none;
+}
+
+[dir="ltr"] .pharmacyDashboard .search-bar input,
+[dir="ltr"] .pharmacyDashboard .notif-popup-head,
+[dir="ltr"] .pharmacyDashboard .notif-item,
+[dir="ltr"] .pharmacyDashboard .profile-popup-item,
+[dir="ltr"] .pharmacyDashboard .profile-info {
+  text-align: left;
+  direction: ltr;
+}
+
+[dir="ltr"] .pharmacyDashboard .bell-dot {
+  left: 8px;
+  right: auto;
+}
+
+[dir="ltr"] .pharmacyDashboard .notif-popup,
+[dir="ltr"] .pharmacyDashboard .profile-popup {
+  right: 0;
+  left: auto;
+}

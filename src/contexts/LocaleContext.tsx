@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { AR_TO_EN_DICTIONARY, AR_WORD_TO_EN_DICTIONARY } from "@/lib/localeDictionary";
+import { translate, type TranslationKey } from "@/i18n/messages";
 
 export type HealupLocale = "ar" | "en";
 
@@ -9,90 +9,14 @@ const STORAGE_KEY = "healup_locale";
 
 type LocaleContextValue = {
   locale: HealupLocale;
+  dir: "rtl" | "ltr";
+  isRTL: boolean;
   setLocale: (next: HealupLocale) => void;
   toggleLocale: () => void;
+  t: (key: TranslationKey, fallback?: string) => string;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
-
-const TRANSFORM_ATTRS = ["placeholder", "title", "aria-label", "alt"] as const;
-const AR_TO_EN_ENTRIES = Object.entries(AR_TO_EN_DICTIONARY).sort((a, b) => b[0].length - a[0].length);
-const EN_TO_AR_ENTRIES = Object.entries(AR_TO_EN_DICTIONARY)
-  .map(([ar, en]) => [en, ar] as const)
-  .sort((a, b) => b[0].length - a[0].length);
-const AR_WORD_TO_EN_ENTRIES = Object.entries(AR_WORD_TO_EN_DICTIONARY).sort((a, b) => b[0].length - a[0].length);
-const EN_WORD_TO_AR_ENTRIES = Object.entries(AR_WORD_TO_EN_DICTIONARY)
-  .map(([ar, en]) => [en, ar] as const)
-  .sort((a, b) => b[0].length - a[0].length);
-const ARABIC_RUN_REGEX = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+/g;
-
-function transformByEntries(input: string, entries: ReadonlyArray<readonly [string, string]>): string {
-  let out = input;
-  for (const [from, to] of entries) {
-    if (!from) continue;
-    if (out.includes(from)) out = out.split(from).join(to);
-  }
-  return out;
-}
-
-function transformByWordFallback(input: string, locale: HealupLocale): string {
-  const entries = locale === "en" ? AR_WORD_TO_EN_ENTRIES : EN_WORD_TO_AR_ENTRIES;
-  return transformByEntries(input, entries);
-}
-
-function transliterateArabicChar(ch: string): string {
-  const map: Record<string, string> = {
-    "ا": "a", "أ": "a", "إ": "i", "آ": "aa", "ب": "b", "ت": "t", "ث": "th",
-    "ج": "j", "ح": "h", "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z",
-    "س": "s", "ش": "sh", "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "a",
-    "غ": "gh", "ف": "f", "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n",
-    "ه": "h", "ة": "h", "و": "w", "ؤ": "w", "ي": "y", "ى": "a", "ئ": "y",
-    "ء": "a"
-  };
-  return map[ch] ?? "";
-}
-
-function transliterateArabicText(input: string): string {
-  return input.replace(ARABIC_RUN_REGEX, (run) => {
-    const transliterated = Array.from(run).map(transliterateArabicChar).join("");
-    return transliterated || "word";
-  });
-}
-
-function transformTextForLocale(input: string, locale: HealupLocale): string {
-  const entries = locale === "en" ? AR_TO_EN_ENTRIES : EN_TO_AR_ENTRIES;
-  let nextValue = transformByEntries(input, entries);
-  nextValue = transformByWordFallback(nextValue, locale);
-  if (locale === "en" && ARABIC_RUN_REGEX.test(nextValue)) {
-    nextValue = transliterateArabicText(nextValue);
-  }
-  return nextValue;
-}
-
-function applyLocaleTransform(root: ParentNode, locale: HealupLocale) {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let current = walker.nextNode();
-  while (current) {
-    const textNode = current as Text;
-    const original = textNode.nodeValue ?? "";
-    if (original.trim()) {
-      const nextValue = transformTextForLocale(original, locale);
-      if (nextValue !== original) textNode.nodeValue = nextValue;
-    }
-    current = walker.nextNode();
-  }
-
-  if (!(root instanceof Element || root instanceof Document)) return;
-  const elements = root.querySelectorAll("*");
-  elements.forEach((el) => {
-    TRANSFORM_ATTRS.forEach((attr) => {
-      const raw = el.getAttribute(attr);
-      if (!raw) return;
-      const nextValue = transformTextForLocale(raw, locale);
-      if (nextValue !== raw) el.setAttribute(attr, nextValue);
-    });
-  });
-}
 
 function readStoredLocale(): HealupLocale {
   if (typeof window === "undefined") return "ar";
@@ -107,79 +31,42 @@ function readStoredLocale(): HealupLocale {
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<HealupLocale>("ar");
+  const isRTL = locale === "ar";
+  const dir = isRTL ? "rtl" : "ltr";
 
   useEffect(() => {
     setLocaleState(readStoredLocale());
   }, []);
 
   const setLocale = useCallback((next: HealupLocale) => {
-    const current = locale;
     setLocaleState(next);
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
     } catch {
       // ignore
     }
-    if (typeof window !== "undefined" && current !== next) {
-      window.location.reload();
-    }
-  }, [locale]);
+  }, []);
 
   const toggleLocale = useCallback(() => {
-    setLocaleState((prev) => {
-      const next: HealupLocale = prev === "ar" ? "en" : "ar";
-      try {
-        window.localStorage.setItem(STORAGE_KEY, next);
-      } catch {
-        // ignore
-      }
-      if (typeof window !== "undefined") {
-        window.location.reload();
-      }
-      return next;
-    });
-  }, []);
+    setLocale(locale === "ar" ? "en" : "ar");
+  }, [locale, setLocale]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    document.documentElement.lang = locale === "ar" ? "ar" : "en";
-    document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
-
-    // Global textual translation pass:
-    // many legacy pages still contain hardcoded Arabic labels, so we transform visible text
-    // on locale switch in both directions (ar <-> en).
-    applyLocaleTransform(document.body, locale);
-
-    if (locale !== "en") return;
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            const textNode = node as Text;
-            const original = textNode.nodeValue ?? "";
-            const nextValue = transformTextForLocale(original, "en");
-            if (nextValue !== original) textNode.nodeValue = nextValue;
-            return;
-          }
-
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            applyLocaleTransform(node as Element, "en");
-          }
-        });
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [locale]);
+    document.documentElement.lang = locale;
+    document.documentElement.dir = dir;
+  }, [locale, dir]);
 
   const value = useMemo(
     () => ({
       locale,
+      dir,
+      isRTL,
       setLocale,
       toggleLocale,
+      t: (key: TranslationKey, fallback?: string) => translate(locale, key, fallback),
     }),
-    [locale, setLocale, toggleLocale]
+    [locale, dir, isRTL, setLocale, toggleLocale]
   );
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;

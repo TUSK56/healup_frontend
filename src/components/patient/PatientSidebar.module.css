@@ -475,3 +475,38 @@
   border-color: #bfdbfe;
   color: #1a56db;
 }
+
+[dir="ltr"] .panel {
+  left: 0;
+  right: auto;
+  border-right: 1px solid #e2e8f0;
+  border-left: none;
+  direction: ltr;
+}
+
+[dir="ltr"] .shellMain {
+  margin-left: 220px;
+  margin-right: 0;
+}
+
+[dir="ltr"] .topbar {
+  justify-content: flex-start;
+}
+
+[dir="ltr"] .notificationDot {
+  left: 8px;
+  right: auto;
+}
+
+[dir="ltr"] .notificationPopup,
+[dir="ltr"] .profilePopup {
+  right: 0;
+  left: auto;
+}
+
+[dir="ltr"] .notificationHeader,
+[dir="ltr"] .notificationItem,
+[dir="ltr"] .profilePopupItem,
+[dir="ltr"] .loginLink {
+  text-align: left;
+}

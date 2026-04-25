@@ -5,6 +5,7 @@ import { CheckCircle2, ChevronDown, Eye, FileText, Loader2, MapPin, Pill, Search
 import { motion, AnimatePresence } from "motion/react";
 import { orderRequestId, orderService, type Order } from "@/services/orderService";
 import { requestService } from "@/services/requestService";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type FilterTab = "الكل" | "اليوم" | "هذا الأسبوع" | "هذا الشهر";
 
@@ -15,10 +16,10 @@ function parseServerDate(value?: string | null): Date {
   return new Date(`${v}Z`);
 }
 
-function formatArabicDateTime(value?: string | null) {
+function formatArabicDateTime(value: string | null | undefined, locale: "ar" | "en") {
   const date = parseServerDate(value);
   if (!Number.isFinite(date.getTime())) return "—";
-  return date.toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
+  return date.toLocaleString(locale === "ar" ? "ar-EG" : "en-US", { dateStyle: "medium", timeStyle: "short" });
 }
 
 function formatMoney(value: number) {
@@ -49,6 +50,7 @@ function matchesDateFilter(order: Order, filter: FilterTab) {
 const COMPLETED_PAGE_SIZE = 4;
 
 export default function App() {
+  const { dir, locale } = useLocale();
   const [activeTab, setActiveTab] = useState<FilterTab>("الكل");
   const [query, setQuery] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -155,7 +157,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg pb-12" dir="rtl">
+    <div className="min-h-screen bg-brand-bg pb-12" dir={dir}>
       <header className="sticky top-0 z-50 border-b border-slate-100 bg-white px-4 py-3 shadow-sm">
         <div className="flex w-full items-center justify-between px-4">
           <div className="flex items-center gap-4">
@@ -258,7 +260,7 @@ export default function App() {
                     <span className="text-lg font-bold text-brand-blue">#HLP-{order.id}</span>
                     <span className="rounded-md bg-brand-light-green px-2 py-0.5 text-[10px] font-bold text-brand-green">المكتملة</span>
                   </div>
-                  <span className="text-xs text-slate-400">{formatArabicDateTime(order.created_at)}</span>
+                    <span className="text-xs text-slate-400">{formatArabicDateTime(order.created_at, locale)}</span>
                 </div>
 
                 <div className="mb-4 flex items-center justify-between gap-4">
@@ -330,7 +332,7 @@ export default function App() {
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-black text-slate-900">تفاصيل الطلب #HLP-{selectedOrder.id}</h2>
-                  <p className="mt-1 text-sm text-slate-500">{formatArabicDateTime(selectedOrder.created_at)}</p>
+                  <p className="mt-1 text-sm text-slate-500">{formatArabicDateTime(selectedOrder.created_at, locale)}</p>
                 </div>
                 <button
                   type="button"

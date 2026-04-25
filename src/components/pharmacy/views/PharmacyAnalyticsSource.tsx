@@ -30,6 +30,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLocale } from "@/contexts/LocaleContext";
 import {
   LineChart,
   Line,
@@ -69,8 +70,9 @@ const categories = [
 ];
 
 export default function Dashboard() {
+  const { dir } = useLocale();
   return (
-    <div className="min-h-screen bg-slate-50/50 font-sans" dir="rtl">
+    <div className="min-h-screen bg-slate-50/50 font-sans" dir={dir}>
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
         <div className="flex h-16 items-center justify-between px-6 w-full">

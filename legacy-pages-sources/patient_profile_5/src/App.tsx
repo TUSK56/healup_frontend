@@ -30,6 +30,7 @@ import { getAuthErrorMessage } from '../../../src/services/authService';
 import { CHECKOUT_SELECTED_ADDRESS_KEY } from '../../../src/constants/checkoutAddress';
 import { patientService, PatientAddress, PatientMe } from '../../../src/services/patientService';
 import { readAvatar, writeAvatar, writePatientAvatarBackup } from '../../../src/lib/avatarStorage';
+import { useLocale } from '../../../src/contexts/LocaleContext';
 
 const PatientAddressLeafletPicker = dynamic(() => import('../../../src/components/patient/views/PatientAddressLeafletPicker'), { ssr: false });
 
@@ -80,6 +81,7 @@ const InputField = ({ label, value, icon: Icon, type = "text", placeholder, onCh
 // --- Main App ---
 
 export default function App() {
+  const { dir } = useLocale();
   const [activeTab, setActiveTab] = useState('personal');
   const [me, setMe] = useState<PatientMe | null>(null);
   const [draft, setDraft] = useState({ name: '', email: '', phone: '', date_of_birth: '' });
@@ -485,7 +487,7 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col rtl font-sans">
+    <div className="min-h-screen flex flex-col font-sans" dir={dir}>
       {/* Header */}
       <header className="bg-white border-bottom border-slate-100 sticky top-0 z-50 px-4 py-3 sm:px-8 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">

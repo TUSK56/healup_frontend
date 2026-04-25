@@ -19,19 +19,19 @@ type PharmacyNotification = {
   route?: string | null;
 };
 
-function toArabicTime(value?: string | null): string {
+function toLocaleTime(value: string | null | undefined, locale: "ar" | "en"): string {
   const v = (value || "").trim();
   if (!v) return "";
   const d = /[zZ]$/.test(v) || /[+-]\d\d:?\d\d$/.test(v) ? new Date(v) : new Date(`${v}Z`);
   if (!Number.isFinite(d.getTime())) return "";
-  return d.toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" });
+  return d.toLocaleString(locale === "ar" ? "ar-EG" : "en-US", { dateStyle: "short", timeStyle: "short" });
 }
 
 export default function PharmacyTopNavbar() {
-  const { locale, toggleLocale } = useLocale();
+  const { dir, locale, t, toggleLocale } = useLocale();
   const router = useRouter();
   const [avatar, setAvatar] = React.useState<string | null>(null);
-  const [name, setName] = React.useState("صيدلية");
+  const [name, setName] = React.useState(t("pharmacy.defaultName"));
   const [open, setOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [loadingNotifs, setLoadingNotifs] = React.useState(false);
@@ -105,10 +105,10 @@ export default function PharmacyTopNavbar() {
         const identity = user?.id ?? user?.email;
         const avatarUrl = readAvatar("pharmacy", identity, { migrateLegacy: true });
         setAvatar(avatarUrl);
-        setName(String(user?.name || "صيدلية"));
+        setName(String(user?.name || t("pharmacy.defaultName")));
       } catch {
         setAvatar(null);
-        setName("صيدلية");
+        setName(t("pharmacy.defaultName"));
       }
     };
     load();
@@ -118,16 +118,16 @@ export default function PharmacyTopNavbar() {
       window.removeEventListener("storage", load);
       window.removeEventListener("healup:pharmacy-profile-updated", load as EventListener);
     };
-  }, []);
+  }, [t]);
 
   return (
-    <header className="pharmacy-topbar">
+    <header className="pharmacy-topbar" dir={dir}>
       <div className="search-bar">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" placeholder="بحث عن مريض أو دواء..." />
+        <input type="text" placeholder={t("common.searchPlaceholderPharmacy")} />
       </div>
 
       <div className="topbar-right">
@@ -137,7 +137,7 @@ export default function PharmacyTopNavbar() {
             type="button"
             style={{ position: "relative" }}
             onClick={() => setOpen((v) => !v)}
-            title="الإشعارات"
+            title={t("common.notifications")}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -148,12 +148,12 @@ export default function PharmacyTopNavbar() {
 
           {open ? (
             <div className="notif-popup">
-              <div className="notif-popup-head">الإشعارات الجديدة ({unread.length})</div>
+              <div className="notif-popup-head">{t("common.newNotifications")} ({unread.length})</div>
               <div className="notif-popup-body">
                 {loadingNotifs ? (
-                  <p className="notif-popup-empty">جاري تحميل الإشعارات...</p>
+                  <p className="notif-popup-empty">{t("common.loadingNotifications")}</p>
                 ) : unread.length === 0 ? (
-                  <p className="notif-popup-empty">لا توجد إشعارات جديدة.</p>
+                  <p className="notif-popup-empty">{t("common.noNewNotifications")}</p>
                 ) : (
                   unread.map((n) => (
                     <button
@@ -174,7 +174,7 @@ export default function PharmacyTopNavbar() {
                       }}
                     >
                       <div className="notif-item-msg">{n.message}</div>
-                      <div className="notif-item-time">{toArabicTime(n.created_at)}</div>
+                      <div className="notif-item-time">{toLocaleTime(n.created_at, locale)}</div>
                     </button>
                   ))
                 )}
@@ -186,7 +186,7 @@ export default function PharmacyTopNavbar() {
         <button
           className="topbar-icon-btn"
           type="button"
-          title={locale === "ar" ? "تغيير اللغة" : "Change language"}
+          title={t("common.changeLanguage")}
           onClick={toggleLocale}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -206,11 +206,11 @@ export default function PharmacyTopNavbar() {
             type="button"
             className="profile profile-trigger"
             onClick={() => setProfileOpen((v) => !v)}
-            title="قائمة الحساب"
+            title={t("patient.profileMenu")}
           >
             <div className="profile-info">
               <div className="profile-name">{name}</div>
-              <div className="profile-role">مدير الصيدلية</div>
+              <div className="profile-role">{t("common.pharmacyManager")}</div>
             </div>
             <div className="profile-avatar" style={{ overflow: "hidden" }}>
               {avatar ? (
@@ -235,7 +235,7 @@ export default function PharmacyTopNavbar() {
                 </div>
                 <div className="profile-popup-headline-text">
                   <div className="profile-popup-headline-name">{name}</div>
-                  <div className="profile-popup-headline-role">مدير الصيدلية</div>
+                  <div className="profile-popup-headline-role">{t("common.pharmacyManager")}</div>
                 </div>
               </div>
 
@@ -245,7 +245,7 @@ export default function PharmacyTopNavbar() {
                 onClick={() => setProfileOpen(false)}
               >
                 <Settings size={15} />
-                الإعدادات
+                {t("common.settings")}
               </Link>
               <button
                 type="button"
@@ -257,7 +257,7 @@ export default function PharmacyTopNavbar() {
                 }}
               >
                 <LogOut size={15} />
-                تسجيل الخروج
+                {t("common.logout")}
               </button>
             </div>
           ) : null}

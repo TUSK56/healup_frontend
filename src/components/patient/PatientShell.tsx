@@ -26,12 +26,12 @@ type PatientNotification = {
   route?: string | null;
 };
 
-function toArabicTime(value?: string | null): string {
+function toLocaleTime(value: string | null | undefined, locale: "ar" | "en"): string {
   const v = (value || "").trim();
   if (!v) return "";
   const d = /[zZ]$/.test(v) || /[+-]\d\d:?\d\d$/.test(v) ? new Date(v) : new Date(`${v}Z`);
   if (!Number.isFinite(d.getTime())) return "";
-  return d.toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" });
+  return d.toLocaleString(locale === "ar" ? "ar-EG" : "en-US", { dateStyle: "short", timeStyle: "short" });
 }
 
 function parseRequestId(route: string): number | null {
@@ -43,7 +43,7 @@ function parseRequestId(route: string): number | null {
 }
 
 export default function PatientShell({ children, active }: { children: ReactNode; active: ActiveKey }) {
-  const { locale, toggleLocale } = useLocale();
+  const { locale, t, toggleLocale } = useLocale();
   const router = useRouter();
   const showSharedNavbar = active !== "home";
   const [avatar, setAvatar] = React.useState<string | null>(null);
@@ -227,13 +227,13 @@ export default function PatientShell({ children, active }: { children: ReactNode
                 </button>
 
                 {notificationOpen ? (
-                  <div className={styles.notificationPopup} role="dialog" aria-label="new notifications">
-                    <div className={styles.notificationHeader}>الإشعارات الجديدة</div>
+                  <div className={styles.notificationPopup} role="dialog" aria-label={t("common.newNotifications")}>
+                    <div className={styles.notificationHeader}>{t("common.newNotifications")}</div>
                     <div className={styles.notificationList}>
                       {loadingNotifications ? (
-                        <p className={styles.notificationEmpty}>جاري تحميل الإشعارات...</p>
+                        <p className={styles.notificationEmpty}>{t("common.loadingNotifications")}</p>
                       ) : unreadNotifications.length === 0 ? (
-                        <p className={styles.notificationEmpty}>لا توجد إشعارات جديدة.</p>
+                        <p className={styles.notificationEmpty}>{t("common.noNewNotifications")}</p>
                       ) : (
                         unreadNotifications.map((n) => (
                           <button
@@ -243,7 +243,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                             onClick={() => void onOpenNotification(n)}
                           >
                             <span className={styles.notificationItemMessage}>{n.message}</span>
-                            <span className={styles.notificationItemTime}>{toArabicTime(n.created_at)}</span>
+                            <span className={styles.notificationItemTime}>{toLocaleTime(n.created_at, locale)}</span>
                           </button>
                         ))
                       )}
@@ -254,8 +254,8 @@ export default function PatientShell({ children, active }: { children: ReactNode
               <button
                 type="button"
                 className={styles.topbarIconBtn}
-                aria-label={locale === "ar" ? "تغيير اللغة" : "Change language"}
-                title={locale === "ar" ? "تغيير اللغة" : "Change language"}
+                aria-label={t("common.changeLanguage")}
+                title={t("common.changeLanguage")}
                 onClick={toggleLocale}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -283,14 +283,14 @@ export default function PatientShell({ children, active }: { children: ReactNode
                 </button>
 
                 {profileOpen ? (
-                  <div className={styles.profilePopup} role="dialog" aria-label="profile menu">
+                  <div className={styles.profilePopup} role="dialog" aria-label={t("patient.profileMenu")}>
                     <Link
                       href="/patient-profile"
                       className={styles.profilePopupItem}
                       onClick={() => setProfileOpen(false)}
                     >
                       <Settings size={15} />
-                      الإعدادات
+                      {t("common.settings")}
                     </Link>
                     <button
                       type="button"
@@ -302,7 +302,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                       }}
                     >
                       <LogOut size={15} />
-                      تسجيل الخروج
+                      {t("common.logout")}
                     </button>
                   </div>
                 ) : null}

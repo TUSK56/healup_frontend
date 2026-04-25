@@ -10,6 +10,7 @@ import { patientService } from "@/services/patientService";
 import { orderService, type Order } from "@/services/orderService";
 import { formatDeliveryEtaRangeKm, haversineKm } from "@/lib/deliveryEta";
 import { computeOrderPricingDisplay } from "@/lib/orderPricingDisplay";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const PatientCourierRouteMap = dynamic(() => import("./PatientCourierRouteMap"), { ssr: false });
 
@@ -40,6 +41,7 @@ function orderDeliveryFlag(o: Order): boolean {
 }
 
 export default function PatientOrderTrackingView() {
+  const { dir } = useLocale();
   const searchParams = useSearchParams();
   const rawId = searchParams.get("orderId") ?? searchParams.get("id");
   const orderId = rawId ? parseInt(rawId, 10) : NaN;
@@ -216,7 +218,7 @@ export default function PatientOrderTrackingView() {
 
   if (loading) {
     return (
-      <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10 text-center text-slate-500 rtl">
+      <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10 text-center text-slate-500" dir={dir}>
         جاري تحميل تفاصيل الطلب…
       </div>
     );
@@ -224,7 +226,7 @@ export default function PatientOrderTrackingView() {
 
   if (error || !order) {
     return (
-      <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10 rtl">
+      <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10" dir={dir}>
         <div className="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <p className="text-slate-700">{error || "الطلب غير موجود."}</p>
           <Link
@@ -260,7 +262,7 @@ export default function PatientOrderTrackingView() {
     isDelivery && statusLower === "out_for_delivery" && !orderCompleted;
 
   return (
-    <div className="patient-order-tracking-wrap min-h-screen bg-slate-50 px-4 py-6 font-sans rtl" dir="rtl">
+    <div className="patient-order-tracking-wrap min-h-screen bg-slate-50 px-4 py-6 font-sans" dir={dir}>
       <div className="mx-auto max-w-6xl space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -12 }}

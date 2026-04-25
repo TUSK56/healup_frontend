@@ -30,6 +30,7 @@ import dynamic from 'next/dynamic';
 import { requestService, Offer, Request } from '../../../src/services/requestService';
 import { orderRequestId, orderService } from '../../../src/services/orderService';
 import { getDrugPrice } from '../../../src/lib/drugs';
+import { useLocale } from '../../../src/contexts/LocaleContext';
 
 const PatientPharmacyMap = dynamic(() => import('../../../src/components/patient/views/PatientPharmacyMap'), { ssr: false });
 
@@ -52,6 +53,7 @@ const itemVariants = {
 };
 
 export default function App() {
+  const { dir } = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -350,7 +352,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans" dir="rtl">
+    <div className="min-h-screen bg-slate-50 font-sans" dir={dir}>
       {/* Navbar */}
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
         <div className="flex h-16 w-full items-center px-4 sm:px-6 lg:px-8">

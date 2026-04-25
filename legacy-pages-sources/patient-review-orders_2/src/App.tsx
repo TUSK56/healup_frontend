@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { requestService, Request } from '../../../src/services/requestService';
 import { orderRequestId, orderService } from '../../../src/services/orderService';
+import { useLocale } from '../../../src/contexts/LocaleContext';
 
 interface OrderCardView {
   id: string;
@@ -48,6 +49,7 @@ const toRelativeArabic = (value: string) => {
 };
 
 export default function App() {
+  const { dir } = useLocale();
   const REQUESTS_CACHE_KEY = 'healup_patient_review_orders_requests_v1';
   const ORDERS_BY_REQUEST_CACHE_KEY = 'healup_patient_review_orders_ordermap_v1';
   const [activeTab, setActiveTab] = useState('الكل');
@@ -207,7 +209,7 @@ export default function App() {
   }, [activeTab, orders]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900" dir="rtl">
+    <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900" dir={dir}>
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="px-4 md:px-8">

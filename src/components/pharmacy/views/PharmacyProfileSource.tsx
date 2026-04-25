@@ -7,6 +7,7 @@ import { Camera, CheckCircle2, ChevronLeft, FileText, LocateFixed, MapPin, Phone
 import { AnimatePresence, motion } from "motion/react";
 import { pharmacyService, PharmacyMe } from "@/services/pharmacyService";
 import { readAvatar, writeAvatar } from "@/lib/avatarStorage";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const LeafletPicker = dynamic(() => import("./PharmacyProfileLeaflet"), { ssr: false });
 
@@ -41,6 +42,7 @@ const normalizeDraft = (draft: DraftProfile) =>
   });
 
 export default function PharmacyProfileSource() {
+  const { dir } = useLocale();
   const [me, setMe] = useState<PharmacyMe | null>(null);
   const [initialDraft, setInitialDraft] = useState<DraftProfile | null>(null);
   const [draft, setDraft] = useState<DraftProfile | null>(null);
@@ -271,7 +273,7 @@ export default function PharmacyProfileSource() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col rtl" dir="rtl">
+    <div className="min-h-screen flex flex-col" dir={dir}>
       <style jsx global>{`
         @keyframes healup-shake {
           0%,
