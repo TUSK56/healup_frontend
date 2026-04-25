@@ -24,6 +24,7 @@ const AR_WORD_TO_EN_ENTRIES = Object.entries(AR_WORD_TO_EN_DICTIONARY).sort((a, 
 const EN_WORD_TO_AR_ENTRIES = Object.entries(AR_WORD_TO_EN_DICTIONARY)
   .map(([ar, en]) => [en, ar] as const)
   .sort((a, b) => b[0].length - a[0].length);
+const ARABIC_CHAR_REGEX = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
 
 function transformByEntries(input: string, entries: ReadonlyArray<readonly [string, string]>): string {
   let out = input;
@@ -51,19 +52,39 @@ function transformByWordFallback(input: string, locale: HealupLocale): string {
     .join("");
 }
 
-function applyLocaleTransform(root: ParentNode, locale: HealupLocale) {
-  const entries = locale === "en" ? AR_TO_EN_ENTRIES : EN_TO_AR_ENTRIES;
+function replaceUnknownArabicTokens(input: string): string {
+  const tokens = input.split(/(\s+|[.,!?;:(){}\[\]<>/\\|"'`~@#$%^&*\-_=+]+)/);
+  return tokens
+    .map((token) => {
+      if (!token.trim()) return token;
+      return ARABIC_CHAR_REGEX.test(token) ? "text" : token;
+    })
+    .join("");
+}
 
+function transformTextForLocale(input: string, locale: HealupLocale): string {
+  const entries = locale === "en" ? AR_TO_EN_ENTRIES : EN_TO_AR_ENTRIES;
+  let nextValue = transformByEntries(input, entries);
+  if (nextValue === input) {
+    nextValue = transformByWordFallback(input, locale);
+  }
+  if (locale === "en" && ARABIC_CHAR_REGEX.test(nextValue)) {
+    nextValue = transformByWordFallback(nextValue, locale);
+    if (ARABIC_CHAR_REGEX.test(nextValue)) {
+      nextValue = replaceUnknownArabicTokens(nextValue);
+    }
+  }
+  return nextValue;
+}
+
+function applyLocaleTransform(root: ParentNode, locale: HealupLocale) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let current = walker.nextNode();
   while (current) {
     const textNode = current as Text;
     const original = textNode.nodeValue ?? "";
     if (original.trim()) {
-      let nextValue = transformByEntries(original, entries);
-      if (nextValue === original) {
-        nextValue = transformByWordFallback(original, locale);
-      }
+      const nextValue = transformTextForLocale(original, locale);
       if (nextValue !== original) textNode.nodeValue = nextValue;
     }
     current = walker.nextNode();
@@ -75,10 +96,7 @@ function applyLocaleTransform(root: ParentNode, locale: HealupLocale) {
     TRANSFORM_ATTRS.forEach((attr) => {
       const raw = el.getAttribute(attr);
       if (!raw) return;
-      let nextValue = transformByEntries(raw, entries);
-      if (nextValue === raw) {
-        nextValue = transformByWordFallback(raw, locale);
-      }
+      const nextValue = transformTextForLocale(raw, locale);
       if (nextValue !== raw) el.setAttribute(attr, nextValue);
     });
   });
@@ -147,7 +165,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
           if (node.nodeType === Node.TEXT_NODE) {
             const textNode = node as Text;
             const original = textNode.nodeValue ?? "";
-            const nextValue = transformByEntries(original, AR_TO_EN_ENTRIES);
+            const nextValue = transformTextForLocale(original, "en");
             if (nextValue !== original) textNode.nodeValue = nextValue;
             return;
           }
