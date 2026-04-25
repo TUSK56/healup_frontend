@@ -3,8 +3,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
+import { useLocale } from "@/contexts/LocaleContext";
 
 export default function PharmacyLoginPage() {
+  const { locale } = useLocale();
+  const isAr = locale === "ar";
+  const tr = (ar: string, en: string) => (isAr ? ar : en);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +30,7 @@ export default function PharmacyLoginPage() {
       authService.setSession(res, "pharmacy");
       router.push("/pharmacy-dashboard");
     } catch (e: unknown) {
-      setError(getAuthErrorMessage(e, "فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى."));
+      setError(getAuthErrorMessage(e, tr("فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى.", "Login failed. Check your credentials and try again.")));
     } finally {
       setIsSubmitting(false);
     }
@@ -34,6 +38,7 @@ export default function PharmacyLoginPage() {
 
   return (
     <div
+      dir={isAr ? "rtl" : "ltr"}
       style={{
         fontFamily: "Cairo, sans-serif",
         background: "#eef1f6",
@@ -79,7 +84,7 @@ export default function PharmacyLoginPage() {
               >
                 <img
                   src="/images/pharmacy_login.png"
-                  alt="تسجيل دخول الصيدلية"
+                  alt={tr("تسجيل دخول الصيدلية", "Pharmacy login")}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </div>
@@ -89,11 +94,11 @@ export default function PharmacyLoginPage() {
             <div style={{ padding: "30px 36px 34px" }}>
               <div style={{ textAlign: "center", marginBottom: 26 }}>
                 <h1 style={{ fontSize: 26, fontWeight: 900, color: "#1a2e4a", marginBottom: 7 }}>
-                  تسجيل دخول الصيدلية
+                  {tr("تسجيل دخول الصيدلية", "Pharmacy login")}
                 </h1>
-                <p style={{ fontSize: 13.5, color: "#9aa3b0", fontWeight: 400, direction: "rtl" }}>
-                  مرحباً بك مجدداً في{" "}
-                  <span style={{ color: "#2356c8", fontWeight: 700 }}>Healup</span>. يرجى إدخال بياناتك.
+                <p style={{ fontSize: 13.5, color: "#9aa3b0", fontWeight: 400, direction: isAr ? "rtl" : "ltr" }}>
+                  {tr("مرحباً بك مجدداً في ", "Welcome back to ")}
+                  <span style={{ color: "#2356c8", fontWeight: 700 }}>Healup</span>{tr(". يرجى إدخال بياناتك.", ". Please enter your details.")}
                 </p>
               </div>
 
@@ -102,14 +107,14 @@ export default function PharmacyLoginPage() {
                 <span
                   style={{
                     display: "block",
-                    textAlign: "right",
+                    textAlign: isAr ? "right" : "left",
                     marginBottom: 8,
                     fontSize: 13,
                     fontWeight: 700,
                     color: "#1a2e4a",
                   }}
                 >
-                  البريد الالكتروني أو رقم الهاتف
+                  {tr("البريد الالكتروني أو رقم الهاتف", "Email or phone number")}
                 </span>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                   <input
@@ -119,7 +124,7 @@ export default function PharmacyLoginPage() {
                     placeholder="example@mail.com"
                     style={{
                       width: "100%",
-                      padding: "13px 16px 13px 46px",
+                      padding: isAr ? "13px 16px 13px 46px" : "13px 46px 13px 16px",
                       border: "1.5px solid #dde3ed",
                       borderRadius: 10,
                       fontFamily: "Cairo, sans-serif",
@@ -127,15 +132,15 @@ export default function PharmacyLoginPage() {
                       color: "#1a2e4a",
                       background: "#fff",
                       outline: "none",
-                      textAlign: "right",
-                      direction: "rtl",
+                      textAlign: isAr ? "right" : "left",
+                      direction: isAr ? "rtl" : "ltr",
                       transition: "border-color 0.2s",
                     }}
                   />
                   <span
                     style={{
                       position: "absolute",
-                      left: 14,
+                      [isAr ? "left" : "right"]: 14,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -159,7 +164,7 @@ export default function PharmacyLoginPage() {
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#1a2e4a" }}>كلمة المرور</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#1a2e4a" }}>{tr("كلمة المرور", "Password")}</span>
                   <a
                     href="/pharmacy-forgot-password"
                     style={{
@@ -170,7 +175,7 @@ export default function PharmacyLoginPage() {
                       cursor: "pointer",
                     }}
                   >
-                    نسيت كلمة المرور؟
+                    {tr("نسيت كلمة المرور؟", "Forgot password?")}
                   </a>
                 </div>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
@@ -181,7 +186,7 @@ export default function PharmacyLoginPage() {
                     placeholder="••••••••"
                     style={{
                       width: "100%",
-                      padding: "13px 16px 13px 46px",
+                      padding: isAr ? "13px 46px 13px 16px" : "13px 16px 13px 46px",
                       border: "1.5px solid #dde3ed",
                       borderRadius: 10,
                       fontFamily: "Cairo, sans-serif",
@@ -189,8 +194,8 @@ export default function PharmacyLoginPage() {
                       color: "#1a2e4a",
                       background: "#fff",
                       outline: "none",
-                      textAlign: "right",
-                      direction: "rtl",
+                      textAlign: isAr ? "right" : "left",
+                      direction: isAr ? "rtl" : "ltr",
                       transition: "border-color 0.2s",
                     }}
                   />
@@ -199,7 +204,7 @@ export default function PharmacyLoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     style={{
                       position: "absolute",
-                      left: 14,
+                      [isAr ? "left" : "right"]: 14,
                       background: "none",
                       border: "none",
                       cursor: "pointer",
@@ -248,14 +253,14 @@ export default function PharmacyLoginPage() {
                   marginBottom: 22,
                 }}
               >
-                {isSubmitting ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+                {isSubmitting ? tr("جاري تسجيل الدخول...", "Logging in...") : tr("تسجيل الدخول", "Login")}
               </button>
 
               {/* Register link */}
               <div style={{ textAlign: "center", fontSize: 13.5, color: "#9aa3b0", fontWeight: 500 }}>
-                ليس لديك حساب؟{" "}
+                {tr("ليس لديك حساب؟ ", "Don't have an account? ")}
                 <a href="/pharmacy-signup" style={{ color: "#2356c8", fontWeight: 700, textDecoration: "none" }}>
-                  إنشاء حساب جديد
+                  {tr("إنشاء حساب جديد", "Create new account")}
                 </a>
               </div>
             </div>
@@ -270,10 +275,10 @@ export default function PharmacyLoginPage() {
             fontSize: 12.5,
             color: "#9aa3b0",
             fontWeight: 500,
-            direction: "ltr",
+            direction: isAr ? "rtl" : "ltr",
           }}
         >
-          © 2024 Healup. جميع الحقوق محفوظة للنظام الطبي المتكامل.
+          © 2024 Healup. {tr("جميع الحقوق محفوظة للنظام الطبي المتكامل.", "All rights reserved for the integrated medical system.")}
         </footer>
     </div>
   );

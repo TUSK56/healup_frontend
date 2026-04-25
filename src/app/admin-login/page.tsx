@@ -44,15 +44,15 @@ export default function AdminLogin() {
         <div style={{ display: "flex", flexDirection: "row", width: "100%", maxWidth: 900, borderRadius: 20, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.10)" }}>
           {/* Form Panel - now left */}
           <form onSubmit={handleSubmit} style={{ flex: 1, background: "#fff", padding: "48px 44px 36px", display: "flex", flexDirection: "column", direction: isAr ? "rtl" : "ltr" }}>
-            <div style={{ textAlign: "right", marginBottom: 28 }}>
+            <div style={{ textAlign: isAr ? "right" : "left", marginBottom: 28 }}>
               <h1 style={{ fontSize: 26, fontWeight: 900, color: "#1a2e4a", marginBottom: 8 }}>{tr("تسجيل دخول الإدارة", "Admin login")}</h1>
               <p style={{ fontSize: 13, color: "#9aa3b0", fontWeight: 400, lineHeight: 1.7 }}>{tr("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم", "Please enter your credentials to access the control panel")}</p>
             </div>
             <div style={{ marginBottom: 18 }}>
               <span style={{ display: "block", marginBottom: 8, fontSize: 12.5, fontWeight: 700, color: "#1a2e4a" }}>{tr("البريد الإلكتروني أو اسم المستخدم", "Email or username")}</span>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="example@healup.com" style={{ width: "100%", padding: "13px 42px 13px 16px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: isAr ? "right" : "left", direction: isAr ? "rtl" : "ltr", transition: "border-color 0.2s" }} />
-                <span style={{ position: "absolute", right: 13, pointerEvents: "none", display: "flex", alignItems: "center" }}>
+                <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="example@healup.com" style={{ width: "100%", padding: isAr ? "13px 42px 13px 16px" : "13px 16px 13px 42px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: isAr ? "right" : "left", direction: isAr ? "rtl" : "ltr", transition: "border-color 0.2s" }} />
+                <span style={{ position: "absolute", [isAr ? "right" : "left"]: 13, pointerEvents: "none", display: "flex", alignItems: "center" }}>
                   <svg viewBox="0 0 24 24" width={17} height={17} fill="#9aa3b0"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                 </span>
               </div>
@@ -63,11 +63,11 @@ export default function AdminLogin() {
                 <a href="#" style={{ fontSize: 12, fontWeight: 700, color: "#2356c8", textDecoration: "none" }}>{tr("نسيت كلمة المرور؟", "Forgot password?")}</a>
               </div>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" id="adminPass" style={{ width: "100%", padding: "13px 42px 13px 16px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: isAr ? "right" : "left", direction: isAr ? "rtl" : "ltr", transition: "border-color 0.2s" }} />
-                <span style={{ position: "absolute", right: 13, pointerEvents: "none", display: "flex", alignItems: "center" }}>
+                <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" id="adminPass" style={{ width: "100%", padding: isAr ? "13px 42px 13px 46px" : "13px 46px 13px 42px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: isAr ? "right" : "left", direction: isAr ? "rtl" : "ltr", transition: "border-color 0.2s" }} />
+                <span style={{ position: "absolute", [isAr ? "right" : "left"]: 13, pointerEvents: "none", display: "flex", alignItems: "center" }}>
                   <svg viewBox="0 0 24 24" width={17} height={17} fill="#9aa3b0"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
                 </span>
-                <button type="button" style={{ position: "absolute", left: 13, background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }} onClick={() => setShowPassword(v => !v)}>
+                <button type="button" style={{ position: "absolute", [isAr ? "left" : "right"]: 13, background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }} onClick={() => setShowPassword(v => !v)}>
                   {showPassword ? (
                     <svg id="eyeIcon" viewBox="0 0 24 24" width={17} height={17}><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="#9aa3b0"/></svg>
                   ) : (

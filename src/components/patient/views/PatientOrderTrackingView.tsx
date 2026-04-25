@@ -287,7 +287,7 @@ export default function PatientOrderTrackingView() {
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1a56db] text-white">
                 <Clock className="h-5 w-5" />
               </div>
-              <div className="text-right">
+              <div className="text-start">
                 <p className="text-xs font-bold text-[#1a56db]">الوقت المتوقع</p>
                 <p className="text-lg font-black text-slate-900">{etaLabel}</p>
               </div>
@@ -318,8 +318,8 @@ export default function PatientOrderTrackingView() {
               ) : (
                 <div className="mb-6" />
               )}
-              <div className="relative space-y-8 pr-2">
-                <div className="absolute right-[22px] top-3 bottom-3 w-0.5 bg-slate-100" aria-hidden />
+              <div className="relative space-y-8 pe-2">
+                <div className="absolute end-[22px] top-3 bottom-3 w-0.5 bg-slate-100" aria-hidden />
                 {(trackingUi?.steps ?? []).map((step) => {
                   const active = !rejected && (step.done || step.current);
                   const showCheck = !rejected && step.done;
@@ -405,7 +405,7 @@ export default function PatientOrderTrackingView() {
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50">
                     <MapPin className="h-5 w-5 text-slate-400" />
                   </div>
-                  <div className="min-w-0 text-right">
+                  <div className="min-w-0 text-start">
                     <p className="mb-1 text-xs text-slate-400">عنوان {isDelivery ? "التوصيل" : "الاستلام"}</p>
                     <p className="whitespace-pre-wrap break-words font-medium leading-relaxed text-slate-900">
                       {deliveryAddressText}
@@ -417,10 +417,10 @@ export default function PatientOrderTrackingView() {
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50">
                     <User className="h-5 w-5 text-slate-400" />
                   </div>
-                  <div className="min-w-0 text-right">
+                  <div className="min-w-0 text-start">
                     <p className="mb-1 text-xs text-slate-400">المستلم</p>
                     <p className="font-medium text-slate-900">{patientName}</p>
-                    <p className="text-left text-sm text-slate-600" dir="ltr">
+                    <p className="text-start text-sm text-slate-600" dir="ltr">
                       {phoneDisplay}
                     </p>
                   </div>
@@ -433,7 +433,7 @@ export default function PatientOrderTrackingView() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                   <Store className="h-5 w-5" />
                 </div>
-                <div className="text-right">
+                <div className="text-start">
                   <h2 className="font-bold text-slate-900">{ph?.name || "الصيدلية"}</h2>
                   {branch ? <p className="text-xs text-slate-500">{branch}</p> : null}
                 </div>
@@ -448,7 +448,7 @@ export default function PatientOrderTrackingView() {
                       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-[#1a56db]">
                         <Pill className="h-7 w-7" />
                       </div>
-                      <div className="min-w-0 flex-1 text-right">
+                      <div className="min-w-0 flex-1 text-start">
                         <p className="font-bold text-slate-900">{item.medicine_name}</p>
                         <p className="text-sm text-slate-500">الكمية: {item.quantity}</p>
                       </div>
