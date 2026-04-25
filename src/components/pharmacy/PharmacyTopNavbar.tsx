@@ -43,7 +43,14 @@ export default function PharmacyTopNavbar() {
       setLoadingNotifs(true);
       try {
         const rows = (await getNotifications({ force: true })) as PharmacyNotification[];
-        setUnread(rows.filter((x) => !x.is_read));
+        setUnread(
+          rows
+            .filter((x) => !x.is_read)
+            .sort(
+              (a, b) =>
+                new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime()
+            )
+        );
       } catch {
         setUnread([]);
       } finally {
@@ -139,7 +146,7 @@ export default function PharmacyTopNavbar() {
 
           {open ? (
             <div className="notif-popup">
-              <div className="notif-popup-head">الإشعارات الجديدة</div>
+              <div className="notif-popup-head">الإشعارات الجديدة ({unread.length})</div>
               <div className="notif-popup-body">
                 {loadingNotifs ? (
                   <p className="notif-popup-empty">جاري تحميل الإشعارات...</p>
