@@ -3,6 +3,7 @@
 import React from "react";
 import { TrendingUp, TrendingDown, ShoppingCart, DollarSign, Percent, Activity } from "lucide-react";
 import { motion } from "motion/react";
+import { useLocale } from "@/contexts/LocaleContext";
 
 interface StatCardProps {
   title: string;
@@ -50,9 +51,10 @@ function StatCard({ title, value, change, icon, iconBg, iconColor }: StatCardPro
 }
 
 export default function StatsGrid() {
+  const { t } = useLocale();
   const stats = [
     {
-      title: "إجمالي المبيعات",
+      title: t("admin.financial.statsTotalSales", "Total sales"),
       value: "450,750",
       change: 12.5,
       icon: <ShoppingCart />,
@@ -60,7 +62,7 @@ export default function StatsGrid() {
       iconColor: "text-[--color-brand-secondary]",
     },
     {
-      title: "صافي الأرباح",
+      title: t("admin.financial.statsNetProfit", "Net profit"),
       value: "85,400",
       change: 5.2,
       icon: <DollarSign />,
@@ -68,7 +70,7 @@ export default function StatsGrid() {
       iconColor: "text-green-600",
     },
     {
-      title: "رسوم المنصة",
+      title: t("admin.financial.statsPlatformFees", "Platform fees"),
       value: "12,630",
       change: -1.8,
       icon: <Percent />,
@@ -76,7 +78,7 @@ export default function StatsGrid() {
       iconColor: "text-orange-600",
     },
     {
-      title: "عدد المعاملات",
+      title: t("admin.financial.statsTransactions", "Transactions"),
       value: "1,240",
       change: 8.0,
       icon: <Activity />,

@@ -25,7 +25,7 @@ function formatMoney(n: number) {
 }
 
 export default function PatientOrderConfirmationContent() {
-  const { dir } = useLocale();
+  const { dir, t, locale } = useLocale();
   const searchParams = useSearchParams();
   const rawId = searchParams.get("orderId") ?? searchParams.get("id");
   const orderId = rawId ? parseInt(rawId, 10) : NaN;
@@ -37,7 +37,7 @@ export default function PatientOrderConfirmationContent() {
   React.useEffect(() => {
     if (!Number.isFinite(orderId) || orderId < 1) {
       setLoading(false);
-      setError("رقم الطلب غير صالح.");
+      setError(t("patient.confirmation.invalidOrderId", "Invalid order number."));
       return;
     }
 
@@ -52,7 +52,7 @@ export default function PatientOrderConfirmationContent() {
         if (!cancelled) {
           const ax = e as { response?: { data?: { message?: string } } };
           const msg = ax.response?.data?.message?.trim();
-          setError(msg || "تعذر تحميل الطلب. حاول مرة أخرى.");
+          setError(msg || t("patient.confirmation.loadFailed", "Unable to load order. Please try again."));
           setOrder(null);
         }
       } finally {
@@ -95,7 +95,7 @@ export default function PatientOrderConfirmationContent() {
     return (
       <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 font-sans" dir={dir}>
         <div className="mx-auto max-w-3xl rounded-3xl border border-gray-100 bg-white p-10 text-center text-gray-500 shadow-sm">
-          جاري التحميل…
+          {t("patient.confirmation.loading", "Loading...")}
         </div>
       </div>
     );
@@ -105,13 +105,13 @@ export default function PatientOrderConfirmationContent() {
     return (
       <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 font-sans" dir={dir}>
         <div className="mx-auto max-w-3xl rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm">
-          <p className="text-gray-700">{error || "الطلب غير موجود."}</p>
+          <p className="text-gray-700">{error || t("patient.confirmation.orderNotFound", "Order not found.")}</p>
           <Link
             href="/patient-home"
             className="mt-6 inline-flex items-center justify-center rounded-2xl px-6 py-3 font-bold text-white shadow-lg shadow-blue-100"
             style={{ background: brand }}
           >
-            العودة للرئيسية
+            {t("patient.confirmation.backHome", "Back to home")}
           </Link>
         </div>
       </div>
@@ -124,8 +124,8 @@ export default function PatientOrderConfirmationContent() {
     patientPharmacyDistanceKm != null
       ? formatDeliveryEtaRangeKm(patientPharmacyDistanceKm)
       : order.delivery
-        ? "يُحدَّد بعد تأكيد الموقع مع الصيدلية"
-        : "يُحدَّد بعد ربط موقعك بملفك";
+        ? (locale === "ar" ? "يُحدَّد بعد تأكيد الموقع مع الصيدلية" : "Will be determined after location confirmation with the pharmacy")
+        : (locale === "ar" ? "يُحدَّد بعد ربط موقعك بملفك" : "Will be determined after linking your profile location");
   const payLabel = order.payment_method?.trim() || "—";
 
   return (

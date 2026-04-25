@@ -8,6 +8,7 @@ import React from "react";
 
 import api from "@/services/apiService";
 import HealupLogo from "@/components/HealupLogo";
+import { useLocale } from "@/contexts/LocaleContext";
 
 
 
@@ -16,6 +17,7 @@ type SidebarKey = "home" | "new-orders" | "current-orders" | "completed-orders" 
 
 
 export default function PharmacySidebar({ active }: { active: SidebarKey }) {
+  const { t } = useLocale();
 
   const is = (key: SidebarKey) => (active === key ? "nav-item active" : "nav-item");
 
@@ -93,7 +95,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الرئيسية</span>
+          <span>{t("pharmacy.sidebar.home", "Home")}</span>
 
         </Link>
 
@@ -111,7 +113,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
             </div>
 
-            <span>طلبات جديدة</span>
+            <span>{t("pharmacy.sidebar.newOrders", "New orders")}</span>
 
           </div>
 
@@ -131,7 +133,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الطلبات الحالية</span>
+          <span>{t("pharmacy.sidebar.currentOrders", "Current orders")}</span>
 
         </Link>
 
@@ -147,7 +149,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الطلبات المكتملة</span>
+          <span>{t("pharmacy.sidebar.completedOrders", "Completed orders")}</span>
 
         </Link>
 
@@ -163,7 +165,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>التحليلات</span>
+          <span>{t("pharmacy.sidebar.analytics", "Analytics")}</span>
 
         </Link>
 
@@ -185,7 +187,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الإعدادات</span>
+          <span>{t("pharmacy.sidebar.settings", "Settings")}</span>
 
         </Link>
 

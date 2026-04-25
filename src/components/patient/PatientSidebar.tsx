@@ -5,6 +5,7 @@ import { authService } from "@/services/authService";
 import { getCart } from "@/lib/cartStorage";
 import styles from "./PatientSidebar.module.css";
 import HealupLogo from "@/components/HealupLogo";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type Props = {
   open?: boolean;
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function PatientSidebar({ open = true, onClose, mode = "dynamic", active = "home" }: Props) {
+  const { t } = useLocale();
   if (mode === "dynamic" && !open) return null;
 
   const isLoggedIn = authService.getGuard() === "user" && !!authService.getToken();
@@ -33,24 +35,24 @@ export default function PatientSidebar({ open = true, onClose, mode = "dynamic",
         <nav className={styles.nav}>
           <Link href="/patient-home" className={item("home", styles.item)} onClick={onClose}>
             <span className={styles.icon}>▦</span>
-            الرئيسية
+            {t("patient.sidebar.home", "Home")}
           </Link>
           <Link href="/patient-cart" className={item("cart", styles.item)} onClick={onClose}>
             <span className={styles.icon}>🧺</span>
-            سلة المشتريات
+            {t("patient.sidebar.cart", "Cart")}
             {cartCount > 0 ? <span className={styles.badge}>{cartCount}</span> : null}
           </Link>
           <Link href="/patient-review-orders" className={item("orders", styles.item)} onClick={onClose}>
             <span className={styles.icon}>🧾</span>
-            طلباتي
+            {t("patient.sidebar.myOrders", "My orders")}
           </Link>
           <Link href="/patient-review-order-history" className={item("history", styles.item)} onClick={onClose}>
             <span className={styles.icon}>🕒</span>
-            تاريخ الطلبات
+            {t("patient.sidebar.orderHistory", "Order history")}
           </Link>
           <Link href="/patient-profile" className={item("profile", styles.item)} onClick={onClose}>
             <span className={styles.icon}>👤</span>
-            الملف الشخصي
+            {t("patient.sidebar.profile", "Profile")}
           </Link>
         </nav>
         {isLoggedIn ? (
@@ -64,13 +66,13 @@ export default function PatientSidebar({ open = true, onClose, mode = "dynamic",
                 window.location.assign("/patient-home");
               }}
             >
-              تسجيل الخروج
+              {t("common.logout", "Logout")}
             </button>
           </div>
         ) : (
           <div className={styles.footer}>
             <Link href="/patient-login" className={styles.loginLink} onClick={onClose}>
-              تسجيل الدخول
+              {t("patient.sidebar.login", "Login")}
             </Link>
           </div>
         )}

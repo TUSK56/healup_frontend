@@ -1,4 +1,5 @@
 import { ChevronLeft } from "lucide-react";
+import { useLocale } from "@/contexts/LocaleContext";
 
 export type TopPharmacyRow = {
   name: string;
@@ -8,13 +9,14 @@ export type TopPharmacyRow = {
 };
 
 export default function TopPharmacies({ items }: { items: TopPharmacyRow[] }) {
+  const { t, locale, dir } = useLocale();
   return (
     <div className="h-full rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <h3 className="mb-6 text-lg font-bold text-gray-900">أعلى الصيدليات مبيعاً</h3>
+      <h3 className="mb-6 text-lg font-bold text-gray-900">{t("admin.financial.topPharmaciesTitle", "Top selling pharmacies")}</h3>
 
       <div className="space-y-4">
         {items.length === 0 ? (
-          <p className="text-sm text-gray-500">لا توجد بيانات مبيعات حتى الآن.</p>
+          <p className="text-sm text-gray-500">{t("admin.financial.topPharmaciesEmpty", "No sales data yet.")}</p>
         ) : (
           items.map((pharmacy) => (
             <div
@@ -34,8 +36,8 @@ export default function TopPharmacies({ items }: { items: TopPharmacyRow[] }) {
                   <p className="text-xs text-gray-400">{pharmacy.branch}</p>
                 </div>
               </div>
-              <div className="text-left">
-                <p className="text-sm font-bold text-green-600">{pharmacy.sales.toLocaleString("ar-EG")} ج.م</p>
+              <div className="text-start">
+                <p className="text-sm font-bold text-green-600">{pharmacy.sales.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")} {t("admin.financial.currencyShort", "EGP")}</p>
               </div>
             </div>
           ))
@@ -46,8 +48,8 @@ export default function TopPharmacies({ items }: { items: TopPharmacyRow[] }) {
         type="button"
         className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-gray-100 bg-[#F8FAFC] py-3 text-sm font-bold text-[--color-brand-primary] transition-colors hover:bg-gray-100"
       >
-        <span>عرض القائمة الكاملة</span>
-        <ChevronLeft className="h-4 w-4" />
+        <span>{t("admin.financial.topPharmaciesViewAll", "View full list")}</span>
+        <ChevronLeft className={`h-4 w-4 ${dir === "ltr" ? "rotate-180" : ""}`} />
       </button>
     </div>
   );

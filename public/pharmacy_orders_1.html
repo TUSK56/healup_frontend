@@ -486,19 +486,7 @@
 </style>
 </head>
 <body>
-<script>
-  (function initLocaleDirection() {
-    try {
-      var locale = localStorage.getItem("healup_locale") === "en" ? "en" : "ar";
-      var dir = locale === "ar" ? "rtl" : "ltr";
-      document.documentElement.lang = locale;
-      document.documentElement.dir = dir;
-      document.body.style.direction = dir;
-      if (locale !== "en") return;
-      // No transliteration (Franco) fallback here. Static page remains key/dictionary-driven only.
-    } catch {}
-  })();
-</script>
+<script src="/i18n-bridge.js"></script>
 
 <!-- NAVBAR -->
 <nav class="navbar">

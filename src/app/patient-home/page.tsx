@@ -7,6 +7,7 @@ import { authService } from "@/services/authService";
 import PatientShell from "@/components/patient/PatientShell";
 import { searchDrugs, getDrugPrice } from "@/lib/drugs";
 import { getCart, setCart, setPrescription, type CartItemData } from "@/lib/cartStorage";
+import { useLocale } from "@/contexts/LocaleContext";
 import "./landing.css";
 
 const EMOJIS = ["💊", "🩺", "🌿", "💉", "🧴"];
@@ -19,6 +20,8 @@ const GRADIENTS = [
 ];
 
 export default function PatientHomePage() {
+  const { locale } = useLocale();
+  const tx = useCallback((ar: string, en: string) => (locale === "ar" ? ar : en), [locale]);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -65,7 +68,7 @@ export default function PatientHomePage() {
     const newItem: CartItemData = {
       id: `item-${Date.now()}`,
       name: q,
-      desc: "أقراص - حسب الوصفة",
+      desc: tx("أقراص - حسب الوصفة", "Tablets - as prescribed"),
       price: getDrugPrice(q),
       qty: 1,
       emoji: EMOJIS[idx],
@@ -99,21 +102,21 @@ export default function PatientHomePage() {
       <nav>
         <ul className="nav-links">
           <li>
-            <Link href="/patient-home">الرئيسية</Link>
+            <Link href="/patient-home">{tx("الرئيسية", "Home")}</Link>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("how")}>
-              كيف يعمل
+              {tx("كيف يعمل", "How it works")}
             </button>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("pharmacies")}>
-              الصيدليات
+              {tx("الصيدليات", "Pharmacies")}
             </button>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("contact")}>
-              اتصل بنا
+              {tx("اتصل بنا", "Contact us")}
             </button>
           </li>
         </ul>
@@ -125,15 +128,15 @@ export default function PatientHomePage() {
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 01-8 0" />
             </svg>
-            السلة
+            {tx("السلة", "Cart")}
           </Link>
           {!isLoggedIn ? (
             <>
               <a className="btn-login-nav" href="/patient-login">
-                تسجيل الدخول
+                {tx("تسجيل الدخول", "Login")}
               </a>
               <a className="btn-cta-nav" href="/signup">
-                انضم إلينا
+                {tx("انضم إلينا", "Join us")}
               </a>
             </>
           ) : (
@@ -145,7 +148,7 @@ export default function PatientHomePage() {
                 router.refresh();
               }}
             >
-              تسجيل الخروج
+              {tx("تسجيل الخروج", "Logout")}
             </button>
           )}
         </div>
@@ -154,13 +157,13 @@ export default function PatientHomePage() {
       {/* ─── HERO ─── */}
       <section className="hero">
         <div className="hero-badge">
-          <span>أكبر شبكة صيدليات في المنطقة</span>
+          <span>{tx("أكبر شبكة صيدليات في المنطقة", "The largest pharmacy network in the region")}</span>
         </div>
 
         <h1>
-          ابحث عن دوائك <span className="highlight">الآن</span> بكل سهولة
+          {tx("ابحث عن دوائك", "Find your medicine")} <span className="highlight">{tx("الآن", "now")}</span> {tx("بكل سهولة", "with ease")}
         </h1>
-        <p>نحن نربط المرضى بالصيدليات التي توفر الأدوية النادرة والأساسية في وقت قياسي.</p>
+        <p>{tx("نحن نربط المرضى بالصيدليات التي توفر الأدوية النادرة والأساسية في وقت قياسي.", "We connect patients with pharmacies that provide essential and hard-to-find medicines quickly.")}</p>
 
         <div id="search-section" className="search-bar-wrap">
           <div className={`search-bar ${searchError ? "search-bar-error" : ""}`}>
@@ -183,7 +186,7 @@ export default function PatientHomePage() {
               ref={searchInputRef}
               className={`search-input ${searchError ? "search-input-error" : ""}`}
               type="text"
-              placeholder="ما هو اسم الدواء الذي تبحث عنه؟"
+              placeholder={tx("ما هو اسم الدواء الذي تبحث عنه؟", "What medicine are you looking for?")}
               value={searchQuery}
               onChange={handleSearchChange}
               onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
@@ -207,7 +210,7 @@ export default function PatientHomePage() {
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>كل المدن</span>
+              <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>{tx("كل المدن", "All cities")}</span>
               <svg
                 width="12"
                 height="12"
@@ -223,7 +226,7 @@ export default function PatientHomePage() {
             </div>
             <div className="search-divider" />
             <button className={`btn-search ${searchShake ? "btn-search-shake" : ""}`} type="button" onClick={handleSearchSubmit}>
-              بحث
+              {tx("بحث", "Search")}
             </button>
           </div>
           {searchError ? (
@@ -246,7 +249,7 @@ export default function PatientHomePage() {
                 ))
               ) : (
                 <div className="search-autocomplete-empty">
-                  اكتب للبحث في قائمة الأدوية
+                  {tx("اكتب للبحث في قائمة الأدوية", "Type to search medicine list")}
                 </div>
               )}
             </div>

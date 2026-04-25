@@ -219,7 +219,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                 <button
                   type="button"
                   className={styles.topbarIconBtn}
-                  aria-label="notifications"
+                  aria-label={t("common.notifications", "Notifications")}
                   onClick={() => setNotificationOpen((v) => !v)}
                 >
                   <Bell size={20} />
@@ -271,7 +271,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                 <button
                   type="button"
                   className={`${styles.topbarIconBtn} ${styles.topbarIconBtnActive}`}
-                  aria-label="profile"
+                  aria-label={t("patient.profileMenu", "Profile menu")}
                   onClick={() => setProfileOpen((v) => !v)}
                 >
                   {avatar ? (

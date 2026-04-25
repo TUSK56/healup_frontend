@@ -13,33 +13,35 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { adminService, AdminPharmacy } from "@/services/adminService";
+import { useLocale } from "@/contexts/LocaleContext";
 
-function toArabicDate(value?: string) {
+function toLocaleDate(value: string | undefined, locale: "ar" | "en") {
   if (!value) return "-";
   const d = new Date(value);
   if (!Number.isFinite(d.getTime())) return "-";
-  return d.toLocaleDateString("ar-EG", { dateStyle: "medium" });
+  return d.toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", { dateStyle: "medium" });
 }
 
-function toRegion(p: AdminPharmacy) {
+function toRegion(p: AdminPharmacy, locale: "ar" | "en", t: (key: string, fallback?: string) => string) {
   const city = (p.city || "").trim();
   const district = (p.district || "").trim();
-  if (city && district) return `${city}، ${district}`;
-  return city || district || "غير محدد";
+  if (city && district) return `${city}${locale === "ar" ? "، " : ", "}${district}`;
+  return city || district || t("admin.pharmaciesView.unknownLocation", "Not specified");
 }
 
-function statusInfo(status: string) {
+function statusInfo(status: string, t: (key: string, fallback?: string) => string) {
   const s = (status || "").toLowerCase();
-  if (s === "approved") return { text: "نشط", cls: "bg-green-50 text-green-700" };
-  if (s === "pending") return { text: "قيد المراجعة", cls: "bg-amber-50 text-amber-700" };
-  if (s === "disabled") return { text: "غير نشط", cls: "bg-slate-100 text-slate-600" };
-  return { text: status || "غير معروف", cls: "bg-slate-100 text-slate-600" };
+  if (s === "approved") return { text: t("admin.pharmaciesView.statusActive", "Active"), cls: "bg-green-50 text-green-700" };
+  if (s === "pending") return { text: t("admin.pharmaciesView.statusPending", "Under review"), cls: "bg-amber-50 text-amber-700" };
+  if (s === "disabled") return { text: t("admin.pharmaciesView.statusDisabled", "Inactive"), cls: "bg-slate-100 text-slate-600" };
+  return { text: status || t("admin.pharmaciesView.statusUnknown", "Unknown"), cls: "bg-slate-100 text-slate-600" };
 }
 
 function StatCard({
   title,
   value,
   change,
+  changeLabel,
   icon: Icon,
   colorClass,
   iconBgClass,
@@ -47,6 +49,7 @@ function StatCard({
   title: string;
   value: string;
   change: string;
+  changeLabel: string;
   icon: React.ComponentType<{ className?: string }>;
   colorClass: string;
   iconBgClass: string;
@@ -67,7 +70,7 @@ function StatCard({
         <h3 className="mb-1 text-3xl font-bold text-slate-800">{value}</h3>
         <div className="flex items-center gap-1">
           <span className={`text-xs font-bold ${change.startsWith("+") ? "text-emerald-600" : "text-rose-500"}`}>{change}</span>
-          <span className="text-[10px] font-medium text-slate-400">هذا الشهر</span>
+          <span className="text-[10px] font-medium text-slate-400">{changeLabel}</span>
         </div>
       </div>
     </motion.div>
@@ -83,6 +86,7 @@ function Toggle({ active }: { active: boolean }) {
 }
 
 export default function AdminPharmaciesView() {
+  const { t, locale } = useLocale();
   const PAGE_SIZE = 10;
   const [rows, setRows] = React.useState<AdminPharmacy[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -165,31 +169,34 @@ export default function AdminPharmaciesView() {
     <div className="flex min-w-0 flex-1 flex-col bg-[#F8FAFC]">
       <main className="space-y-8 p-10">
         <section className="space-y-1">
-          <h1 className="text-3xl font-bold text-[#0355AE]">إدارة الصيدليات</h1>
-          <p className="font-medium text-slate-500">متابعة وإدارة كافة الصيدليات المسجلة في منصة Healup</p>
+          <h1 className="text-3xl font-bold text-[#0355AE]">{t("admin.pharmaciesView.title", "Pharmacy management")}</h1>
+          <p className="font-medium text-slate-500">{t("admin.pharmaciesView.subtitle", "Track and manage all pharmacies registered on Healup")}</p>
         </section>
 
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <StatCard
-            title="إجمالي الصيدليات"
-            value={stats.total.toLocaleString("ar-EG")}
+            title={t("admin.pharmaciesView.totalPharmacies", "Total pharmacies")}
+            value={stats.total.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")}
             change="+0%"
+            changeLabel={t("admin.pharmaciesView.thisMonth", "This month")}
             icon={Store}
             colorClass="text-brand"
             iconBgClass="bg-brand-light"
           />
           <StatCard
-            title="صيدليات نشطة"
-            value={stats.active.toLocaleString("ar-EG")}
+            title={t("admin.pharmaciesView.activePharmacies", "Active pharmacies")}
+            value={stats.active.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")}
             change="+0%"
+            changeLabel={t("admin.pharmaciesView.thisMonth", "This month")}
             icon={CheckCircle}
             colorClass="text-emerald-600"
             iconBgClass="bg-emerald-50"
           />
           <StatCard
-            title="طلبات انضمام جديدة"
-            value={stats.pending.toLocaleString("ar-EG")}
+            title={t("admin.pharmaciesView.newJoinRequests", "New join requests")}
+            value={stats.pending.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")}
             change="+0%"
+            changeLabel={t("admin.pharmaciesView.thisMonth", "This month")}
             icon={Clock}
             colorClass="text-amber-600"
             iconBgClass="bg-amber-50"
@@ -199,71 +206,71 @@ export default function AdminPharmaciesView() {
         <section className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
           <div className="flex flex-col items-center gap-4 border-b border-slate-100 p-6 md:flex-row">
             <div className="relative w-full flex-1">
-              <Search className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute end-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="ابحث باسم الصيدلية، رقم الترخيص، أو المنطقة..."
-                className="w-full rounded-2xl border border-slate-100 bg-slate-50 py-3 pl-4 pr-12 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                placeholder={t("admin.pharmaciesView.searchPlaceholder", "Search by pharmacy name, license number, or area...")}
+                className="w-full rounded-2xl border border-slate-100 bg-slate-50 py-3 ps-4 pe-12 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
             <div className="flex w-full gap-3 md:w-auto">
               <button type="button" className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none">
-                <span>كل المناطق</span>
+                <span>{t("admin.pharmaciesView.allAreas", "All areas")}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
               <button type="button" className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 md:flex-none">
-                <span>كل الحالات</span>
+                <span>{t("admin.pharmaciesView.allStatuses", "All statuses")}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
               <button type="button" className="flex items-center gap-2 rounded-2xl bg-brand px-6 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-brand/90">
                 <Filter className="h-4 w-4" />
-                <span>تصفية</span>
+                <span>{t("admin.pharmaciesView.filter", "Filter")}</span>
               </button>
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-right">
+            <table className="w-full text-start">
               <thead>
                 <tr className="bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  <th className="px-6 py-4">اسم الصيدلية</th>
-                  <th className="px-6 py-4">رقم الترخيص</th>
-                  <th className="px-6 py-4">المنطقة</th>
-                  <th className="px-6 py-4">تاريخ الانضمام</th>
-                  <th className="px-6 py-4 text-center">الحالة</th>
-                  <th className="px-6 py-4 text-center">الإجراءات</th>
+                  <th className="px-6 py-4">{t("admin.pharmaciesView.pharmacyName", "Pharmacy name")}</th>
+                  <th className="px-6 py-4">{t("admin.pharmaciesView.licenseNumber", "License number")}</th>
+                  <th className="px-6 py-4">{t("admin.pharmaciesView.area", "Area")}</th>
+                  <th className="px-6 py-4">{t("admin.pharmaciesView.joinDate", "Join date")}</th>
+                  <th className="px-6 py-4 text-center">{t("admin.pharmaciesView.status", "Status")}</th>
+                  <th className="px-6 py-4 text-center">{t("admin.pharmaciesView.actions", "Actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-slate-500">جاري تحميل الصيدليات...</td>
+                    <td colSpan={6} className="px-6 py-10 text-center text-slate-500">{t("admin.pharmaciesView.loading", "Loading pharmacies...")}</td>
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-slate-500">لا توجد بيانات مطابقة.</td>
+                    <td colSpan={6} className="px-6 py-10 text-center text-slate-500">{t("admin.pharmaciesView.noResults", "No matching data found.")}</td>
                   </tr>
                 ) : (
                   pagedRows.map((pharmacy) => {
-                    const status = statusInfo(pharmacy.status);
+                    const status = statusInfo(pharmacy.status, t);
                     return (
                       <tr key={pharmacy.id} className="transition-colors hover:bg-slate-50/50">
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light text-lg font-bold text-brand">
-                              {(pharmacy.name || "ص").slice(0, 1)}
+                              {(pharmacy.name || t("admin.pharmaciesView.fallbackInitial", "P")).slice(0, 1)}
                             </div>
                             <div>
                               <p className="text-sm font-bold text-slate-800">{pharmacy.name}</p>
-                              <p className="text-[10px] font-medium text-slate-400">{toRegion(pharmacy)}</p>
+                              <p className="text-[10px] font-medium text-slate-400">{toRegion(pharmacy, locale, t)}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-5 font-mono text-sm text-slate-500">{pharmacy.license_number || "-"}</td>
-                        <td className="px-6 py-5 text-sm text-slate-600">{toRegion(pharmacy)}</td>
-                        <td className="px-6 py-5 text-sm text-slate-500">{toArabicDate(pharmacy.created_at)}</td>
+                        <td className="px-6 py-5 text-sm text-slate-600">{toRegion(pharmacy, locale, t)}</td>
+                        <td className="px-6 py-5 text-sm text-slate-500">{toLocaleDate(pharmacy.created_at, locale)}</td>
                         <td className="px-6 py-5">
                           <div className="flex items-center justify-center gap-4">
                             {(pharmacy.status || "").toLowerCase() !== "pending" ? <Toggle active={(pharmacy.status || "").toLowerCase() === "approved"} /> : null}
@@ -280,8 +287,8 @@ export default function AdminPharmaciesView() {
                             {actionId === pharmacy.id
                               ? "..."
                               : (pharmacy.status || "").toLowerCase() === "approved"
-                                ? "تعطيل"
-                                : "تفعيل"}
+                                ? t("admin.pharmaciesView.disable", "Disable")
+                                : t("admin.pharmaciesView.activate", "Activate")}
                           </button>
                         </td>
                       </tr>
@@ -294,7 +301,7 @@ export default function AdminPharmaciesView() {
 
           <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-100 p-6 md:flex-row">
             <p className="text-sm font-medium text-slate-400">
-              عرض <span className="font-bold text-slate-800">{filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}</span> إلى <span className="font-bold text-slate-800">{Math.min(page * PAGE_SIZE, filtered.length)}</span> من أصل <span className="font-bold text-slate-800">{filtered.length.toLocaleString("ar-EG")}</span> صيدلية
+              {t("admin.pharmaciesView.showing", "Showing")} <span className="font-bold text-slate-800">{filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}</span> {t("admin.pharmaciesView.to", "to")} <span className="font-bold text-slate-800">{Math.min(page * PAGE_SIZE, filtered.length)}</span> {t("admin.pharmaciesView.of", "of")} <span className="font-bold text-slate-800">{filtered.length.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")}</span> {t("admin.pharmaciesView.pharmacies", "pharmacies")}
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -329,7 +336,7 @@ export default function AdminPharmaciesView() {
       </main>
 
       <footer className="mt-auto w-full border-t border-slate-100 px-10 py-8 text-center">
-        <p className="text-xs font-medium text-slate-400">© 2024 Healup. جميع الحقوق محفوظة لنظام إدارة الخدمات الطبية.</p>
+        <p className="text-xs font-medium text-slate-400">© 2024 {t("admin.pharmaciesView.footer", "Healup. All rights reserved for the medical services management system.")}</p>
       </footer>
     </div>
   );

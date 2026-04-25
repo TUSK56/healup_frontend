@@ -24,41 +24,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { adminService, AdminOrder, AdminPharmacy } from "@/services/adminService";
-
-const stats = [
-  {
-    title: "إجمالي المرضى",
-    value: "١٢,٤٥٠",
-    change: "+١٢٪",
-    icon: Users,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-  },
-  {
-    title: "الصيدليات المسجلة",
-    value: "٨٤٢",
-    change: "+٥٪",
-    icon: Store,
-    color: "text-indigo-600",
-    bg: "bg-indigo-50",
-  },
-  {
-    title: "طلبات اليوم",
-    value: "١٥٦",
-    change: "+٨٪",
-    icon: ClipboardList,
-    color: "text-sky-600",
-    bg: "bg-sky-50",
-  },
-  {
-    title: "إجمالي الإيرادات",
-    value: "٤٥,٠٠٠ ج.م",
-    change: "+١٥٪",
-    icon: Wallet,
-    color: "text-blue-700",
-    bg: "bg-blue-100",
-  },
-];
+import { useLocale } from "@/contexts/LocaleContext";
 
 type DashboardOrder = {
   id: number;
@@ -69,65 +35,72 @@ type DashboardOrder = {
   iconColor: string;
 };
 
-function toRelativeArabic(value: string): string {
+function toRelativeText(value: string, t: (key: string, fallback?: string) => string): string {
   const d = new Date(value);
-  if (!Number.isFinite(d.getTime())) return "الآن";
+  if (!Number.isFinite(d.getTime())) return t("admin.home.justNow", "Just now");
   const mins = Math.max(0, Math.floor((Date.now() - d.getTime()) / 60000));
-  if (mins < 1) return "الآن";
-  if (mins < 60) return `منذ ${mins} دقيقة`;
+  if (mins < 1) return t("admin.home.justNow", "Just now");
+  if (mins < 60) {
+    const template = t("admin.home.minutesAgo", "{count} min ago");
+    return template.replace("{count}", String(mins));
+  }
   const h = Math.floor(mins / 60);
-  if (h < 24) return `منذ ${h} ساعة`;
+  if (h < 24) {
+    const template = t("admin.home.hoursAgo", "{count} h ago");
+    return template.replace("{count}", String(h));
+  }
   const days = Math.floor(h / 24);
-  return `منذ ${days} يوم`;
+  const template = t("admin.home.daysAgo", "{count} d ago");
+  return template.replace("{count}", String(days));
 }
 
-function mapStatus(status: string): { text: string; color: string; icon: typeof ShoppingBag; iconColor: string } {
+function mapStatus(status: string, t: (key: string, fallback?: string) => string): { text: string; color: string; icon: typeof ShoppingBag; iconColor: string } {
   switch ((status || "").toLowerCase()) {
     case "pending_pharmacy_confirmation":
       return {
-        text: "بانتظار تأكيد الصيدلية",
+        text: t("admin.home.statusPendingPharmacyConfirmation", "Waiting for pharmacy confirmation"),
         color: "bg-amber-100 text-amber-700",
         icon: Clock,
         iconColor: "text-orange-600",
       };
     case "confirmed":
       return {
-        text: "تم التأكيد",
+        text: t("admin.home.statusConfirmed", "Confirmed"),
         color: "bg-blue-100 text-blue-700",
         icon: ShoppingBag,
         iconColor: "text-blue-600",
       };
     case "preparing":
       return {
-        text: "قيد التحضير",
+        text: t("admin.home.statusPreparing", "Preparing"),
         color: "bg-orange-100 text-orange-700",
         icon: Clock,
         iconColor: "text-orange-600",
       };
     case "out_for_delivery":
       return {
-        text: "قيد التوصيل",
+        text: t("admin.home.statusOutForDelivery", "Out for delivery"),
         color: "bg-amber-100 text-amber-700",
         icon: ShoppingBag,
         iconColor: "text-blue-600",
       };
     case "ready_for_pickup":
       return {
-        text: "جاهز للاستلام",
+        text: t("admin.home.statusReadyForPickup", "Ready for pickup"),
         color: "bg-blue-100 text-blue-700",
         icon: CheckCircle,
         iconColor: "text-emerald-600",
       };
     case "completed":
       return {
-        text: "مكتمل",
+        text: t("admin.home.statusCompleted", "Completed"),
         color: "bg-emerald-100 text-emerald-700",
         icon: CheckCircle,
         iconColor: "text-emerald-600",
       };
     default:
       return {
-        text: status || "غير معروف",
+        text: status || t("admin.home.statusUnknown", "Unknown"),
         color: "bg-slate-100 text-slate-600",
         icon: ShoppingBag,
         iconColor: "text-blue-600",
@@ -135,18 +108,54 @@ function mapStatus(status: string): { text: string; color: string; icon: typeof 
   }
 }
 
-const chartData = [
-  { name: "السبت", value: 40 },
-  { name: "الأحد", value: 65 },
-  { name: "الاثنين", value: 50 },
-  { name: "الثلاثاء", value: 80 },
-  { name: "الأربعاء", value: 112 },
-  { name: "الخميس", value: 75 },
-  { name: "الجمعة", value: 60 },
-];
-
 export default function AdminHomeView() {
+  const { t, locale } = useLocale();
   const [pharmacyRequests, setPharmacyRequests] = useState<AdminPharmacy[]>([]);
+  const stats = [
+    {
+      title: t("admin.home.totalPatients", "Total patients"),
+      value: locale === "ar" ? "١٢,٤٥٠" : "12,450",
+      change: locale === "ar" ? "+١٢٪" : "+12%",
+      icon: Users,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+    },
+    {
+      title: t("admin.home.registeredPharmacies", "Registered pharmacies"),
+      value: locale === "ar" ? "٨٤٢" : "842",
+      change: locale === "ar" ? "+٥٪" : "+5%",
+      icon: Store,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50",
+    },
+    {
+      title: t("admin.home.todayOrders", "Today's orders"),
+      value: locale === "ar" ? "١٥٦" : "156",
+      change: locale === "ar" ? "+٨٪" : "+8%",
+      icon: ClipboardList,
+      color: "text-sky-600",
+      bg: "bg-sky-50",
+    },
+    {
+      title: t("admin.home.totalRevenue", "Total revenue"),
+      value: locale === "ar" ? "٤٥,٠٠٠ ج.م" : "45,000 EGP",
+      change: locale === "ar" ? "+١٥٪" : "+15%",
+      icon: Wallet,
+      color: "text-blue-700",
+      bg: "bg-blue-100",
+    },
+  ];
+
+  const chartData = [
+    { name: locale === "ar" ? "السبت" : "Sat", value: 40 },
+    { name: locale === "ar" ? "الأحد" : "Sun", value: 65 },
+    { name: locale === "ar" ? "الاثنين" : "Mon", value: 50 },
+    { name: locale === "ar" ? "الثلاثاء" : "Tue", value: 80 },
+    { name: locale === "ar" ? "الأربعاء" : "Wed", value: 112 },
+    { name: locale === "ar" ? "الخميس" : "Thu", value: 75 },
+    { name: locale === "ar" ? "الجمعة" : "Fri", value: 60 },
+  ];
+
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [requestsError, setRequestsError] = useState<string | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
@@ -170,7 +179,7 @@ export default function AdminHomeView() {
         }
       } catch {
         if (isMounted) {
-          setRequestsError("تعذر تحميل طلبات الصيدليات الجديدة.");
+          setRequestsError(t("admin.home.loadRequestsError", "Unable to load new pharmacy requests."));
         }
       } finally {
         if (isMounted) {
@@ -188,7 +197,7 @@ export default function AdminHomeView() {
           .filter((o: AdminOrder) => !["completed", "rejected"].includes((o.status || "").toLowerCase()))
           .slice(0, 5)
           .map((o: AdminOrder) => {
-            const mapped = mapStatus(o.status);
+            const mapped = mapStatus(o.status, t);
             return {
               id: o.id,
               created_at: o.created_at,
@@ -233,10 +242,10 @@ export default function AdminHomeView() {
   const formatLocation = (pharmacy: AdminPharmacy) => {
     const city = (pharmacy.city || "").trim();
     const district = (pharmacy.district || "").trim();
-    if (city && district) return `${city}، ${district}`;
+    if (city && district) return `${city}${locale === "ar" ? "، " : ", "}${district}`;
     if (city) return city;
     if (district) return district;
-    return "غير محدد";
+    return t("admin.home.unknownLocation", "Not specified");
   };
 
   return (
@@ -268,19 +277,19 @@ export default function AdminHomeView() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-3">
             <div className="mb-8 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900">اتجاهات الطلبات الأسبوعية</h3>
+              <h3 className="font-bold text-slate-900">{t("admin.home.weeklyOrderTrends", "Weekly order trends")}</h3>
               <div className="flex items-center gap-2 rounded-lg bg-slate-50 p-1">
                 <button
                   type="button"
                   className="rounded-md bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm"
                 >
-                  آخر ٧ أيام
+                  {t("admin.home.last7Days", "Last 7 days")}
                 </button>
                 <button
                   type="button"
                   className="rounded-md px-3 py-1 text-xs font-bold text-slate-400 hover:text-slate-600"
                 >
-                  آخر ٣٠ يوم
+                  {t("admin.home.last30Days", "Last 30 days")}
                 </button>
               </div>
             </div>
@@ -302,7 +311,7 @@ export default function AdminHomeView() {
                       if (active && payload && payload.length) {
                         return (
                           <div className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white shadow-xl">
-                            {String(payload[0].value)} طلب
+                            {String(payload[0].value)} {t("admin.home.ordersUnit", "orders")}
                           </div>
                         );
                       }
@@ -321,14 +330,14 @@ export default function AdminHomeView() {
 
           <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900">أحدث الطلبات النشطة</h3>
+              <h3 className="font-bold text-slate-900">{t("admin.home.latestActiveOrders", "Latest active orders")}</h3>
               <Link href="/admin/orders" className="text-sm font-bold text-blue-600 hover:underline">
-                عرض الكل
+                {t("admin.home.viewAll", "View all")}
               </Link>
             </div>
             <div className="flex flex-1 flex-col space-y-4">
               {recentOrders.length === 0 ? (
-                <div className="rounded-xl border border-slate-100 p-4 text-sm text-slate-500">لا توجد طلبات نشطة حالياً.</div>
+                <div className="rounded-xl border border-slate-100 p-4 text-sm text-slate-500">{t("admin.home.noActiveOrders", "There are no active orders currently.")}</div>
               ) : recentOrders.map((order) => (
                 <div
                   key={order.id}
@@ -339,7 +348,7 @@ export default function AdminHomeView() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-slate-900">ORD-{order.id}#</p>
-                    <p className="text-xs text-slate-400">{toRelativeArabic(order.created_at)}</p>
+                    <p className="text-xs text-slate-400">{toRelativeText(order.created_at, t)}</p>
                   </div>
                   <span className={cn("rounded-lg px-2.5 py-1 text-[10px] font-bold", order.statusColor)}>
                     {order.statusText}
@@ -351,34 +360,34 @@ export default function AdminHomeView() {
               href="/admin/orders"
               className="mt-6 block w-full rounded-xl border border-slate-200 py-3 text-center text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50"
             >
-              عرض كافة الطلبات
+              {t("admin.home.allOrders", "View all orders")}
             </Link>
           </div>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-100 p-6">
-            <h3 className="font-bold text-slate-900">طلبات الصيدليات الجديدة</h3>
+            <h3 className="font-bold text-slate-900">{t("admin.home.newPharmacyRequests", "New pharmacy requests")}</h3>
             <button type="button" className="text-sm font-bold text-blue-600 hover:underline">
-              عرض الكل
+              {t("admin.home.viewAll", "View all")}
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-right">
+            <table className="w-full text-start">
               <thead>
                 <tr className="bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  <th className="px-6 py-4">اسم الصيدلية</th>
-                  <th className="px-6 py-4">الموقع</th>
-                  <th className="px-6 py-4">رقم الترخيص</th>
-                  <th className="px-6 py-4">الحالة</th>
-                  <th className="px-6 py-4 text-center">الإجراءات</th>
+                  <th className="px-6 py-4">{t("admin.home.pharmacyName", "Pharmacy name")}</th>
+                  <th className="px-6 py-4">{t("admin.home.location", "Location")}</th>
+                  <th className="px-6 py-4">{t("admin.home.licenseNumber", "License number")}</th>
+                  <th className="px-6 py-4">{t("admin.home.status", "Status")}</th>
+                  <th className="px-6 py-4 text-center">{t("admin.home.actions", "Actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loadingRequests ? (
                   <tr>
                     <td className="px-6 py-8 text-center text-sm text-slate-500" colSpan={5}>
-                      جاري تحميل طلبات الصيدليات...
+                      {t("admin.home.loadingRequests", "Loading pharmacy requests...")}
                     </td>
                   </tr>
                 ) : requestsError ? (
@@ -390,7 +399,7 @@ export default function AdminHomeView() {
                 ) : pendingPharmacyRequests.length === 0 ? (
                   <tr>
                     <td className="px-6 py-8 text-center text-sm text-slate-500" colSpan={5}>
-                      لا توجد طلبات صيدليات جديدة حالياً.
+                      {t("admin.home.noRequests", "There are no new pharmacy requests currently.")}
                     </td>
                   </tr>
                 ) : (
@@ -408,7 +417,7 @@ export default function AdminHomeView() {
                       <td className="px-6 py-4 font-mono text-sm text-slate-500">{req.license_number || "-"}</td>
                       <td className="px-6 py-4">
                         <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-600">
-                          بانتظار المراجعة
+                          {t("admin.home.pendingReview", "Pending review")}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -419,7 +428,7 @@ export default function AdminHomeView() {
                             onClick={() => handleApprove(req.id)}
                             className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {actionLoadingId === req.id ? "..." : "قبول"}
+                            {actionLoadingId === req.id ? "..." : t("admin.home.approve", "Approve")}
                           </button>
                           <button
                             type="button"
@@ -427,7 +436,7 @@ export default function AdminHomeView() {
                             onClick={() => handleReject(req.id)}
                             className="rounded-lg bg-red-50 px-4 py-1.5 text-xs font-bold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            رفض
+                            {t("admin.home.reject", "Reject")}
                           </button>
                         </div>
                       </td>

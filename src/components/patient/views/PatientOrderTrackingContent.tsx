@@ -5,10 +5,10 @@ import PatientOrderTrackingView from "@/components/patient/views/PatientOrderTra
 import { useLocale } from "@/contexts/LocaleContext";
 
 function TrackingFallback() {
-  const { dir } = useLocale();
+  const { dir, t } = useLocale();
   return (
     <div className="patient-order-tracking-wrap min-h-[40vh] bg-slate-50 px-4 py-10 text-center text-slate-500" dir={dir}>
-      جاري التحميل…
+      {t("patient.tracking.fallbackLoading", "Loading...")}
     </div>
   );
 }

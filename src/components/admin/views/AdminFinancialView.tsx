@@ -12,7 +12,7 @@ import { adminService } from "@/services/adminService";
 import { useLocale } from "@/contexts/LocaleContext";
 
 export default function AdminFinancialView() {
-  const { dir } = useLocale();
+  const { dir, t } = useLocale();
   const [topPharmacies, setTopPharmacies] = React.useState<TopPharmacyRow[]>([]);
   const [transactions, setTransactions] = React.useState<TransactionRow[]>([]);
 
@@ -33,10 +33,10 @@ export default function AdminFinancialView() {
         const totals = new Map<string, { name: string; branch: string; total: number }>();
         for (const o of orders) {
           const key = String(o.pharmacy?.id || 0);
-          const name = o.pharmacy?.name || "غير محدد";
-          const city = o.pharmacy?.city || "غير محدد";
+          const name = o.pharmacy?.name || t("admin.home.unknownLocation", "Not specified");
+          const city = o.pharmacy?.city || t("admin.home.unknownLocation", "Not specified");
           const district = o.pharmacy?.district || "";
-          const branch = district ? `${city}، ${district}` : city;
+          const branch = district ? `${city}${dir === "rtl" ? "، " : ", "}${district}` : city;
           const current = totals.get(key) || { name, branch, total: 0 };
           current.total += Number(o.total_price || 0);
           totals.set(key, current);
@@ -75,15 +75,15 @@ export default function AdminFinancialView() {
       <main className="w-full min-w-0 px-6 py-8 sm:px-8 lg:px-10">
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="mb-2 text-3xl font-black text-[#0254AD]">التقارير المالية</h1>
-            <p className="text-gray-500">نظرة عامة على الأداء المالي للعمليات في محافظات مصر</p>
+            <h1 className="mb-2 text-3xl font-black text-[#0254AD]">{t("admin.financial.title", "Financial reports")}</h1>
+            <p className="text-gray-500">{t("admin.financial.subtitle", "Overview of financial performance across operations in Egypt")}</p>
           </div>
           <button
             type="button"
             className="flex items-center justify-center gap-2 rounded-xl bg-[#0456AE] px-6 py-3 font-bold text-white shadow-lg shadow-blue-200 transition-all hover:opacity-90 active:scale-95"
           >
             <Download className="h-5 w-5" />
-            <span>تصدير التقرير</span>
+            <span>{t("admin.financial.exportReport", "Export report")}</span>
           </button>
         </div>
 
@@ -114,7 +114,7 @@ export default function AdminFinancialView() {
         </section>
 
         <footer className="mt-16 border-t border-gray-100 pt-8 text-center text-sm text-gray-400">
-          <p>© ٢٠٢٤ Healup Health Platform. جميع الحقوق محفوظة لوزارة الصحة المصرية.</p>
+          <p>© 2024 {t("admin.financial.footer", "Healup Health Platform. All rights reserved for the Egyptian Ministry of Health.")}</p>
         </footer>
       </main>
     </div>

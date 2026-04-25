@@ -41,7 +41,7 @@ function orderDeliveryFlag(o: Order): boolean {
 }
 
 export default function PatientOrderTrackingView() {
-  const { dir } = useLocale();
+  const { dir, t, locale } = useLocale();
   const searchParams = useSearchParams();
   const rawId = searchParams.get("orderId") ?? searchParams.get("id");
   const orderId = rawId ? parseInt(rawId, 10) : NaN;
@@ -88,7 +88,7 @@ export default function PatientOrderTrackingView() {
   React.useEffect(() => {
     if (!Number.isFinite(orderId) || orderId < 1) {
       setLoading(false);
-      setError("رقم الطلب غير صالح.");
+      setError(t("patient.tracking.invalidOrderId", "Invalid order number."));
       return;
     }
     let cancelled = false;
@@ -100,7 +100,7 @@ export default function PatientOrderTrackingView() {
       } catch (e: unknown) {
         if (!cancelled) {
           const ax = e as { response?: { data?: { message?: string } } };
-          setError(ax.response?.data?.message?.trim() || "تعذر تحميل الطلب.");
+          setError(ax.response?.data?.message?.trim() || t("patient.tracking.loadFailed", "Unable to load order."));
           setOrder(null);
         }
       } finally {
@@ -213,13 +213,13 @@ export default function PatientOrderTrackingView() {
     ) {
       return formatDeliveryEtaRangeKm(haversineKm(patLat, patLng, plat, plng));
     }
-    return "يُحدَّد بعد ربط المواقع";
+    return locale === "ar" ? "يُحدَّد بعد ربط المواقع" : "Will be determined after location sync";
   }, [order]);
 
   if (loading) {
     return (
       <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10 text-center text-slate-500" dir={dir}>
-        جاري تحميل تفاصيل الطلب…
+        {t("patient.tracking.loading", "Loading order details...")}
       </div>
     );
   }
@@ -228,12 +228,12 @@ export default function PatientOrderTrackingView() {
     return (
       <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10" dir={dir}>
         <div className="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-slate-700">{error || "الطلب غير موجود."}</p>
+          <p className="text-slate-700">{error || t("patient.tracking.orderNotFound", "Order not found.")}</p>
           <Link
             href="/patient-home"
             className="mt-6 inline-flex items-center justify-center rounded-xl bg-[#1a56db] px-6 py-3 text-sm font-bold text-white"
           >
-            العودة للرئيسية
+            {t("patient.tracking.backHome", "Back to home")}
           </Link>
         </div>
       </div>
@@ -281,7 +281,7 @@ export default function PatientOrderTrackingView() {
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50"
             >
               <Home className="h-4 w-4" />
-              العودة للرئيسية
+              {t("patient.tracking.backHome", "Back to home")}
             </Link>
             <div className="flex items-center gap-3 rounded-2xl border border-[#1a56db]/20 bg-[#e8effc] px-4 py-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1a56db] text-white">
@@ -500,7 +500,7 @@ export default function PatientOrderTrackingView() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
               >
                 <Home className="h-4 w-4" />
-                العودة للرئيسية
+                {t("patient.tracking.backHome", "Back to home")}
               </Link>
               <Link
                 href={`/patient-order-confirmation?orderId=${order.id}`}

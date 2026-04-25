@@ -169,7 +169,7 @@ export default function AdminTopNavbar() {
             className="flex items-center gap-3 rounded-xl border-e border-slate-200 pe-4 transition-colors hover:bg-slate-50 sm:pe-6"
           >
             <div className={isRTL ? "text-right" : "text-left"}>
-              <p className="text-sm font-bold text-slate-900">أحمد علي</p>
+              <p className="text-sm font-bold text-slate-900">{t("common.defaultAdminName", "Ahmed Ali")}</p>
               <p className="text-[10px] font-medium text-slate-400">{t("common.systemManager")}</p>
             </div>
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-orange-100 shadow-sm">
