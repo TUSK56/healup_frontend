@@ -51,13 +51,6 @@ function transformByWordFallback(input: string, locale: HealupLocale): string {
     .join("");
 }
 
-function stripArabicCharacters(input: string): string {
-  return input
-    .replace(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+/g, " ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
 function applyLocaleTransform(root: ParentNode, locale: HealupLocale) {
   const entries = locale === "en" ? AR_TO_EN_ENTRIES : EN_TO_AR_ENTRIES;
 
@@ -70,9 +63,6 @@ function applyLocaleTransform(root: ParentNode, locale: HealupLocale) {
       let nextValue = transformByEntries(original, entries);
       if (nextValue === original) {
         nextValue = transformByWordFallback(original, locale);
-      }
-      if (locale === "en") {
-        nextValue = stripArabicCharacters(nextValue);
       }
       if (nextValue !== original) textNode.nodeValue = nextValue;
     }
@@ -88,9 +78,6 @@ function applyLocaleTransform(root: ParentNode, locale: HealupLocale) {
       let nextValue = transformByEntries(raw, entries);
       if (nextValue === raw) {
         nextValue = transformByWordFallback(raw, locale);
-      }
-      if (locale === "en") {
-        nextValue = stripArabicCharacters(nextValue);
       }
       if (nextValue !== raw) el.setAttribute(attr, nextValue);
     });
