@@ -32,7 +32,7 @@ function readStoredLocale(): HealupLocale {
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<HealupLocale>("ar");
   const isRTL = locale === "ar";
-  const dir = isRTL ? "rtl" : "ltr";
+  const dir: LocaleContextValue["dir"] = isRTL ? "rtl" : "ltr";
 
   useEffect(() => {
     setLocaleState(readStoredLocale());
