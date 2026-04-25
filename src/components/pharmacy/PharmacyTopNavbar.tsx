@@ -8,6 +8,7 @@ import api from "@/services/apiService";
 import { authService } from "@/services/authService";
 import { readAvatar } from "@/lib/avatarStorage";
 import { getNotifications, markNotificationRead } from "@/lib/notificationCenter";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type PharmacyNotification = {
   id: number;
@@ -27,6 +28,7 @@ function toArabicTime(value?: string | null): string {
 }
 
 export default function PharmacyTopNavbar() {
+  const { locale, toggleLocale } = useLocale();
   const router = useRouter();
   const [avatar, setAvatar] = React.useState<string | null>(null);
   const [name, setName] = React.useState("صيدلية");
@@ -181,7 +183,12 @@ export default function PharmacyTopNavbar() {
           ) : null}
         </div>
 
-        <button className="topbar-icon-btn" type="button" title="تغيير اللغة">
+        <button
+          className="topbar-icon-btn"
+          type="button"
+          title={locale === "ar" ? "تغيير اللغة" : "Change language"}
+          onClick={toggleLocale}
+        >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 8l6 6" />
             <path d="M4 14l6-6 2-3" />

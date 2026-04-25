@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { adminService, AdminNotification } from "@/services/adminService";
 import { authService } from "@/services/authService";
 import { getNotifications } from "@/lib/notificationCenter";
+import { useLocale } from "@/contexts/LocaleContext";
 
 function toArabicTime(value?: string | null): string {
   const v = (value || "").trim();
@@ -16,6 +17,7 @@ function toArabicTime(value?: string | null): string {
 }
 
 export default function AdminTopNavbar() {
+  const { locale, toggleLocale } = useLocale();
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
@@ -142,6 +144,23 @@ export default function AdminTopNavbar() {
             </div>
           ) : null}
         </div>
+
+        <button
+          type="button"
+          className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100"
+          aria-label={locale === "ar" ? "تغيير اللغة" : "Change language"}
+          title={locale === "ar" ? "تغيير اللغة" : "Change language"}
+          onClick={toggleLocale}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 8l6 6" />
+            <path d="M4 14l6-6 2-3" />
+            <path d="M2 5h12" />
+            <path d="M7 2h1" />
+            <path d="M22 22l-5-10-5 10" />
+            <path d="M14 18h6" />
+          </svg>
+        </button>
 
         <div className="relative" ref={profileRef}>
           <button

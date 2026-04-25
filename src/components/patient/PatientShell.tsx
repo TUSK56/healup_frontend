@@ -13,6 +13,7 @@ import { authService } from "@/services/authService";
 import { isAvatarStorageKey, readAvatar, writeAvatar } from "@/lib/avatarStorage";
 import RealtimeBridge from "@/components/RealtimeBridge";
 import { getNotifications, markNotificationRead } from "@/lib/notificationCenter";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type ActiveKey = "home" | "cart" | "orders" | "history" | "profile";
 
@@ -42,6 +43,7 @@ function parseRequestId(route: string): number | null {
 }
 
 export default function PatientShell({ children, active }: { children: ReactNode; active: ActiveKey }) {
+  const { locale, toggleLocale } = useLocale();
   const router = useRouter();
   const showSharedNavbar = active !== "home";
   const [avatar, setAvatar] = React.useState<string | null>(null);
@@ -249,6 +251,22 @@ export default function PatientShell({ children, active }: { children: ReactNode
                   </div>
                 ) : null}
               </div>
+              <button
+                type="button"
+                className={styles.topbarIconBtn}
+                aria-label={locale === "ar" ? "تغيير اللغة" : "Change language"}
+                title={locale === "ar" ? "تغيير اللغة" : "Change language"}
+                onClick={toggleLocale}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 8l6 6" />
+                  <path d="M4 14l6-6 2-3" />
+                  <path d="M2 5h12" />
+                  <path d="M7 2h1" />
+                  <path d="M22 22l-5-10-5 10" />
+                  <path d="M14 18h6" />
+                </svg>
+              </button>
               <div className={styles.profileWrap} ref={profileWrapRef}>
                 <button
                   type="button"
