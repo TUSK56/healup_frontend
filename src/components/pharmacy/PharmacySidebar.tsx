@@ -68,7 +68,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
     <aside className="sidebar">
 
       <div className="sidebar-logo">
-        <HealupLogo href="/pharmacy-dashboard" />
+        <HealupLogo href="/pharmacy-dashboard" compact />
       </div>
 
 

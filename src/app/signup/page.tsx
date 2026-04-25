@@ -1,5 +1,6 @@
 "use client";
 
+import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -117,34 +118,8 @@ export default function SignupPage() {
     }
   };
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <title>إنشاء حساب - Healup</title>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body style={{ fontFamily: 'Cairo, sans-serif', background: '#f0f3f8', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        {/* NAVBAR */}
-        <nav style={{ background: '#fff', padding: '12px 36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-            <div style={{ width: 38, height: 38, background: '#2356c8', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 3h6v3H9z" />
-                <path d="M3 7h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
-                <line x1="12" y1="11" x2="12" y2="17" />
-                <line x1="9" y1="14" x2="15" y2="14" />
-              </svg>
-            </div>
-            <span style={{ fontSize: 22, fontWeight: 900, color: '#1a2e4a', letterSpacing: -0.5, direction: 'ltr' }}>Healup</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-              <a href="#" style={{ fontSize: 14, fontWeight: 600, color: '#1a2e4a', textDecoration: 'none' }}>خدماتنا</a>
-              <a href="#" style={{ fontSize: 14, fontWeight: 600, color: '#1a2e4a', textDecoration: 'none' }}>الرئيسية</a>
-            </div>
-            <button type="button" onClick={() => router.push("/patient-login")} style={{ background: '#2356c8', color: 'white', border: 'none', borderRadius: 25, padding: '10px 22px', fontFamily: 'Cairo, sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s' }}>تسجيل الدخول</button>
-          </div>
-        </nav>
+    <div style={{ fontFamily: 'Cairo, sans-serif', background: '#f0f3f8', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <GuestTopNavbar />
         {/* MAIN */}
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
           <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 18, padding: '40px 44px 36px', width: '100%', maxWidth: 560, boxShadow: '0 4px 28px rgba(0,0,0,0.07)' }}>
@@ -297,7 +272,6 @@ export default function SignupPage() {
         <footer style={{ textAlign: 'center', padding: 18, fontSize: 12.5, color: '#9aa3b0', fontWeight: 500, direction: 'ltr' }}>
           © 2024 Healup. جميع الحقوق محفوظة.
         </footer>
-      </body>
-    </html>
+    </div>
   );
 }

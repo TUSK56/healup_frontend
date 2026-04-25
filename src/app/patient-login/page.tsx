@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
 
 export default function PatientLogin() {
@@ -30,29 +31,8 @@ export default function PatientLogin() {
   }
 
   return (
-    <div dir="rtl" style={{ fontFamily: 'Cairo, sans-serif', background: '#eef1f6', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        {/* NAVBAR */}
-        <nav style={{ background: '#fff', padding: '12px 30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 40, height: 40, background: '#2356c8', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 3h6v3H9z" />
-                <path d="M3 7h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
-                <line x1="12" y1="11" x2="12" y2="17" />
-                <line x1="9" y1="14" x2="15" y2="14" />
-              </svg>
-            </div>
-            <span style={{ fontSize: 22, fontWeight: 900, color: '#1a2e4a', letterSpacing: -0.5, direction: 'ltr' }}>Healup</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, fill: '#1a2e4a' }}><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-            </div>
-            <div style={{ width: 42, height: 42, background: '#e8edf8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #d0d8ee' }}>
-              <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, fill: '#2356c8' }}><path d="M20 4H4v2l1 1v11c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V7l1-1V4zm-9 13H9V11h2v6zm4 0h-2v-6h2v6zm1-9H8V6h8v2z"/></svg>
-            </div>
-          </div>
-        </nav>
+    <div style={{ fontFamily: 'Cairo, sans-serif', background: '#eef1f6', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <GuestTopNavbar />
         {/* MAIN */}
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
           <form onSubmit={handleLogin} style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 480, boxShadow: '0 4px 28px rgba(0,0,0,0.07)', overflow: 'hidden' }}>

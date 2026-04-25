@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLocale } from "@/contexts/LocaleContext";
 import {
   LayoutDashboard,
   Store,
@@ -25,13 +26,14 @@ const NAV_ITEMS = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { locale } = useLocale();
   const settingsActive = pathname === "/admin/settings";
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir="rtl">
+    <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir={locale === "ar" ? "rtl" : "ltr"}>
       <aside className="sticky top-0 z-40 flex h-screen w-72 shrink-0 flex-col border-l border-slate-200 bg-white p-6">
         <div className="mb-10 px-2">
-          <HealupLogo href="/admin/dashboard" />
+          <HealupLogo href="/admin/dashboard" compact />
           <div>
             <p className="text-xs font-medium text-slate-400">لوحة الإدارة</p>
           </div>

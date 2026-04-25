@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
 
 export default function PharmacyVerifyOtpPage() {
@@ -56,21 +57,10 @@ export default function PharmacyVerifyOtpPage() {
   };
 
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <title>تحقق من الرمز - Healup</title>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body style={{ fontFamily: 'Cairo, sans-serif', background: '#eef0f5', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ fontFamily: 'Cairo, sans-serif', background: '#eef0f5', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <GuestTopNavbar />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '24px 16px 100px' }}>
         <div style={{ background: '#fff', borderRadius: 20, padding: '44px 48px 40px', width: '100%', maxWidth: 480, boxShadow: '0 6px 32px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-          {/* Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 28, direction: 'ltr' }}>
-            <span style={{ fontSize: 24, fontWeight: 900, color: '#2356c8', letterSpacing: -0.5 }}>Healup</span>
-            <div style={{ width: 44, height: 44, background: '#2356c8', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg viewBox="0 0 24 24" fill="white" style={{ width: 26, height: 26 }}><path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-            </div>
-          </div>
           {/* Heading */}
           <h1 style={{ fontSize: 26, fontWeight: 900, color: '#1a2e4a', marginBottom: 14 }}>تحقق من الرمز</h1>
           <p style={{ fontSize: 13, color: '#9aa3b0', fontWeight: 400, lineHeight: 1.9, marginBottom: 32, direction: 'rtl' }}>
@@ -111,13 +101,13 @@ export default function PharmacyVerifyOtpPage() {
             العودة
           </a>
         </div>
+      </div>
         <footer style={{ position: 'fixed', bottom: 20, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', border: '1px solid #dde3ed', borderRadius: 25, padding: '7px 18px', fontSize: 12.5, color: '#9aa3b0', fontWeight: 500, direction: 'ltr', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             اتصال آمن ومشفر bit-256
             <svg viewBox="0 0 24 24" style={{ width: 15, height: 15, fill: '#27ae60' }}><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
           </div>
         </footer>
-      </body>
-    </html>
+    </div>
   );
 }

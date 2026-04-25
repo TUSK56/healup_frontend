@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -107,27 +108,11 @@ export default function PharmacySignupPage() {
     }
   };
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <title>تسجيل الصيدلية - Healup</title>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body style={{ fontFamily: 'Cairo, sans-serif', background: '#eef0f5', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '36px 20px 60px' }}>
-        {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 28, direction: 'ltr' }}>
-          <div style={{ width: 46, height: 46, background: '#2356c8', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 3h6v3H9z" />
-              <path d="M3 7h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
-              <line x1="12" y1="11" x2="12" y2="17" />
-              <line x1="9" y1="14" x2="15" y2="14" />
-            </svg>
-          </div>
-          <span style={{ fontSize: 26, fontWeight: 900, color: '#2356c8', letterSpacing: -0.5 }}>Healup</span>
-        </div>
+    <div style={{ fontFamily: 'Cairo, sans-serif', background: '#eef0f5', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+      <GuestTopNavbar />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 20px 60px', width: '100%', flex: 1 }}>
         {/* Card */}
-        <div style={{ background: '#fff', borderRadius: 18, padding: '36px 40px 40px', width: '100%', maxWidth: 580, boxShadow: '0 4px 28px rgba(0,0,0,0.07)' }}>
+        <div style={{ background: '#fff', borderRadius: 18, padding: '36px 40px 40px', width: '100%', maxWidth: 580, boxShadow: '0 4px 28px rgba(0,0,0,0.07)', marginTop: 28 }}>
           <div style={{ textAlign: 'right', marginBottom: 28 }}>
             <h1 style={{ fontSize: 24, fontWeight: 900, color: '#1a2e4a', marginBottom: 6 }}>تسجيل الصيدلية</h1>
             <p style={{ fontSize: 13, color: '#9aa3b0', fontWeight: 400, lineHeight: 1.7 }}>انضم إلى شبكة <span style={{ color: '#2356c8', fontWeight: 700 }}>Healup</span> الطبية وابدأ في تقديم خدماتك الدوائية لآلاف المرضى.</p>
@@ -282,7 +267,7 @@ export default function PharmacySignupPage() {
         <footer style={{ textAlign: 'center', fontSize: 12, color: '#9aa3b0', direction: 'rtl', marginTop: 8 }}>
           بالتسجيل في Healup، فأنك توافق على <a href="#" style={{ color: '#2356c8', textDecoration: 'none' }}>الشروط والأحكام</a> و <a href="#" style={{ color: '#2356c8', textDecoration: 'none' }}>سياسة الخصوصية</a>
         </footer>
-      </body>
-    </html>
+      </div>
+    </div>
   );
 }

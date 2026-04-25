@@ -23,7 +23,7 @@ export default function PatientSidebar({ open = true, onClose, mode = "dynamic",
   const sidebar = (
       <aside className={`${styles.panel} ${mode === "dynamic" ? styles.dynamicPanel : ""}`}>
         <div className={styles.header}>
-          <HealupLogo href="/patient-home" onClick={onClose} />
+          <HealupLogo href="/patient-home" compact onClick={onClose} />
           {mode === "dynamic" ? (
             <button type="button" onClick={onClose} className={styles.closeBtn}>
               ×

@@ -1,10 +1,13 @@
-
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
+import { useLocale } from "@/contexts/LocaleContext";
 
 export default function AdminLogin() {
+  const { locale } = useLocale();
+  const isAr = locale === "ar";
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -33,29 +36,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#eef0f5", color: "#1a2e4a", display: "flex", flexDirection: "column", direction: "ltr", fontFamily: "'Cairo', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
-      {/* NAVBAR - swapped */}
-      <nav style={{ background: "#fff", padding: "12px 36px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-        <button type="button" style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", border: "1.5px solid #c8cfd8", borderRadius: 20, background: "#fff", fontFamily: "'Cairo', sans-serif", fontSize: 13.5, fontWeight: 700, color: "#1a2e4a", cursor: "pointer", direction: "rtl" }}>
-          <svg viewBox="0 0 24 24" width={16} height={16} fill="#1a2e4a"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-          <span>المساعدة</span>
-        </button>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexDirection: "row-reverse" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 38, height: 38, background: "#2356c8", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 3h6v3H9z" />
-                  <path d="M3 7h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
-                  <line x1="12" y1="11" x2="12" y2="17" />
-                  <line x1="9" y1="14" x2="15" y2="14" />
-                </svg>
-              </div>
-              <span style={{ fontSize: 21, fontWeight: 900, color: "#2356c8" }}>Healup</span>
-            </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#3678BE" }}>لوحة التحكم</span>
-        </div>
-      </nav>
+    <div style={{ minHeight: "100vh", background: "#eef0f5", color: "#1a2e4a", display: "flex", flexDirection: "column", fontFamily: "'Cairo', sans-serif" }} dir={isAr ? "rtl" : "ltr"}>
+      <GuestTopNavbar />
       {/* MAIN - swapped boxes */}
       <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
         <div style={{ display: "flex", flexDirection: "row", width: "100%", maxWidth: 900, borderRadius: 20, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.10)" }}>
