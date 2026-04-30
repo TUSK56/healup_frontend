@@ -210,13 +210,13 @@ const OrderCard = ({
 }) => {
   const { label, tab } = classifyOrder(order);
   const st = normalizeOrderStatus(order);
-  /** Same “جاري التجهيز” tab covers pending + preparing; both can ship from dashboard. */
+  /** Same "Preparing" tab covers pending + preparing; both can ship from dashboard. */
   const showConfirmPreparing = st === "preparing" || st === "pending_pharmacy_confirmation";
   const isWait = tab === "wait";
   const isOut = tab === "out";
   const isDone = tab === "done";
   const med =
-    order.items?.map((i) => `${i.medicine_name} ×${i.quantity}`).join("، ") || "—";
+    order.items?.map((i) => `${i.medicine_name} x${i.quantity}`).join(", ") || "-";
 
   return (
     <motion.div

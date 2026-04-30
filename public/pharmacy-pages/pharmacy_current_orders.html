@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healup - الطلبات الحالية</title>
+    <title>Healup - Current Orders</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -47,7 +47,7 @@
                 </div>
                 <span class="text-brand-border mx-1">|</span>
                 <button class="text-xs font-semibold text-brand-text-muted flex items-center gap-1.5 hover:text-brand-blue transition-colors">
-                    لوحة التحكم
+                    Dashboard
                     <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
                 </button>
             </div>
@@ -73,16 +73,16 @@
     <main class="max-w-[1600px] mx-auto w-full px-6 py-10 flex-1">
         <!-- HEADER -->
         <header class="text-right mb-8">
-            <h1 class="text-[30px] font-extrabold text-brand-text mb-1.5">الطلبات الحالية</h1>
-            <p class="text-[13px] text-brand-text-muted">تابع حالة طلبات الأدوية الجارية وتفاصيل التوصيل</p>
+            <h1 class="text-[30px] font-extrabold text-brand-text mb-1.5">Current Orders</h1>
+            <p class="text-[13px] text-brand-text-muted">Track in-progress medicine orders and delivery details</p>
         </header>
 
         <!-- TABS -->
         <div class="flex items-center justify-start border-b-2 border-brand-border mb-7 overflow-hidden">
-            <button class="px-5 py-3 text-[13px] font-bold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-blue border-brand-blue">الكل (١٢)</button>
-            <button class="px-5 py-3 text-[13px] font-semibold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-text-muted border-transparent hover:text-brand-text">جاري التجهيز (٥)</button>
-            <button class="px-5 py-3 text-[13px] font-semibold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-text-muted border-transparent hover:text-brand-text">خرج للتوصيل (٧)</button>
-            <button class="px-5 py-3 text-[13px] font-semibold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-text-muted border-transparent hover:text-brand-text">المكتملة</button>
+            <button class="px-5 py-3 text-[13px] font-bold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-blue border-brand-blue">All (12)</button>
+            <button class="px-5 py-3 text-[13px] font-semibold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-text-muted border-transparent hover:text-brand-text">Preparing (5)</button>
+            <button class="px-5 py-3 text-[13px] font-semibold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-text-muted border-transparent hover:text-brand-text">Out for delivery (7)</button>
+            <button class="px-5 py-3 text-[13px] font-semibold cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap transition-all text-brand-text-muted border-transparent hover:text-brand-text">Completed</button>
         </div>
 
         <!-- CARDS GRID -->
@@ -93,23 +93,23 @@
                     <span class="text-[12px] font-extrabold text-brand-blue ltr bg-brand-blue-muted px-3 py-1 rounded-full">HLP-12845</span>
                     <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold bg-yellow-100 text-yellow-800">
                         <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
-                        جاري التجهيز
+                        Preparing
                     </span>
                 </div>
-                <h3 class="text-[18px] font-extrabold text-brand-text text-right">أحمد محمد عبد الله</h3>
+                <h3 class="text-[18px] font-extrabold text-brand-text text-right">Ahmed Mohamed Abdullah</h3>
                 <div class="space-y-2">
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="package" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>أوميرازول (٤٠ ملجم)- ٢ علبة</span>
+                        <span>Omeprazole (40 mg) - 2 boxes</span>
                     </div>
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="clock" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>منذ ١٥ دقيقة</span>
+                        <span>15 minutes ago</span>
                     </div>
                 </div>
                 <button class="w-full bg-brand-blue text-white rounded-lg py-3.5 text-[14px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-colors mt-1">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    عرض التفاصيل
+                    View details
                 </button>
             </div>
 
@@ -119,23 +119,23 @@
                     <span class="text-[12px] font-extrabold text-brand-blue ltr bg-brand-blue-muted px-3 py-1 rounded-full">HLP-12846</span>
                     <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold bg-sky-100 text-sky-700">
                         <span class="w-1.5 h-1.5 rounded-full bg-sky-700"></span>
-                        خرج للتوصيل
+                        Out for delivery
                     </span>
                 </div>
-                <h3 class="text-[18px] font-extrabold text-brand-text text-right">سارة أحمد علي</h3>
+                <h3 class="text-[18px] font-extrabold text-brand-text text-right">Sara Ahmed Ali</h3>
                 <div class="space-y-2">
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="package" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>بانادول إكسترا- ١ علبة</span>
+                        <span>Panadol Extra - 1 box</span>
                     </div>
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="map-pin" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>على بعد ٢.٥ كم- السائق: خالد</span>
+                        <span>2.5 km away - Driver: Khaled</span>
                     </div>
                 </div>
                 <button class="w-full bg-brand-blue text-white rounded-lg py-3.5 text-[14px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-colors mt-1">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    عرض التفاصيل
+                    View details
                 </button>
             </div>
 
@@ -145,23 +145,23 @@
                     <span class="text-[12px] font-extrabold text-brand-blue ltr bg-brand-blue-muted px-3 py-1 rounded-full">HLP-12847</span>
                     <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold bg-yellow-100 text-yellow-800">
                         <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
-                        جاري التجهيز
+                        Preparing
                     </span>
                 </div>
-                <h3 class="text-[18px] font-extrabold text-brand-text text-right">محمود ياسين</h3>
+                <h3 class="text-[18px] font-extrabold text-brand-text text-right">Mahmoud Yassin</h3>
                 <div class="space-y-2">
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="package" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>أوجمنتين (١ جم)- ٣ علب</span>
+                        <span>Augmentin (1 g) - 3 boxes</span>
                     </div>
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="clock" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>منذ ٥ دقائق</span>
+                        <span>5 minutes ago</span>
                     </div>
                 </div>
                 <button class="w-full bg-brand-blue text-white rounded-lg py-3.5 text-[14px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-colors mt-1">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    عرض التفاصيل
+                    View details
                 </button>
             </div>
 
@@ -171,23 +171,23 @@
                     <span class="text-[12px] font-extrabold text-brand-blue ltr bg-brand-blue-muted px-3 py-1 rounded-full">HLP-12848</span>
                     <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold bg-sky-100 text-sky-700">
                         <span class="w-1.5 h-1.5 rounded-full bg-sky-700"></span>
-                        خرج للتوصيل
+                        Out for delivery
                     </span>
                 </div>
-                <h3 class="text-[18px] font-extrabold text-brand-text text-right">ليلى إبراهيم</h3>
+                <h3 class="text-[18px] font-extrabold text-brand-text text-right">Laila Ibrahim</h3>
                 <div class="space-y-2">
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="package" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>فولتارين جل- ٢ أنبوب</span>
+                        <span>Voltaren Gel - 2 tubes</span>
                     </div>
                     <div class="flex items-center gap-2 text-[13px] text-brand-text-muted justify-start">
                         <i data-lucide="map-pin" class="w-[15px] h-[15px] text-brand-text-light"></i>
-                        <span>على بعد ٠.٨ كم- السائق: سامي</span>
+                        <span>0.8 km away - Driver: Sami</span>
                     </div>
                 </div>
                 <button class="w-full bg-brand-blue text-white rounded-lg py-3.5 text-[14px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-colors mt-1">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    عرض التفاصيل
+                    View details
                 </button>
             </div>
         </div>
@@ -195,7 +195,7 @@
         <!-- LOAD MORE -->
         <div class="flex justify-center mb-12">
             <button class="flex items-center gap-2 bg-transparent border-none text-[14px] font-bold text-brand-blue cursor-pointer hover:opacity-70 transition-opacity">
-                تحميل المزيد من الطلبات
+                Load more orders
                 <i data-lucide="chevron-down" class="w-4 h-4"></i>
             </button>
         </div>
@@ -208,12 +208,12 @@
                 <div class="w-[26px] h-[26px] bg-brand-blue rounded-md flex items-center justify-center">
                     <i data-lucide="shield-check" class="w-3.5 h-3.5 text-white"></i>
                 </div>
-                Healup - منصة إدارة الصيدليات والطلبات الطبية
+                Healup - Pharmacy and medical orders management platform
             </div>
             <div class="flex items-center gap-5">
-                <a href="#" class="text-[12px] text-brand-text-muted hover:text-brand-blue transition-colors">سياسة الخصوصية</a>
-                <a href="#" class="text-[12px] text-brand-text-muted hover:text-brand-blue transition-colors">الدعم الفني</a>
-                <a href="#" class="text-[12px] text-brand-text-muted hover:text-brand-blue transition-colors">اتصل بنا</a>
+                <a href="#" class="text-[12px] text-brand-text-muted hover:text-brand-blue transition-colors">Privacy Policy</a>
+                <a href="#" class="text-[12px] text-brand-text-muted hover:text-brand-blue transition-colors">Technical Support</a>
+                <a href="#" class="text-[12px] text-brand-text-muted hover:text-brand-blue transition-colors">Contact us</a>
             </div>
             <div class="text-[12px] text-brand-text-muted">© 2024 Healup Platform</div>
         </div>

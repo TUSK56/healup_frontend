@@ -28,7 +28,7 @@ function formatMoney(value: number) {
 function orderItemsLabel(order: Order) {
   const items = order.items || [];
   if (!items.length) return "—";
-  return items.map((item) => `${item.medicine_name} × ${item.quantity}`).join("، ");
+  return items.map((item) => `${item.medicine_name} x ${item.quantity}`).join(", ");
 }
 
 function isCompleted(order: Order) {
@@ -306,7 +306,7 @@ export default function App() {
             >
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900">تفاصيل الطلب #HLP-{selectedOrder.id}</h2>
+                  <h2 className="text-xl font-black text-slate-900">Order Details #HLP-{selectedOrder.id}</h2>
                   <p className="mt-1 text-sm text-slate-500">{formatArabicDateTime(selectedOrder.created_at)}</p>
                 </div>
                 <button
@@ -320,27 +320,27 @@ export default function App() {
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="rounded-2xl bg-slate-50 p-4">
-                  <div className="text-xs font-bold text-slate-400">المريض</div>
-                  <div className="mt-1 font-bold text-slate-900">{selectedOrder.patient?.name || "مريض"}</div>
+                  <div className="text-xs font-bold text-slate-400">Patient</div>
+                  <div className="mt-1 font-bold text-slate-900">{selectedOrder.patient?.name || "Patient"}</div>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
-                  <div className="text-xs font-bold text-slate-400">الحالة</div>
-                  <div className="mt-1 font-bold text-emerald-600">المكتملة</div>
+                  <div className="text-xs font-bold text-slate-400">Status</div>
+                  <div className="mt-1 font-bold text-emerald-600">Completed</div>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4 md:col-span-2">
-                  <div className="text-xs font-bold text-slate-400">الأدوية</div>
+                  <div className="text-xs font-bold text-slate-400">Medicines</div>
                   <div className="mt-1 font-medium text-slate-900">{orderItemsLabel(selectedOrder)}</div>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
-                  <div className="text-xs font-bold text-slate-400">رقم الطلب</div>
+                  <div className="text-xs font-bold text-slate-400">Order number</div>
                   <div className="mt-1 font-bold text-slate-900">#HLP-{selectedOrder.id}</div>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
-                  <div className="text-xs font-bold text-slate-400">الإجمالي</div>
+                  <div className="text-xs font-bold text-slate-400">Total</div>
                   <div className="mt-1 font-bold text-slate-900">{formatMoney(Number(selectedOrder.total_price || 0))}</div>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4 md:col-span-2">
-                  <div className="text-xs font-bold text-slate-400">عنوان التسليم</div>
+                  <div className="text-xs font-bold text-slate-400">Delivery address</div>
                   <div className="mt-1 font-medium leading-relaxed text-slate-900">{selectedOrder.delivery_address_snapshot || "—"}</div>
                 </div>
               </div>
@@ -352,14 +352,14 @@ export default function App() {
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
                 >
                   <FileText size={16} />
-                  عرض الفاتورة
+                  View Invoice
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedOrder(null)}
                   className="rounded-xl bg-brand-blue px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-blue/90"
                 >
-                  إغلاق
+                  Close
                 </button>
               </div>
             </motion.div>
@@ -368,7 +368,7 @@ export default function App() {
       </AnimatePresence>
 
       <footer className="mt-16 text-center text-[10px] text-slate-400">
-        <p>© 2024 منصة Healup الطبية - جميع الحقوق محفوظة</p>
+        <p>© 2024 Healup Medical Platform - All rights reserved</p>
       </footer>
     </div>
   );

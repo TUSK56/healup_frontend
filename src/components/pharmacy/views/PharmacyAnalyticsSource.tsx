@@ -53,19 +53,19 @@ const revenueData = [
 ];
 
 const topMedicines = [
-  { name: 'بندول أكسترا', orders: 420, percentage: 85 },
-  { name: 'أوجمنتين 1 جم', orders: 310, percentage: 65 },
-  { name: 'كونجستال', orders: 285, percentage: 55 },
-  { name: 'بروفين 400', orders: 190, percentage: 40 },
-  { name: 'فيتامين سي 1000', orders: 145, percentage: 30 },
+  { name: 'Panadol Extra', orders: 420, percentage: 85 },
+  { name: 'Augmentin 1g', orders: 310, percentage: 65 },
+  { name: 'Congestal', orders: 285, percentage: 55 },
+  { name: 'Brufen 400', orders: 190, percentage: 40 },
+  { name: 'Vitamin C 1000', orders: 145, percentage: 30 },
 ];
 
 const categories = [
-  { name: 'المسكنات', orders: 450, revenue: '12,400 ج.م', growth: '+15%', status: 'مرتفع', statusColor: 'bg-[#DCFCE7] text-[#166534]', growthColor: 'text-[#07A041]' },
-  { name: 'المضادات الحيوية', orders: 320, revenue: '15,600 ج.م', growth: '+8%', status: 'مستقر', statusColor: 'bg-[#DBEAFE] text-[#1E40AF]', growthColor: 'text-[#33AD5D]' },
-  { name: 'الفيتامينات', orders: 210, revenue: '8,200 ج.م', growth: '-2%', status: 'منخفض', statusColor: 'bg-[#FEE2E2] text-[#991B1B]', growthColor: 'text-[#E35757]' },
-  { name: 'أدوات العناية بالبشرة', orders: 180, revenue: '5,800 ج.م', growth: '+22%', status: 'مرتفع', statusColor: 'bg-[#DCFCE7] text-[#166534]', growthColor: 'text-[#009D2F]' },
-  { name: 'أخرى', orders: 90, revenue: '3,000 ج.م', growth: '0%', status: 'مستقر', statusColor: 'bg-[#F1F5F9] text-[#475569]', growthColor: 'text-[#607189]' },
+  { name: 'Pain Relief', orders: 450, revenue: '12,400 EGP', growth: '+15%', status: 'High', statusColor: 'bg-[#DCFCE7] text-[#166534]', growthColor: 'text-[#07A041]' },
+  { name: 'Antibiotics', orders: 320, revenue: '15,600 EGP', growth: '+8%', status: 'Stable', statusColor: 'bg-[#DBEAFE] text-[#1E40AF]', growthColor: 'text-[#33AD5D]' },
+  { name: 'Vitamins', orders: 210, revenue: '8,200 EGP', growth: '-2%', status: 'Low', statusColor: 'bg-[#FEE2E2] text-[#991B1B]', growthColor: 'text-[#E35757]' },
+  { name: 'Skincare', orders: 180, revenue: '5,800 EGP', growth: '+22%', status: 'High', statusColor: 'bg-[#DCFCE7] text-[#166534]', growthColor: 'text-[#009D2F]' },
+  { name: 'Other', orders: 90, revenue: '3,000 EGP', growth: '0%', status: 'Stable', statusColor: 'bg-[#F1F5F9] text-[#475569]', growthColor: 'text-[#607189]' },
 ];
 
 export default function Dashboard() {

@@ -285,7 +285,7 @@ export default function PatientCourierRouteMap({
   if (!valid) {
     return (
       <div className="flex h-[400px] items-center justify-center bg-slate-100 text-center text-sm text-slate-500">
-        لا تتوفر إحداثيات كافية لعرض الخريطة.
+        Not enough coordinates are available to display the map.
       </div>
     );
   }
@@ -294,7 +294,7 @@ export default function PatientCourierRouteMap({
     <div className="patientCourierRouteMap relative h-[400px] w-full overflow-hidden rounded-2xl border border-slate-100">
       {routeLoading ? (
         <div className="absolute inset-0 z-[500] flex items-center justify-center bg-white/70 text-sm font-bold text-slate-600">
-          جاري تحميل مسار التوصيل…
+          Loading delivery route...
         </div>
       ) : null}
       <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%" }} attributionControl={false}>
@@ -320,7 +320,7 @@ export default function PatientCourierRouteMap({
       </MapContainer>
       {routeError ? (
         <p className="absolute bottom-1 left-0 right-0 z-[400] bg-amber-50/95 py-1 text-center text-[10px] font-bold text-amber-900">
-          تعذر تحميل المسار الدقيق؛ يُعرض خط تقريبي مؤقتًا.
+          Unable to load the exact route; showing an approximate line temporarily.
         </p>
       ) : null}
       <style jsx global>{`
