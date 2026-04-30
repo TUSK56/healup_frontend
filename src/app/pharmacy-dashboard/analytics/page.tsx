@@ -4,6 +4,9 @@ import PharmacySidebar from "@/components/pharmacy/PharmacySidebar";
 import PharmacyTopNavbar from "@/components/pharmacy/PharmacyTopNavbar";
 import PharmacyAnalyticsContent from "@/components/pharmacy/views/PharmacyAnalyticsContent";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function PharmacyAnalyticsPage() {
   return (
     <div className="pharmacyDashboard">
