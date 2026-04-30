@@ -238,7 +238,7 @@ export default function App() {
     return new Date(`${v}Z`);
   };
 
-  const orderHeaderTitle = requestId ? `طلب رقم #HLP-${requestId}` : 'تفاصيل الطلب';
+  const orderHeaderTitle = requestId ? `Order #HLP-${requestId}` : 'Order Details';
   const orderHeaderDate = request?.created_at
     ? parseServerDate(request.created_at).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })
     : '';
@@ -258,18 +258,18 @@ export default function App() {
   const statusPercent = statusStage * 25;
   const statusBadgeText =
     !hasTrackedOrder
-      ? 'لا يوجد طلب مؤكد'
+      ? 'No confirmed order'
       : orderStatus === 'completed'
-      ? 'تم التسليم'
+      ? 'Delivered'
       : orderStatus === 'out_for_delivery'
-        ? 'خرج للتوصيل'
+        ? 'Out for delivery'
         : orderStatus === 'preparing'
-          ? 'قيد التحضير'
+          ? 'Preparing'
           : orderStatus === 'pending_pharmacy_confirmation'
-            ? 'تم التأكيد'
+            ? 'Confirmed'
           : orderStatus === 'confirmed'
-            ? 'تم التأكيد'
-            : 'بانتظار التأكيد';
+            ? 'Confirmed'
+            : 'Awaiting confirmation';
 
   const onConfirmOrder = () => {
     if (!selectedOffer?.response?.id || !requestId) return;
@@ -488,7 +488,7 @@ export default function App() {
 
             {/* Pharmacy Info */}
             <motion.section variants={itemVariants} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-lg font-bold text-slate-900 text-right">معلومات الصيدلية</h2>
+                  <h2 className="mb-6 text-lg font-bold text-slate-900 text-right">Pharmacy information</h2>
               <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
                 {/* Info on the right (first child in RTL) */}
                 <div className="flex flex-col items-end text-right">
@@ -508,12 +508,12 @@ export default function App() {
                   
                   {/* Action Links */}
                   <div className="mt-4 flex items-center gap-6">
-                    <button onClick={() => setPhoneModalOpen(true)} className="flex items-center gap-2 font-bold text-primary hover:text-primary-hover transition-colors">
-                      <span className="text-sm">اتصال بالصيدلية</span>
+                      <button onClick={() => setPhoneModalOpen(true)} className="flex items-center gap-2 font-bold text-primary hover:text-primary-hover transition-colors">
+                      <span className="text-sm">Contact pharmacy</span>
                       <Phone size={18} />
                     </button>
                     <button className="flex items-center gap-2 font-bold text-primary hover:text-primary-hover transition-colors">
-                      <span className="text-sm">دردشة</span>
+                      <span className="text-sm">Chat</span>
                       <MessageCircle size={18} />
                     </button>
                   </div>
@@ -658,20 +658,20 @@ export default function App() {
 
             {/* Delivery & Payment */}
             <section className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-lg font-bold text-slate-900">التوصيل والدفع</h2>
+              <h2 className="mb-6 text-lg font-bold text-slate-900">Delivery & Payment</h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
                     <Truck size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900">طريقة الاستلام</h4>
+                    <h4 className="font-bold text-slate-900">Delivery method</h4>
                     <p className="text-sm text-slate-500">
                       {orderSnapshot
                         ? orderSnapshot.delivery
-                          ? 'توصيل للمنزل'
-                          : 'استلام من الصيدلية'
-                        : 'يُعرض بعد تأكيد الطلب'}
+                          ? 'Home delivery'
+                          : 'Pickup from pharmacy'
+                        : 'Shown after order confirmation'}
                     </p>
                   </div>
                 </div>
@@ -680,13 +680,13 @@ export default function App() {
                     <MapPin size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900">عنوان التوصيل</h4>
+                    <h4 className="font-bold text-slate-900">Delivery address</h4>
                     <p className="text-sm text-slate-500 leading-relaxed">
                       {orderSnapshot?.delivery_address_snapshot?.trim()
                         ? orderSnapshot.delivery_address_snapshot
                         : orderSnapshot && !orderSnapshot.delivery
-                          ? 'موقع الصيدلية (استلام من الفرع)'
-                          : 'يُعرض من عنوان الملف الشخصي بعد تأكيد الطلب'}
+                          ? 'Pharmacy location (branch pickup)'
+                          : 'Shown from profile address after confirmation'}
                     </p>
                   </div>
                 </div>
@@ -695,10 +695,10 @@ export default function App() {
                     <CreditCard size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900">طريقة الدفع</h4>
+                    <h4 className="font-bold text-slate-900">Payment method</h4>
                     <div className="mt-1 flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-1">
                       <span className="text-xs font-bold text-slate-600">
-                        {orderSnapshot?.payment_method?.trim() || 'يُعرض بعد تأكيد الطلب'}
+                        {orderSnapshot?.payment_method?.trim() || 'Shown after order confirmation'}
                       </span>
                       <div className="flex h-4 w-6 items-center justify-center rounded bg-slate-200 text-slate-500">
                         <CreditCard size={12} />
@@ -711,10 +711,10 @@ export default function App() {
 
             {/* Need Help */}
             <section className="overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-xl shadow-slate-900/20">
-              <h3 className="text-xl font-bold">تحتاج مساعدة؟</h3>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">إذا كان لديك أي استفسار حول طلبك، فريق الدعم متاح على مدار الساعة.</p>
+              <h3 className="text-xl font-bold">Need help?</h3>
+              <p className="mt-2 text-sm text-slate-400 leading-relaxed">If you have any questions about your order, our support team is available 24/7.</p>
               <button className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-bold text-slate-900 hover:bg-slate-100 transition-colors">
-                تحدث معنا
+                Chat with us
               </button>
             </section>
           </motion.aside>

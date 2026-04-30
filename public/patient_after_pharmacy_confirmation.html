@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +28,7 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    direction: rtl;
+    direction: ltr;
   }
 
   /* ── TOPBAR + SIDEBAR ── */
@@ -650,7 +650,7 @@
 
   <!-- LEFT: ORDER SUMMARY -->
   <div class="order-summary-wrap card order-summary">
-    <div class="card-title">ملخص الطلب</div>
+    <div class="card-title">Order Summary</div>
 
     <div id="order-items-list">
       <div class="order-item">
@@ -668,33 +668,33 @@
     <div class="order-rows">
       <div class="order-row">
         <span class="order-row-value" id="subtotal-value">0.00 ج.م</span>
-        <span class="order-row-label">المجموع الفرعي</span>
+        <span class="order-row-label">Subtotal</span>
       </div>
       <div class="order-row">
         <span class="order-row-value" id="delivery-value">0.00 ج.م</span>
-        <span class="order-row-label">رسوم التوصيل</span>
+        <span class="order-row-label">Delivery fee</span>
       </div>
       <div class="order-row">
         <span class="order-row-value" id="tax-value">0.00 ج.م</span>
-        <span class="order-row-label">ضريبة القيمة المضافة</span>
+        <span class="order-row-label">VAT (15%)</span>
       </div>
       <div class="order-row" id="discount-row" style="display:none;">
         <span class="order-row-value" id="discount-value">-0.00 ج.م</span>
-        <span class="order-row-label">الخصم</span>
+        <span class="order-row-label">Discount</span>
       </div>
     </div>
 
     <div class="order-total">
       <div class="order-total-value" id="total-value">0.00 ج.م</div>
-      <div class="order-total-label">الإجمالي</div>
+      <div class="order-total-label">Total</div>
     </div>
 
     <button class="confirm-btn" id="confirm-order-btn" type="button">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      تأكيد الطلب
+      Confirm Order
     </button>
 
-    <p class="confirm-note">بالنقر على تأكيد الطلب، فأنت توافق على <a href="#">شروط الخدمة وسياسة الخصوصية</a> الخاصة بهيل آب.</p>
+    <p class="confirm-note">By confirming this order, you agree to Healup <a href="#">Terms of Service and Privacy Policy</a>.</p>
   </div>
 
   <!-- RIGHT COLUMN -->
@@ -704,7 +704,7 @@
     <div class="card steps-card">
       <div class="steps-header">
         <span class="steps-percent" id="checkout-steps-percent">66% مكتمل</span>
-        <span class="steps-title">خطوات إتمام الطلب</span>
+        <span class="steps-title">Checkout Steps</span>
       </div>
       <div class="steps-bar"><div class="steps-bar-fill" id="checkout-steps-fill"></div></div>
       <div class="steps-list">
@@ -750,16 +750,16 @@
 
     <!-- SHIPPING OPTIONS -->
     <div class="card">
-      <div class="card-title">خيارات الشحن</div>
+      <div class="card-title">Shipping Options</div>
 
       <div class="shipping-tabs">
         <button class="shipping-tab" data-mode="pickup" style="flex-direction:row-reverse;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-          استلام من الصيدلية
+          Pickup from pharmacy
         </button>
         <button class="shipping-tab active" data-mode="delivery" style="flex-direction:row-reverse;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          توصيل للمنزل
+          Home delivery
         </button>
       </div>
       <p id="delivery-eta-hint" style="margin-top:10px;font-size:13px;color:#64748b;text-align:right;line-height:1.55;"></p>
@@ -789,7 +789,7 @@
           <div id="pickup-pharmacy-map" style="height:240px; background:#f8fafc;"></div>
           <div id="pickup-map-actions" class="pickup-map-actions">
             <a id="pickup-google-maps-btn" class="pickup-map-btn pickup-google-btn" href="#" target="_blank" rel="noreferrer">
-              خرائط جوجل
+              Google Maps
             </a>
             <button id="pickup-recenter-btn" class="pickup-map-btn pickup-recenter-btn" type="button" title="إعادة تمركز الخريطة">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -804,7 +804,7 @@
 
     <!-- PAYMENT -->
     <div class="card">
-      <div class="card-title">طرق الدفع</div>
+      <div class="card-title">Payment Methods</div>
 
       <div class="payment-options">
 
@@ -1489,7 +1489,7 @@
     if (!validateBeforeConfirm()) return;
     const responseId = getResponseId();
     if (!responseId) {
-      alert('لا يمكن تأكيد الطلب: responseId غير موجود.');
+      alert('Cannot confirm order: missing responseId.');
       return;
     }
     const token = window.localStorage.getItem('healup_token');
@@ -1501,7 +1501,7 @@
     const btn = document.getElementById('confirm-order-btn');
     const original = btn.innerHTML;
     btn.disabled = true;
-    btn.textContent = 'جاري التأكيد...';
+    btn.textContent = 'Confirming...';
     checkoutState.confirm = true;
     updateCheckoutProgressSteps(checkoutState);
     try {
@@ -1521,7 +1521,7 @@
         const street = document.getElementById('street-input')?.value?.trim() || '';
         deliveryAddr = [district, city, street].filter(Boolean).join('، ');
       } else {
-        deliveryAddr = [ph?.name, ph?.city, ph?.district, ph?.address_details].filter(Boolean).join(' — ') || 'استلام من الصيدلية';
+        deliveryAddr = [ph?.name, ph?.city, ph?.district, ph?.address_details].filter(Boolean).join(' — ') || 'Pickup from pharmacy';
       }
       const ordersUrl = apiUrl ? `${apiUrl.replace(/\/$/, '')}/api/orders` : '/api/orders';
       const response = await fetch(ordersUrl, {
@@ -1572,7 +1572,7 @@
         }, 250);
       }
     } catch (e) {
-      alert(e && e.message ? String(e.message) : 'حدث خطأ أثناء تأكيد الطلب (تحقق من الاتصال بالخادم).');
+      alert(e && e.message ? String(e.message) : 'An error occurred while confirming the order (check server connection).');
     } finally {
       btn.disabled = false;
       btn.innerHTML = original;

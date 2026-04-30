@@ -42,13 +42,13 @@ export default function PharmacyDashboardPage() {
   const relativeTime = React.useCallback((createdAt: string) => {
     const diffMs = Math.max(0, Date.now() - parseServerDate(createdAt).getTime());
     const sec = Math.floor(diffMs / 1000);
-    if (sec < 60) return "الآن";
+    if (sec < 60) return "Now";
     const minutes = Math.floor(sec / 60);
-    if (minutes < 60) return minutes === 1 ? "منذ دقيقة" : `منذ ${minutes} دقيقة`;
+    if (minutes < 60) return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return hours === 1 ? "منذ ساعة" : `منذ ${hours} ساعة`;
+    if (hours < 24) return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
     const days = Math.floor(hours / 24);
-    return days === 1 ? "منذ يوم" : `منذ ${days} يوم`;
+    return days === 1 ? "1 day ago" : `${days} days ago`;
   }, [parseServerDate]);
 
   const toArabicTime = React.useCallback((value: string) => {
@@ -76,7 +76,7 @@ export default function PharmacyDashboardPage() {
         .map((o) => ({
           id: o.id,
           status: o.status,
-          patient_name: o.patient?.name || "مريض",
+          patient_name: o.patient?.name || "Patient",
           total_price: Number(o.total_price || 0),
           created_at: o.created_at,
         }));
@@ -112,8 +112,8 @@ export default function PharmacyDashboardPage() {
         const firstMedicine = request.medicines?.[0]?.medicine_name;
         return {
           id: request.id,
-          patient_name: request.patient?.name || "مريض",
-          medicine_title: firstMedicine || (request.prescription_url ? "وصفة طبية" : "طلب دواء"),
+          patient_name: request.patient?.name || "Patient",
+          medicine_title: firstMedicine || (request.prescription_url ? "Prescription" : "Medicine request"),
           created_at: request.created_at,
         };
       });
@@ -148,11 +148,11 @@ export default function PharmacyDashboardPage() {
             <div className="stat-card">
               <div className="stat-top">
                 <div className="stat-icon icon-light">
-                  <span style={{ fontSize: 11, fontWeight: 900, color: "#1a56db", letterSpacing: "-0.5px" }}>جديد</span>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: "#1a56db", letterSpacing: "-0.5px" }}>NEW</span>
                 </div>
                 <span className="stat-badge badge-green">12%+</span>
               </div>
-              <div className="stat-label">طلبات جديدة</div>
+              <div className="stat-label">New orders</div>
               <div className="stat-value">{incomingTotal}</div>
             </div>
 
@@ -166,9 +166,9 @@ export default function PharmacyDashboardPage() {
                     <path d="M8 16H3v5" />
                   </svg>
                 </div>
-                <span className="stat-badge badge-orange">نشط</span>
+                <span className="stat-badge badge-orange">Active</span>
               </div>
-              <div className="stat-label">طلبات قيد التنفيذ</div>
+              <div className="stat-label">In progress orders</div>
               <div className="stat-value">25</div>
             </div>
 
@@ -180,9 +180,9 @@ export default function PharmacyDashboardPage() {
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
                 </div>
-                <span className="stat-badge badge-green">48 اليوم</span>
+                <span className="stat-badge badge-green">48 today</span>
               </div>
-              <div className="stat-label">مكتمل اليوم</div>
+              <div className="stat-label">Completed today</div>
               <div className="stat-value">48</div>
             </div>
 
@@ -198,9 +198,9 @@ export default function PharmacyDashboardPage() {
                 </div>
                 <span className="stat-badge badge-green">5%+</span>
               </div>
-              <div className="stat-label">إجمالي الإيرادات</div>
+              <div className="stat-label">Total revenue</div>
               <div className="stat-value">
-                3,500 <span>ج.م</span>
+                3,500 <span>EGP</span>
               </div>
             </div>
           </div>
@@ -215,10 +215,10 @@ export default function PharmacyDashboardPage() {
                     <path d="M2 8l10 7 10-7" />
                     <rect x="2" y="6" width="20" height="14" rx="2" />
                   </svg>
-                  <span className="section-title">طلبات جديدة</span>
+                  <span className="section-title">New orders</span>
                 </div>
                 <Link href="/pharmacy-dashboard/new-orders" style={{ fontSize: 12, color: "var(--blue)", textDecoration: "none", fontWeight: 600 }}>
-                  عرض الكل
+                  View all
                 </Link>
               </div>
 
@@ -226,10 +226,10 @@ export default function PharmacyDashboardPage() {
                 <table className="orders-table" style={{ tableLayout: "fixed", width: "100%" }}>
                   <thead>
                     <tr>
-                      <th style={{ width: "25%", textAlign: "center" }}>المريض</th>
-                      <th style={{ width: "25%", textAlign: "center" }}>الدواء / الوصفة</th>
-                      <th style={{ width: "20%", textAlign: "center" }}>الوقت</th>
-                      <th style={{ width: "30%", textAlign: "center" }}>الإجراء</th>
+                      <th style={{ width: "25%", textAlign: "center" }}>Patient</th>
+                      <th style={{ width: "25%", textAlign: "center" }}>Medicine / Prescription</th>
+                      <th style={{ width: "20%", textAlign: "center" }}>Time</th>
+                      <th style={{ width: "30%", textAlign: "center" }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -255,13 +255,13 @@ export default function PharmacyDashboardPage() {
                               const created = parseServerDate(row.created_at).getTime();
                               const diffMs = Math.max(0, Date.now() - created);
                               const sec = Math.floor(diffMs / 1000);
-                              if (sec < 60) return "الآن";
+                              if (sec < 60) return "Now";
                               const minutes = Math.floor(sec / 60);
-                              if (minutes < 60) return minutes === 1 ? "منذ دقيقة" : `منذ ${minutes} دقيقة`;
+                              if (minutes < 60) return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
                               const hours = Math.floor(minutes / 60);
-                              if (hours < 24) return hours === 1 ? "منذ ساعة" : `منذ ${hours} ساعة`;
+                              if (hours < 24) return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
                               const days = Math.floor(hours / 24);
-                              return days === 1 ? "منذ يوم" : `منذ ${days} يوم`;
+                              return days === 1 ? "1 day ago" : `${days} days ago`;
                             })()}
                           </span>
                         </td>
@@ -273,7 +273,7 @@ export default function PharmacyDashboardPage() {
                               type="button"
                               onClick={() => router.push(`/pharmacy-dashboard/new-orders?openRequestId=${row.id}`)}
                             >
-                              متوفر
+                              Available
                             </button>
                             <button
                               className="pill pill-red"
@@ -290,7 +290,7 @@ export default function PharmacyDashboardPage() {
                                 })();
                               }}
                             >
-                              غير متوفر
+                              Not available
                             </button>
                           </div>
                         </td>
@@ -299,7 +299,7 @@ export default function PharmacyDashboardPage() {
                     {newRequests.length === 0 ? (
                       <tr>
                         <td colSpan={4} style={{ textAlign: "center", color: "#64748b", padding: "14px" }}>
-                          لا توجد طلبات جديدة حالياً.
+                          No new orders at the moment.
                         </td>
                       </tr>
                     ) : null}
@@ -319,7 +319,7 @@ export default function PharmacyDashboardPage() {
                       <circle cx="5.5" cy="18.5" r="2.5" />
                       <circle cx="18.5" cy="18.5" r="2.5" />
                     </svg>
-                    <span className="section-title">نشاط حالي</span>
+                    <span className="section-title">Current Activity</span>
                   </div>
                 </div>
 
@@ -335,23 +335,23 @@ export default function PharmacyDashboardPage() {
 
                       const title =
                         isDelivery
-                          ? `طلب #${row.id} - خرج للتوصيل`
+                          ? `Order #${row.id} - Out for delivery`
                           : isReady
-                            ? `طلب #${row.id} - بالطريق`
+                            ? `Order #${row.id} - On the way`
                             : isCompleted
-                              ? `طلب #${row.id} - مكتمل`
-                              : `طلب #${row.id} - قيد المعالجة`;
+                              ? `Order #${row.id} - Completed`
+                              : `Order #${row.id} - Processing`;
 
                       const desc =
                         isDelivery
-                          ? `المريض: ${row.patient_name} • ${relativeTime(row.created_at)}`
+                          ? `Patient: ${row.patient_name} • ${relativeTime(row.created_at)}`
                           : isReady
-                            ? `المريض: ${row.patient_name} • جارٍ التسليم`
+                            ? `Patient: ${row.patient_name} • Delivering`
                             : isCompleted
-                              ? `تم إكمال الطلب بقيمة ${row.total_price.toFixed(2)} ج.م`
-                              : `المريض: ${row.patient_name} • ${relativeTime(row.created_at)}`;
+                              ? `Order completed for ${row.total_price.toFixed(2)} EGP`
+                              : `Patient: ${row.patient_name} • ${relativeTime(row.created_at)}`;
 
-                      const btnText = isCompleted ? "عرض الطلب" : "متابعة الطلب";
+                      const btnText = isCompleted ? "View Order" : "Track Order";
                       const btnClass = isReady ? "btn-confirm" : isCompleted ? "btn-track" : "btn-track";
                       const btnRoute = isCompleted ? "/pharmacy-dashboard/completed-orders" : "/pharmacy-dashboard/current-orders";
                       const iconClass = isDelivery ? "icon-delivery" : isReady ? "icon-ready" : isCompleted ? "icon-payment" : "icon-delivery";
@@ -413,7 +413,7 @@ export default function PharmacyDashboardPage() {
                                       })();
                                     }}
                                   >
-                                    {shippingOrderId === row.id ? "جاري التحديث..." : "توصيل الطلب"}
+                                    {shippingOrderId === row.id ? "Updating..." : "Deliver Order"}
                                   </button>
                                 ) : null}
 
@@ -444,7 +444,7 @@ export default function PharmacyDashboardPage() {
 
                     {activityRows.length === 0 ? (
                       <div className="activity-item" style={{ padding: "14px 16px", textAlign: "center", color: "#64748b" }}>
-                        لا يوجد نشاط حالي.
+                        No current activity.
                       </div>
                     ) : null}
                   </div>
@@ -457,7 +457,7 @@ export default function PharmacyDashboardPage() {
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
-                  <span>إضافة مخزون</span>
+                  <span>Add Inventory</span>
                 </button>
 
                 <button className="bottom-btn btn-support" type="button">
@@ -468,7 +468,7 @@ export default function PharmacyDashboardPage() {
                     <path d="M21 17c0 2.21-1.79 4-4 4h-2" />
                     <circle cx="12" cy="21" r="1" fill="#1a56db" />
                   </svg>
-                  <span>الدعم الفني</span>
+                  <span>Technical Support</span>
                 </button>
               </div>
             </div>

@@ -23,12 +23,12 @@ function parseServerDate(value?: string | null): Date {
 function pharmacyBranchLine(ph: Order["pharmacy"]): string {
   if (!ph) return "";
   const parts = [ph.district, ph.city].filter(Boolean);
-  if (parts.length) return `فرع ${parts.join("، ")}`;
+  if (parts.length) return `Branch ${parts.join(", ")}`;
   return (ph.address_details || "").trim();
 }
 
 function formatMoney(n: number) {
-  return `${n.toFixed(2)} ج.م`;
+  return `${n.toFixed(2)} EGP`;
 }
 
 function orderDeliveryFlag(o: Order): boolean {
@@ -60,7 +60,7 @@ export default function PatientOrderTrackingView() {
   React.useEffect(() => {
     if (!Number.isFinite(orderId) || orderId < 1) {
       setLoading(false);
-      setError("رقم الطلب غير صالح.");
+      setError("Invalid order number.");
       return;
     }
     let cancelled = false;
@@ -72,7 +72,7 @@ export default function PatientOrderTrackingView() {
       } catch (e: unknown) {
         if (!cancelled) {
           const ax = e as { response?: { data?: { message?: string } } };
-          setError(ax.response?.data?.message?.trim() || "تعذر تحميل الطلب.");
+          setError(ax.response?.data?.message?.trim() || "Unable to load order.");
           setOrder(null);
         }
       } finally {
@@ -101,20 +101,20 @@ export default function PatientOrderTrackingView() {
     const stageTwoTitle =
       s === "out_for_delivery" || s === "ready_for_pickup" || s === "completed"
         ? orderDeliveryFlag(order)
-          ? "خارج للتوصيل"
-          : "جاهز للاستلام"
-        : "تأكيد الصيدلية والتجهيز";
+          ? "Out for delivery"
+          : "Ready for pickup"
+        : "Pharmacy confirmation and preparation";
 
     const stageTwoDesc =
       s === "completed"
         ? orderDeliveryFlag(order)
-          ? "اكتملت مرحلة خروج المندوب للتوصيل"
-          : "اكتملت مرحلة تجهيز الطلب للاستلام"
+          ? "Courier dispatch stage completed"
+          : "Preparation stage completed"
         : s === "out_for_delivery" || s === "ready_for_pickup"
           ? orderDeliveryFlag(order)
-            ? "المندوب في الطريق إليك"
-            : "يمكنك الاستلام من الفرع"
-          : "الصيدلية تراجع الطلب وتؤكده، ثم يبدأ التجهيز بعد موافقتك.";
+            ? "Courier is on the way to you"
+            : "You can pick up from branch"
+          : "Pharmacy reviews and confirms the order, then starts preparation after your approval.";
 
     const step3Unlocked =
       s === "out_for_delivery" || s === "ready_for_pickup" || s === "completed";
@@ -128,8 +128,8 @@ export default function PatientOrderTrackingView() {
     const steps = [
       {
         key: "s1",
-        title: "تم استلام الطلب",
-        desc: "تم تسجيل طلبك بعد إتمام الشراء.",
+        title: "Order received",
+        desc: "Your order was registered after purchase.",
         done: true,
         current: false,
       },
@@ -142,15 +142,15 @@ export default function PatientOrderTrackingView() {
       },
       {
         key: "s3",
-        title: orderDeliveryFlag(order) ? "خارج للتوصيل" : "جاهز للاستلام",
-        desc: orderDeliveryFlag(order) ? "المندوب في الطريق إليك" : "يمكنك الاستلام من الفرع",
+        title: orderDeliveryFlag(order) ? "Out for delivery" : "Ready for pickup",
+        desc: orderDeliveryFlag(order) ? "Courier is on the way to you" : "You can pick up from branch",
         done: s === "completed",
         current: step3Unlocked && s !== "completed",
       },
       {
         key: "s4",
-        title: "تم التسليم",
-        desc: orderDeliveryFlag(order) ? "تم تسليم الطلب" : "تم إكمال الطلب",
+        title: "Delivered",
+        desc: orderDeliveryFlag(order) ? "Order has been delivered" : "Order has been completed",
         done: s === "completed",
         current: false,
       },
@@ -182,13 +182,13 @@ export default function PatientOrderTrackingView() {
     ) {
       return formatDeliveryEtaRangeKm(haversineKm(patLat, patLng, plat, plng));
     }
-    return "يُحدَّد بعد ربط المواقع";
+    return "Set after linking locations";
   }, [order]);
 
   if (loading) {
     return (
       <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10 text-center text-slate-500 rtl">
-        جاري تحميل تفاصيل الطلب…
+        Loading order details...
       </div>
     );
   }
@@ -197,12 +197,12 @@ export default function PatientOrderTrackingView() {
     return (
       <div className="patient-order-tracking-wrap min-h-[50vh] bg-slate-50 px-4 py-10 rtl">
         <div className="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-slate-700">{error || "الطلب غير موجود."}</p>
+          <p className="text-slate-700">{error || "Order not found."}</p>
           <Link
             href="/patient-home"
             className="mt-6 inline-flex items-center justify-center rounded-xl bg-[#1a56db] px-6 py-3 text-sm font-bold text-white"
           >
-            العودة للرئيسية
+            Back to Home
           </Link>
         </div>
       </div>
@@ -238,9 +238,9 @@ export default function PatientOrderTrackingView() {
           className="flex flex-col justify-between gap-4 md:flex-row md:items-center"
         >
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">تتبع الطلب</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Track Order</h1>
             <p className="mt-1 text-slate-500">
-              رقم الطلب: <span className="font-mono font-bold text-slate-800">#{order.id}</span>
+              Order number: <span className="font-mono font-bold text-slate-800">#{order.id}</span>
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -249,14 +249,14 @@ export default function PatientOrderTrackingView() {
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50"
             >
               <Home className="h-4 w-4" />
-              العودة للرئيسية
+              Back to Home
             </Link>
             <div className="flex items-center gap-3 rounded-2xl border border-[#1a56db]/20 bg-[#e8effc] px-4 py-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1a56db] text-white">
                 <Clock className="h-5 w-5" />
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold text-[#1a56db]">الوقت المتوقع</p>
+                <p className="text-xs font-bold text-[#1a56db]">Estimated time</p>
                 <p className="text-lg font-black text-slate-900">{etaLabel}</p>
               </div>
             </div>
@@ -265,7 +265,7 @@ export default function PatientOrderTrackingView() {
 
         {rejected ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-bold text-red-800">
-            تم رفض هذا الطلب من الصيدلية.
+            This order has been rejected by the pharmacy.
           </div>
         ) : null}
 
@@ -277,10 +277,10 @@ export default function PatientOrderTrackingView() {
             className="space-y-6 lg:col-span-8"
           >
             <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 className="mb-2 text-lg font-bold text-slate-900">حالة الطلب</h2>
+              <h2 className="mb-2 text-lg font-bold text-slate-900">Order Status</h2>
               {trackingUi?.createdAt && Number.isFinite(trackingUi.createdAt.getTime()) ? (
                 <p className="mb-6 text-xs text-slate-400">
-                  تاريخ إنشاء الطلب:{" "}
+                  Order creation date:{" "}
                   {trackingUi.createdAt.toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" })}
                 </p>
               ) : (
@@ -310,7 +310,7 @@ export default function PatientOrderTrackingView() {
                           <h3 className={`font-bold ${active ? "text-slate-900" : "text-slate-400"}`}>{step.title}</h3>
                           {step.current ? (
                             <span className="rounded-full bg-[#1a56db]/10 px-2 py-0.5 text-[10px] font-extrabold text-[#1a56db]">
-                              جاري الآن
+                              Current
                             </span>
                           ) : null}
                         </div>
@@ -327,7 +327,7 @@ export default function PatientOrderTrackingView() {
                 <div className="flex items-center justify-between border-b border-slate-100 bg-white/95 px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-                    <h2 className="font-bold text-slate-900">موقع المندوب</h2>
+                    <h2 className="font-bold text-slate-900">Courier location</h2>
                   </div>
                 </div>
                 <PatientCourierRouteMap
@@ -341,7 +341,7 @@ export default function PatientOrderTrackingView() {
             ) : showCourierMap && !isDelivery ? (
               <section className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-4 py-3">
-                  <h2 className="font-bold text-slate-900">المسار إلى الصيدلية</h2>
+                  <h2 className="font-bold text-slate-900">Route to pharmacy</h2>
                 </div>
                 <PatientCourierRouteMap
                   pharmacy={pharmacyCoords!}
@@ -354,8 +354,8 @@ export default function PatientOrderTrackingView() {
             ) : (
               <section className="rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
                 {trackingUi?.step3Unlocked
-                  ? "الخريطة تتطلب موقع الصيدلية وموقعك (إحداثيات) في الملف الشخصي."
-                  : "ستظهر الخريطة ومندوب التوصيل عندما يؤكد الصيدلي خروج الطلب للتوصيل."}
+                  ? "Map requires pharmacy and your coordinates in profile."
+                  : "The map and courier will appear when pharmacy confirms dispatch."}
               </section>
             )}
           </motion.div>
@@ -367,18 +367,18 @@ export default function PatientOrderTrackingView() {
             className="space-y-6 lg:col-span-4"
           >
             <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 className="mb-5 text-lg font-bold text-slate-900">تفاصيل التوصيل</h2>
+              <h2 className="mb-5 text-lg font-bold text-slate-900">Delivery details</h2>
               <div className="space-y-5">
                 <div className="flex gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50">
                     <MapPin className="h-5 w-5 text-slate-400" />
                   </div>
                   <div className="min-w-0 text-right">
-                    <p className="mb-1 text-xs text-slate-400">عنوان {isDelivery ? "التوصيل" : "الاستلام"}</p>
+                    <p className="mb-1 text-xs text-slate-400">{isDelivery ? "Delivery address" : "Pickup address"}</p>
                     <p className="whitespace-pre-wrap break-words font-medium leading-relaxed text-slate-900">
                       {deliveryAddressText}
                     </p>
-                    <p className="mt-1 text-[11px] text-slate-400">كما أدخلته عند تأكيد الطلب</p>
+                    <p className="mt-1 text-[11px] text-slate-400">As entered upon order confirmation</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -386,7 +386,7 @@ export default function PatientOrderTrackingView() {
                     <User className="h-5 w-5 text-slate-400" />
                   </div>
                   <div className="min-w-0 text-right">
-                    <p className="mb-1 text-xs text-slate-400">المستلم</p>
+                    <p className="mb-1 text-xs text-slate-400">Recipient</p>
                     <p className="font-medium text-slate-900">{patientName}</p>
                     <p className="text-left text-sm text-slate-600" dir="ltr">
                       {phoneDisplay}
@@ -402,14 +402,14 @@ export default function PatientOrderTrackingView() {
                   <Store className="h-5 w-5" />
                 </div>
                 <div className="text-right">
-                  <h2 className="font-bold text-slate-900">{ph?.name || "الصيدلية"}</h2>
+                  <h2 className="font-bold text-slate-900">{ph?.name || "Pharmacy"}</h2>
                   {branch ? <p className="text-xs text-slate-500">{branch}</p> : null}
                 </div>
               </div>
 
               <div className="space-y-4">
                 {(order.items ?? []).length === 0 ? (
-                  <p className="text-center text-sm text-slate-500">لا توجد أصناف مسجّلة لهذا الطلب.</p>
+                  <p className="text-center text-sm text-slate-500">No items recorded for this order.</p>
                 ) : (
                   (order.items ?? []).map((item) => (
                     <div key={item.id} className="flex items-start gap-3 border-b border-slate-50 pb-4 last:border-0 last:pb-0">
@@ -418,7 +418,7 @@ export default function PatientOrderTrackingView() {
                       </div>
                       <div className="min-w-0 flex-1 text-right">
                         <p className="font-bold text-slate-900">{item.medicine_name}</p>
-                        <p className="text-sm text-slate-500">الكمية: {item.quantity}</p>
+                        <p className="text-sm text-slate-500">Quantity: {item.quantity}</p>
                       </div>
                       <p className="shrink-0 font-bold text-slate-900">{formatMoney(Number(item.price) * item.quantity)}</p>
                     </div>
@@ -428,36 +428,36 @@ export default function PatientOrderTrackingView() {
 
               <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">المجموع الفرعي</span>
+                  <span className="text-slate-500">Subtotal</span>
                   <span className="font-medium text-slate-800">{formatMoney(pricing.subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">{isDelivery ? "رسوم التوصيل" : "التوصيل"}</span>
+                  <span className="text-slate-500">{isDelivery ? "Delivery fee" : "Delivery"}</span>
                   <span className="font-medium text-slate-800">
                     {isDelivery ? formatMoney(pricing.deliveryDisplay) : "—"}
                   </span>
                 </div>
                 {pricing.discountDisplay > 0 ? (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">الخصم{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
+                    <span className="text-slate-500">Discount{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
                     <span className="font-medium text-emerald-700">-{formatMoney(pricing.discountDisplay)}</span>
                   </div>
                 ) : null}
                 {pricing.subtotal > 0 ? (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">ضريبة القيمة المضافة (15%)</span>
+                    <span className="text-slate-500">VAT (15%)</span>
                     <span className="font-medium text-slate-800">{formatMoney(pricing.vatDisplay)}</span>
                   </div>
                 ) : null}
                 <div className="flex justify-between border-t border-slate-100 pt-2">
-                  <span className="text-lg font-black text-[#1a56db]">الإجمالي</span>
+                  <span className="text-lg font-black text-[#1a56db]">Total</span>
                   <span className="text-xl font-black text-[#1a56db]">{formatMoney(pricing.grandDisplay)}</span>
                 </div>
               </div>
 
               {order.payment_method ? (
                 <div className="mt-4 rounded-xl bg-slate-50 px-3 py-2 text-center text-xs text-slate-600">
-                  طريقة الدفع: <span className="font-bold text-slate-900">{order.payment_method}</span>
+                  Payment method: <span className="font-bold text-slate-900">{order.payment_method}</span>
                 </div>
               ) : null}
             </section>
@@ -468,14 +468,14 @@ export default function PatientOrderTrackingView() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
               >
                 <Home className="h-4 w-4" />
-                العودة للرئيسية
+                Back to Home
               </Link>
               <Link
                 href={`/patient-order-confirmation?orderId=${order.id}`}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#1a56db]/30 bg-[#f0f6ff] py-3 text-sm font-bold text-[#1a56db] hover:bg-[#e4edfc]"
               >
                 <Package className="h-4 w-4" />
-                ملخص تأكيد الطلب
+                Order confirmation summary
               </Link>
             </div>
           </motion.aside>

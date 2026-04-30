@@ -65,7 +65,7 @@ export default function PatientHomePage() {
     const newItem: CartItemData = {
       id: `item-${Date.now()}`,
       name: q,
-      desc: "أقراص - حسب الوصفة",
+      desc: "Tablets - as prescribed",
       price: getDrugPrice(q),
       qty: 1,
       emoji: EMOJIS[idx],
@@ -99,21 +99,21 @@ export default function PatientHomePage() {
       <nav>
         <ul className="nav-links">
           <li>
-            <Link href="/patient-home">الرئيسية</Link>
+            <Link href="/patient-home">Home</Link>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("how")}>
-              كيف يعمل
+              How it works
             </button>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("pharmacies")}>
-              الصيدليات
+              Pharmacies
             </button>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("contact")}>
-              اتصل بنا
+              Contact us
             </button>
           </li>
         </ul>
@@ -125,15 +125,15 @@ export default function PatientHomePage() {
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 01-8 0" />
             </svg>
-            السلة
+            Cart
           </Link>
           {!isLoggedIn ? (
             <>
               <a className="btn-login-nav" href="/patient-login">
-                تسجيل الدخول
+                Login
               </a>
               <a className="btn-cta-nav" href="/signup">
-                انضم إلينا
+                Join us
               </a>
             </>
           ) : (
@@ -145,7 +145,7 @@ export default function PatientHomePage() {
                 router.refresh();
               }}
             >
-              تسجيل الخروج
+              Logout
             </button>
           )}
         </div>
@@ -154,13 +154,13 @@ export default function PatientHomePage() {
       {/* ─── HERO ─── */}
       <section className="hero">
         <div className="hero-badge">
-          <span>أكبر شبكة صيدليات في المنطقة</span>
+          <span>The largest pharmacy network in the region</span>
         </div>
 
         <h1>
-          ابحث عن دوائك <span className="highlight">الآن</span> بكل سهولة
+          Find your medicine <span className="highlight">now</span> with ease
         </h1>
-        <p>نحن نربط المرضى بالصيدليات التي توفر الأدوية النادرة والأساسية في وقت قياسي.</p>
+        <p>We connect patients with pharmacies that provide rare and essential medicines quickly.</p>
 
         <div id="search-section" className="search-bar-wrap">
           <div className={`search-bar ${searchError ? "search-bar-error" : ""}`}>
@@ -183,7 +183,7 @@ export default function PatientHomePage() {
               ref={searchInputRef}
               className={`search-input ${searchError ? "search-input-error" : ""}`}
               type="text"
-              placeholder="ما هو اسم الدواء الذي تبحث عنه؟"
+              placeholder="What medicine are you looking for?"
               value={searchQuery}
               onChange={handleSearchChange}
               onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
@@ -207,7 +207,7 @@ export default function PatientHomePage() {
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>كل المدن</span>
+              <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>All cities</span>
               <svg
                 width="12"
                 height="12"
@@ -223,11 +223,11 @@ export default function PatientHomePage() {
             </div>
             <div className="search-divider" />
             <button className={`btn-search ${searchShake ? "btn-search-shake" : ""}`} type="button" onClick={handleSearchSubmit}>
-              بحث
+              Search
             </button>
           </div>
           {searchError ? (
-            <p className="search-error-message">يرجى إدخال اسم الدواء قبل البحث.</p>
+            <p className="search-error-message">Please enter a medicine name before searching.</p>
           ) : null}
           {showSuggestions && (
             <div className="search-autocomplete">
@@ -246,7 +246,7 @@ export default function PatientHomePage() {
                 ))
               ) : (
                 <div className="search-autocomplete-empty">
-                  اكتب للبحث في قائمة الأدوية
+                  Type to search medicines
                 </div>
               )}
             </div>
@@ -263,9 +263,9 @@ export default function PatientHomePage() {
         />
         {prescriptionPreview ? (
           <div className="prescription-uploaded" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 8 }}>
-            <img src={prescriptionPreview} alt="الروشتة" style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: "1px solid var(--border)" }} />
+            <img src={prescriptionPreview} alt="Prescription" style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: "1px solid var(--border)" }} />
             <Link href="/patient-cart" className="btn-search" style={{ textDecoration: "none" }}>
-              اذهب للسلة
+              Go to cart
             </Link>
           </div>
         ) : (
@@ -292,8 +292,8 @@ export default function PatientHomePage() {
             </svg>
           </span>
           <span className="prescription-text">
-            <strong>رفع الروشتة</strong>
-            <span>اضغط هنا لرفع ملف الروشتة الخاص بك</span>
+            <strong>Upload prescription</strong>
+            <span>Click here to upload your prescription file</span>
           </span>
         </button>
         )}
@@ -303,27 +303,27 @@ export default function PatientHomePage() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563eb" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 14.5l-4-4 1.41-1.41L10.5 13.67l5.59-5.59L17.5 9.5l-7 7z" />
             </svg>
-            أدوية معتمدة
+            Verified medicines
           </div>
           <div className="hero-badge-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb" xmlns="http://www.w3.org/2000/svg">
               <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
             </svg>
-            توصيل سريع
+            Fast delivery
           </div>
           <div className="hero-badge-item">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563eb" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 3a9 9 0 0 0-9 9v5a3 3 0 0 0 3 3h1a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H4.07A8 8 0 0 1 20 12h-3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1a3 3 0 0 0 3-3v-5a9 9 0 0 0-9-9z" />
             </svg>
-            دعم 24/7
+            24/7 support
           </div>
         </div>
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
       <section id="how" className="section section-center">
-        <h2>كيف يعمل Healup؟</h2>
-        <p className="section-sub">ثلاث خطوات بسيطة تفصلك عن الحصول على دوائك النادر أو المفقود من السوق.</p>
+        <h2>How Healup works?</h2>
+        <p className="section-sub">Three simple steps to get your rare or missing medicine.</p>
 
         <div className="steps-grid">
           <div className="step">
@@ -334,8 +334,8 @@ export default function PatientHomePage() {
                 <polyline points="7.5 10 9.5 12 13 8" />
               </svg>
             </div>
-            <h3>1. ابحث</h3>
-            <p>أدخل اسم الدواء المطلوب في محرك البحث الخاص بنا للتحقق من قاعدة بياناتنا الواسعة.</p>
+            <h3>1. Search</h3>
+            <p>Enter the medicine name in our search engine to check our wide database.</p>
           </div>
           <div className="step">
             <div className="step-icon">
@@ -345,8 +345,8 @@ export default function PatientHomePage() {
                 <polyline points="9 13 11 15 15 11" />
               </svg>
             </div>
-            <h3>2. اطلب</h3>
-            <p>في حال عدم توفره، أرسل طلبًا مباشرة لأمانات الصيدليات المشتركة في شبكتنا بضغطة زر.</p>
+            <h3>2. Request</h3>
+            <p>If unavailable, send a direct request to pharmacies in our network with one click.</p>
           </div>
           <div className="step">
             <div className="step-icon">
@@ -354,8 +354,8 @@ export default function PatientHomePage() {
                 <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
               </svg>
             </div>
-            <h3>3. احصل على النتائج</h3>
-            <p>ستصلك تنبيهات فورية قرب توفر الدواء وتذكيده من قبل إحدى الصيدليات القريبة منك.</p>
+            <h3>3. Get results</h3>
+            <p>Receive instant alerts when the medicine becomes available at nearby pharmacies.</p>
           </div>
         </div>
       </section>
@@ -373,15 +373,15 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-card-overlay-text">
-                <strong>ثقة وأمان</strong>
-                <span>أكثر من 5000 صيدلية معتمدة</span>
+                <strong>Trust & Safety</strong>
+                <span>More than 5000 verified pharmacies</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="why-content">
-          <h2>لماذا تختار Healup؟</h2>
+          <h2>Why choose Healup?</h2>
 
           <div className="why-features">
             <div className="why-feature">
@@ -393,8 +393,8 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-feature-text">
-                <strong>شبكة واسعة ومتنامية</strong>
-                <span>نحن نضم آلاف الصيدليات في جميع المدن لضمان أعلى نسبة لتوفر الأدوية.</span>
+                <strong>Wide and growing network</strong>
+                <span>We include thousands of pharmacies across cities for better medicine availability.</span>
               </div>
             </div>
 
@@ -405,8 +405,8 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-feature-text">
-                <strong>سرعة استجابة مذهلة</strong>
-                <span>نظامنا يرسل طلبك مباشرة في ثوان، وتحصل على الردود والإشعار في غضون دقائق.</span>
+                <strong>Fast response</strong>
+                <span>Our system sends your request instantly and you receive replies within minutes.</span>
               </div>
             </div>
 
@@ -418,8 +418,8 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-feature-text">
-                <strong>خصوصية تامة لبياناتك</strong>
-                <span>بياناتك الطبية وطلباتك مشفرة ومحمية بالكامل ولا يتم مشاركتها إلا مع الصيدلية المختارة.</span>
+                <strong>Complete privacy</strong>
+                <span>Your medical data is encrypted and shared only with the selected pharmacy.</span>
               </div>
             </div>
           </div>
@@ -429,7 +429,7 @@ export default function PatientHomePage() {
             type="button"
             onClick={() => document.getElementById("search-section")?.scrollIntoView({ behavior: "smooth" })}
           >
-            ابدأ البحث مجانًا
+            Start searching for free
           </button>
         </div>
       </section>
@@ -438,19 +438,19 @@ export default function PatientHomePage() {
       <section className="stats-section" id="pharmacies">
         <div className="stat-item">
           <div className="stat-number">100K+</div>
-          <div className="stat-label">مستخدم نشط</div>
+          <div className="stat-label">Active users</div>
         </div>
         <div className="stat-item">
           <div className="stat-number">5K+</div>
-          <div className="stat-label">صيدلية مسجلة</div>
+          <div className="stat-label">Registered pharmacies</div>
         </div>
         <div className="stat-item">
           <div className="stat-number">200K+</div>
-          <div className="stat-label">طلب دواء ناجح</div>
+          <div className="stat-label">Successful medicine requests</div>
         </div>
         <div className="stat-item">
           <div className="stat-number">15</div>
-          <div className="stat-label">مدينة مغطاة</div>
+          <div className="stat-label">Covered cities</div>
         </div>
       </section>
 
@@ -469,7 +469,7 @@ export default function PatientHomePage() {
                 </svg>
               </span>
             </a>
-            <p>نحن هنا لتسهيل رحلة البحث عن الدواء ومزودي الرعاية الصحية وضمان الوصول الفوري للعلاج في الوقت المناسب.</p>
+            <p>We simplify the journey of finding medicine and healthcare providers with timely access to treatment.</p>
             <div className="footer-social" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', width: '100%', marginRight: 0, marginLeft: 'auto', direction: 'ltr' }}>
               <button className="social-btn" type="button">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -490,54 +490,54 @@ export default function PatientHomePage() {
           </div>
 
           <div className="footer-col">
-            <h4>روابط سريعة</h4>
+            <h4>Quick Links</h4>
             <ul>
               <li>
-                <a href="#">الرئيسية</a>
+                <a href="#">Home</a>
               </li>
               <li>
-                <a href="#">عن Healup</a>
+                <a href="#">About Healup</a>
               </li>
               <li>
-                <a href="#">الصيدليات الشريكة</a>
+                <a href="#">Partner Pharmacies</a>
               </li>
               <li>
-                <a href="#">تطبيق هيلاب</a>
+                <a href="#">Healup App</a>
               </li>
             </ul>
           </div>
 
           <div className="footer-col">
-            <h4>الدعم القانوني</h4>
+            <h4>Legal</h4>
             <ul>
               <li>
-                <a href="#">سياسة الخصوصية</a>
+                <a href="#">Privacy Policy</a>
               </li>
               <li>
-                <a href="#">شروط الخدمة</a>
+                <a href="#">Terms of Service</a>
               </li>
               <li>
-                <a href="#">الأسئلة الشائعة</a>
+                <a href="#">FAQ</a>
               </li>
               <li>
-                <a href="#">تواصل معنا</a>
+                <a href="#">Contact us</a>
               </li>
             </ul>
           </div>
 
           <div className="footer-col footer-newsletter">
-            <h4>اشترك في النشرة البريدية</h4>
-            <p>احصل على آخر التحديثات الصحية وتنبيهات توفر الأدوية.</p>
+            <h4>Subscribe to newsletter</h4>
+            <p>Get the latest health updates and medicine availability alerts.</p>
             <div className="newsletter-form">
               <button className="newsletter-btn" type="button">
-                اشترك
+                Subscribe
               </button>
-              <input className="newsletter-input" type="email" placeholder="البريد الإلكتروني" />
+              <input className="newsletter-input" type="email" placeholder="Email address" />
             </div>
           </div>
         </div>
 
-        <div className="footer-bottom">© Healup 2024. جميع الحقوق محفوظة.</div>
+        <div className="footer-bottom">© Healup 2024. All rights reserved.</div>
       </footer>
     </div>
     </PatientShell>

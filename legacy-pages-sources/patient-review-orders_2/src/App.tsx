@@ -48,12 +48,12 @@ const toRelativeArabic = (value: string) => {
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('الكل');
+  const [activeTab, setActiveTab] = useState('All');
   const [requests, setRequests] = useState<Request[]>([]);
   const [orderByRequest, setOrderByRequest] = useState<Record<number, { id: number; status: string; created_at: string }>>({});
   const [loading, setLoading] = useState(true);
 
-  const tabs = ['الكل', 'قيد التنفيذ', 'المكتملة', 'الملغاة'];
+  const tabs = ['All', 'In Progress', 'Completed', 'Cancelled'];
 
   useEffect(() => {
     const load = async () => {
@@ -111,18 +111,18 @@ export default function App() {
 
       const statusLabel =
         request.status === 'cancelled'
-          ? 'ملغي'
+          ? 'Cancelled'
           : isCompletedOrder
-          ? 'تم التسليم'
+          ? 'Delivered'
           : isOutForDelivery
-          ? 'في الطريق'
+          ? 'On the way'
           : hasLinkedOrder
-          ? 'قيد التنفيذ'
+          ? 'In progress'
           : request.status === 'active'
           ? request.has_offers
-            ? 'تم رد من الصيدليه'
-            : 'بانتظار رد من الصيدليه'
-          : 'قيد التنفيذ';
+            ? 'Pharmacy responded'
+            : 'Awaiting pharmacy response'
+          : 'In progress';
 
       const fromOffer =
         Boolean(request.uses_latest_offer_pricing) &&
@@ -131,7 +131,7 @@ export default function App() {
       const priceNum = fromOffer ? request.latest_offer_grand_total! : request.estimated_total;
       const pharmacyName =
         (request.latest_pharmacy_name && String(request.latest_pharmacy_name).trim()) ||
-        'بانتظار اختيار الصيدلية';
+        'Awaiting pharmacy selection';
 
       return {
         id: String(request.id),
@@ -146,10 +146,10 @@ export default function App() {
         contents: (() => {
           const hasRx = Boolean(request.prescription_url && String(request.prescription_url).trim());
           const hasMeds = Boolean(request.medicines && request.medicines.length > 0);
-          if (hasMeds && hasRx) return 'علاج + روشتة';
+          if (hasMeds && hasRx) return 'Medicine + Prescription';
           if (hasMeds) return 'علاج';
           if (hasRx) return 'روشتة';
-          return 'طلب جديد';
+          return 'New request';
         })(),
         hasOffers: Boolean(request.has_offers),
         latestOfferResponseId: typeof request.latest_offer_response_id === 'number' ? request.latest_offer_response_id : null,
@@ -158,10 +158,10 @@ export default function App() {
   }, [requests, orderByRequest]);
 
   const filteredOrders = useMemo(() => {
-    if (activeTab === 'الكل') return orders;
-    if (activeTab === 'قيد التنفيذ') return orders.filter((o) => o.status === 'processing' || o.status === 'waiting');
-    if (activeTab === 'المكتملة') return orders.filter((o) => o.status === 'delivered');
-    if (activeTab === 'الملغاة') return orders.filter((o) => o.status === 'cancelled');
+    if (activeTab === 'All') return orders;
+    if (activeTab === 'In Progress') return orders.filter((o) => o.status === 'processing' || o.status === 'waiting');
+    if (activeTab === 'Completed') return orders.filter((o) => o.status === 'delivered');
+    if (activeTab === 'Cancelled') return orders.filter((o) => o.status === 'cancelled');
     return orders;
   }, [activeTab, orders]);
 
@@ -183,12 +183,12 @@ export default function App() {
 
               {/* Navigation */}
               <nav className="hidden md:flex items-center gap-8">
-                <Link href="/patient-home" className="text-gray-400 hover:text-[#0052CC] font-bold transition-colors">الرئيسية</Link>
+                <Link href="/patient-home" className="text-gray-400 hover:text-[#0052CC] font-bold transition-colors">Home</Link>
                 <Link href="/patient-review-orders" className="text-[#0052CC] font-extrabold relative py-2">
-                  طلباتي
+                  My Orders
                   <span className="absolute bottom-0 left-0 right-0 h-1 bg-[#0052CC] rounded-full"></span>
                 </Link>
-                <Link href="/patient-profile" className="text-gray-400 hover:text-[#0052CC] font-bold transition-colors">الملف الشخصي</Link>
+                <Link href="/patient-profile" className="text-gray-400 hover:text-[#0052CC] font-bold transition-colors">Profile</Link>
               </nav>
             </div>
 
@@ -213,7 +213,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-black text-[#002B5B] mb-3"
           >
-            طلباتي
+            My Orders
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -221,7 +221,7 @@ export default function App() {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-lg font-medium"
           >
-            تتبع وإدارة جميع طلبات الأدوية الخاصة بك
+            Track and manage all your medicine orders
           </motion.p>
         </div>
 
@@ -252,13 +252,13 @@ export default function App() {
         <div className="space-y-8 max-w-6xl mx-auto">
           {loading ? (
             <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-gray-100 text-center text-gray-500">
-              جاري تحميل الطلبات...
+              Loading orders...
             </div>
           ) : null}
 
           {!loading && filteredOrders.length === 0 ? (
             <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-gray-100 text-center text-gray-500">
-              لا توجد طلبات حالياً.
+              No orders available right now.
             </div>
           ) : null}
 
@@ -320,7 +320,7 @@ export default function App() {
                 {/* Order Details */}
                 <div className="flex-1 space-y-6 text-right">
                   <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-300">رقم الطلب</p>
+                    <p className="text-xs font-bold text-gray-300">Order number</p>
                     <h3 className="text-2xl font-black text-gray-900">#{order.number}</h3>
                   </div>
 
@@ -345,20 +345,20 @@ export default function App() {
                   </div>
 
                   <p className="text-sm text-gray-400">
-                    <span className="font-extrabold text-gray-600">المحتويات:</span> {order.contents}
+                    <span className="font-extrabold text-gray-600">Contents:</span> {order.contents}
                   </p>
 
                   {/* Actions */}
                   <div className="flex flex-row gap-3 pt-2">
                     <Link href={`/patient-review-order-history?requestId=${encodeURIComponent(order.id)}`} className="px-10 bg-white border border-gray-200 text-gray-600 py-3 rounded-xl font-black text-sm hover:bg-gray-50 transition-all inline-flex items-center justify-center">
-                      تفاصيل الطلب
+                      Order Details
                     </Link>
                     {!order.orderId && order.hasOffers && order.latestOfferResponseId ? (
                       <Link
                         href={`/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(order.id)}&responseId=${encodeURIComponent(String(order.latestOfferResponseId))}`}
                         className="px-10 bg-[#0052CC] border border-[#0052CC] text-white py-3 rounded-xl font-black text-sm hover:opacity-90 transition-all inline-flex items-center justify-center"
                       >
-                        تأكيد الطلب
+                        Confirm Order
                       </Link>
                     ) : null}
                     {order.orderId && order.status !== 'delivered' ? (
@@ -366,7 +366,7 @@ export default function App() {
                         href={`/patient-order-tracking?orderId=${encodeURIComponent(String(order.orderId))}`}
                         className="px-10 bg-[#0052CC] border border-[#0052CC] text-white py-3 rounded-xl font-black text-sm hover:opacity-90 transition-all inline-flex items-center justify-center"
                       >
-                        تتبع الطلب
+                        Track Order
                       </Link>
                     ) : null}
                   </div>

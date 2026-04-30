@@ -28,7 +28,7 @@ function toArabicTime(value?: string | null): string {
 export default function PharmacyTopNavbar() {
   const router = useRouter();
   const [avatar, setAvatar] = React.useState<string | null>(null);
-  const [name, setName] = React.useState("صيدلية");
+  const [name, setName] = React.useState("Pharmacy");
   const [open, setOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [loadingNotifs, setLoadingNotifs] = React.useState(false);
@@ -89,10 +89,10 @@ export default function PharmacyTopNavbar() {
         const identity = user?.id ?? user?.email;
         const avatarUrl = readAvatar("pharmacy", identity, { migrateLegacy: true });
         setAvatar(avatarUrl);
-        setName(String(user?.name || "صيدلية"));
+        setName(String(user?.name || "Pharmacy"));
       } catch {
         setAvatar(null);
-        setName("صيدلية");
+        setName("Pharmacy");
       }
     };
     load();
@@ -111,7 +111,7 @@ export default function PharmacyTopNavbar() {
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" placeholder="بحث عن مريض أو دواء..." />
+        <input type="text" placeholder="Search for a patient or medicine..." />
       </div>
 
       <div className="topbar-right">
@@ -121,7 +121,7 @@ export default function PharmacyTopNavbar() {
             type="button"
             style={{ position: "relative" }}
             onClick={() => setOpen((v) => !v)}
-            title="الإشعارات"
+            title="Notifications"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -132,12 +132,12 @@ export default function PharmacyTopNavbar() {
 
           {open ? (
             <div className="notif-popup">
-              <div className="notif-popup-head">الإشعارات الجديدة</div>
+              <div className="notif-popup-head">New notifications</div>
               <div className="notif-popup-body">
                 {loadingNotifs ? (
-                  <p className="notif-popup-empty">جاري تحميل الإشعارات...</p>
+                  <p className="notif-popup-empty">Loading notifications...</p>
                 ) : unread.length === 0 ? (
-                  <p className="notif-popup-empty">لا توجد إشعارات جديدة.</p>
+                  <p className="notif-popup-empty">No new notifications.</p>
                 ) : (
                   unread.map((n) => (
                     <button
@@ -167,7 +167,7 @@ export default function PharmacyTopNavbar() {
           ) : null}
         </div>
 
-        <button className="topbar-icon-btn" type="button" title="تغيير اللغة">
+        <button className="topbar-icon-btn" type="button" title="Change language">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 8l6 6" />
             <path d="M4 14l6-6 2-3" />
@@ -185,11 +185,11 @@ export default function PharmacyTopNavbar() {
             type="button"
             className="profile profile-trigger"
             onClick={() => setProfileOpen((v) => !v)}
-            title="قائمة الحساب"
+            title="Account menu"
           >
             <div className="profile-info">
               <div className="profile-name">{name}</div>
-              <div className="profile-role">مدير الصيدلية</div>
+              <div className="profile-role">Pharmacy manager</div>
             </div>
             <div className="profile-avatar" style={{ overflow: "hidden" }}>
               {avatar ? (
@@ -214,7 +214,7 @@ export default function PharmacyTopNavbar() {
                 </div>
                 <div className="profile-popup-headline-text">
                   <div className="profile-popup-headline-name">{name}</div>
-                  <div className="profile-popup-headline-role">مدير الصيدلية</div>
+                  <div className="profile-popup-headline-role">Pharmacy manager</div>
                 </div>
               </div>
 
@@ -224,7 +224,7 @@ export default function PharmacyTopNavbar() {
                 onClick={() => setProfileOpen(false)}
               >
                 <Settings size={15} />
-                الإعدادات
+                Settings
               </Link>
               <button
                 type="button"
@@ -236,7 +236,7 @@ export default function PharmacyTopNavbar() {
                 }}
               >
                 <LogOut size={15} />
-                تسجيل الخروج
+                Logout
               </button>
             </div>
           ) : null}

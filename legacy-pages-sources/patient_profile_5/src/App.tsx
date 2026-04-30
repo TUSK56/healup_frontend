@@ -109,7 +109,7 @@ export default function App() {
   const [pickAddress, setPickAddress] = useState<string>('');
 
   const [nameOpen, setNameOpen] = useState(false);
-  const [addrLabel, setAddrLabel] = useState('المنزل');
+  const [addrLabel, setAddrLabel] = useState('Home');
   const [addrIcon, setAddrIcon] = useState<'home'|'work'|'other'>('home');
   const [addressSaving, setAddressSaving] = useState(false);
   const [addressError, setAddressError] = useState<string | null>(null);
@@ -398,7 +398,7 @@ export default function App() {
   const savePickedLocation = () => {
     setPickOpen(false);
     setNameOpen(true);
-    setAddrLabel('المنزل');
+    setAddrLabel('Home');
     setAddrIcon('home');
   };
 
@@ -479,9 +479,9 @@ export default function App() {
   };
 
   const navItems = [
-    { id: 'personal', label: 'البيانات الشخصية', icon: User },
-    { id: 'addresses', label: 'العناوين', icon: MapPin },
-    { id: 'security', label: 'الأمان', icon: Shield },
+    { id: 'personal', label: 'Personal Information', icon: User },
+    { id: 'addresses', label: 'Addresses', icon: MapPin },
+    { id: 'security', label: 'Security', icon: Shield },
   ];
 
   return (
@@ -538,12 +538,12 @@ export default function App() {
               
               <div className="space-y-2">
                 <h1 className="text-3xl font-extrabold text-slate-800">{me?.name || (loading ? '...' : '')}</h1>
-                <p className="text-slate-500 font-medium">مريض رقم: #{me?.id ?? '—'}</p>
+                <p className="text-slate-500 font-medium">Patient #: #{me?.id ?? '—'}</p>
                 <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
-                  <span className="px-3 py-1 bg-healup-light-blue text-healup-blue text-xs font-bold rounded-full">فصيلة الدم: A+</span>
+                  <span className="px-3 py-1 bg-healup-light-blue text-healup-blue text-xs font-bold rounded-full">Blood type: A+</span>
                   <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-full flex items-center gap-1">
                     <CheckCircle2 size={12} />
-                    حساب موثق
+                    Verified account
                   </span>
                 </div>
               </div>
@@ -557,12 +557,12 @@ export default function App() {
             
             {/* Basic Info Section */}
             <Card className="p-8 min-h-[300px]">
-              <SectionHeader icon={User} title="البيانات الأساسية" />
+              <SectionHeader icon={User} title="Basic Information" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField label="الاسم بالكامل" value={draft.name} onChange={(v) => setDraft((p) => ({ ...p, name: v }))} />
-                <InputField label="البريد الإلكتروني" value={draft.email} onChange={(v) => setDraft((p) => ({ ...p, email: v }))} />
+                <InputField label="Full name" value={draft.name} onChange={(v) => setDraft((p) => ({ ...p, name: v }))} />
+                <InputField label="Email" value={draft.email} onChange={(v) => setDraft((p) => ({ ...p, email: v }))} />
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-500 mr-1">رقم الهاتف</label>
+                  <label className="text-sm font-medium text-slate-500 mr-1">Phone number</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -576,7 +576,7 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                <InputField label="تاريخ الميلاد" value={draft.date_of_birth} type="date" onChange={(v) => setDraft((p) => ({ ...p, date_of_birth: v }))} />
+                <InputField label="Date of birth" value={draft.date_of_birth} type="date" onChange={(v) => setDraft((p) => ({ ...p, date_of_birth: v }))} />
               </div>
             </Card>
 
@@ -584,11 +584,11 @@ export default function App() {
             <Card className="p-8 min-h-[250px]">
               <SectionHeader 
                 icon={MapPin} 
-                title="العناوين المسجلة" 
+                title="Saved addresses" 
                 action={
                   <button type="button" onClick={openAddAddress} className="text-healup-blue font-bold flex items-center gap-1 hover:underline">
                     <Plus size={18} />
-                    <span>إضافة عنوان جديد</span>
+                    <span>Add new address</span>
                   </button>
                 }
               />
@@ -643,19 +643,19 @@ export default function App() {
 
             {/* Security Section */}
             <Card className="p-8">
-              <SectionHeader icon={Shield} title="الأمان" />
+              <SectionHeader icon={Shield} title="Security" />
               <div className="p-6 border-2 border-dashed border-slate-100 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-healup-light-blue rounded-xl text-healup-blue">
                     <Lock size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800">كلمة المرور</h4>
-                    <p className="text-sm text-slate-500">آخر تغيير منذ 3 أشهر</p>
+                    <h4 className="font-bold text-slate-800">Password</h4>
+                    <p className="text-sm text-slate-500">Last changed 3 months ago</p>
                   </div>
                 </div>
                 <button type="button" onClick={() => setPwdOpen((v) => !v)} className="px-6 py-2.5 bg-healup-light-blue text-healup-blue font-bold rounded-xl hover:bg-healup-blue hover:text-white transition-all">
-                  تغيير كلمة المرور
+                  Change password
                 </button>
               </div>
 
@@ -668,12 +668,12 @@ export default function App() {
                     className={cn("mt-4 overflow-hidden", pwdShake ? "animate-[shake_.35s]" : "")}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <InputField label="كلمة المرور الحالية" value={currentPassword} type="password" onChange={setCurrentPassword} />
-                      <InputField label="كلمة المرور الجديدة" value={newPassword} type="password" onChange={setNewPassword} />
-                      <InputField label="تأكيد كلمة المرور" value={confirmPassword} type="password" onChange={setConfirmPassword} />
+                      <InputField label="Current password" value={currentPassword} type="password" onChange={setCurrentPassword} />
+                      <InputField label="New password" value={newPassword} type="password" onChange={setNewPassword} />
+                      <InputField label="Confirm password" value={confirmPassword} type="password" onChange={setConfirmPassword} />
                       {pwdError ? <div className="md:col-span-3 text-sm text-red-600 font-bold">{pwdError}</div> : null}
                       <div className="md:col-span-3 flex justify-end gap-2">
-                        <button type="button" onClick={() => setPwdOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">إلغاء</button>
+                        <button type="button" onClick={() => setPwdOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">Cancel</button>
                         <button type="button" onClick={() => void submitPassword()} className="px-5 py-2.5 bg-healup-blue text-white rounded-xl font-bold">حفظ</button>
                       </div>
                     </div>
@@ -685,11 +685,11 @@ export default function App() {
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-4 pt-4">
               <button type="button" onClick={onCancel} className="flex-1 sm:flex-none px-10 py-4 bg-white text-slate-500 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
-                إلغاء
+                Cancel
               </button>
               <button type="button" disabled={!canSave || saving} onClick={() => void onSave()} className="flex-1 sm:flex-none px-10 py-4 bg-healup-blue text-white font-bold rounded-2xl shadow-lg shadow-healup-blue/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
                 <CheckCircle2 size={20} />
-                <span>حفظ التغييرات</span>
+                <span>Save changes</span>
               </button>
             </div>
 
@@ -726,7 +726,7 @@ export default function App() {
                 <div className="text-sm text-slate-500 font-bold mb-2">العنوان</div>
                 <div className="text-slate-700 text-sm">{pickAddress || 'اختر موقعًا من الخريطة'}</div>
                 <div className="mt-4 flex justify-end gap-2">
-                  <button type="button" onClick={() => setPickOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">إلغاء</button>
+                  <button type="button" onClick={() => setPickOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">Cancel</button>
                   <button type="button" onClick={savePickedLocation} className="px-5 py-2.5 bg-healup-blue text-white rounded-xl font-bold">حفظ</button>
                 </div>
               </div>
@@ -767,7 +767,7 @@ export default function App() {
                 </div>
                 {addressError ? <div className="text-sm text-red-600 font-bold">{addressError}</div> : null}
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" onClick={() => setNameOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">إلغاء</button>
+                  <button type="button" onClick={() => setNameOpen(false)} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600">Cancel</button>
                   <button type="button" disabled={addressSaving} onClick={() => void createAddress()} className="px-5 py-2.5 bg-healup-blue text-white rounded-xl font-bold disabled:opacity-60 disabled:cursor-not-allowed">حفظ</button>
                 </div>
               </div>

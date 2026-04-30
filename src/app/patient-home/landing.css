@@ -22,7 +22,7 @@
   background: var(--white);
   color: var(--text);
   font-family: "Cairo", sans-serif;
-  direction: rtl;
+  direction: ltr;
   overflow-x: hidden;
   min-height: 100vh;
 }

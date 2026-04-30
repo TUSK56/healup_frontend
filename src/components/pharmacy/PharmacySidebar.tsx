@@ -81,7 +81,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الرئيسية</span>
+          <span>Home</span>
 
         </Link>
 
@@ -99,7 +99,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
             </div>
 
-            <span>طلبات جديدة</span>
+            <span>New orders</span>
 
           </div>
 
@@ -119,7 +119,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الطلبات الحالية</span>
+          <span>Current orders</span>
 
         </Link>
 
@@ -135,7 +135,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الطلبات المكتملة</span>
+          <span>Completed orders</span>
 
         </Link>
 
@@ -151,7 +151,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>التحليلات</span>
+          <span>Analytics</span>
 
         </Link>
 
@@ -173,7 +173,7 @@ export default function PharmacySidebar({ active }: { active: SidebarKey }) {
 
           </div>
 
-          <span>الإعدادات</span>
+          <span>Settings</span>
 
         </Link>
 

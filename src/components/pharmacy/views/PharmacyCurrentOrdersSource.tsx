@@ -57,13 +57,13 @@ function parseServerDate(value: string) {
 function relativeArabic(iso: string) {
   const diffMs = Math.max(0, Date.now() - parseServerDate(iso).getTime());
   const sec = Math.floor(diffMs / 1000);
-  if (sec < 60) return "الآن";
+  if (sec < 60) return "Now";
   const minutes = Math.floor(sec / 60);
-  if (minutes < 60) return minutes === 1 ? "منذ دقيقة" : `منذ ${minutes} دقيقة`;
+  if (minutes < 60) return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours === 1 ? "منذ ساعة" : `منذ ${hours} ساعة`;
+  if (hours < 24) return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
   const days = Math.floor(hours / 24);
-  return days === 1 ? "منذ يوم" : `منذ ${days} يوم`;
+  return days === 1 ? "1 day ago" : `${days} days ago`;
 }
 
 function contentsLabelFromRequestLike(input: {
@@ -72,9 +72,9 @@ function contentsLabelFromRequestLike(input: {
 }) {
   const hasRx = Boolean(input.prescription_url && String(input.prescription_url).trim());
   const hasMeds = Boolean(input.medicines && input.medicines.length > 0);
-  if (hasMeds && hasRx) return "علاج + روشتة";
-  if (hasMeds) return "علاج";
-  if (hasRx) return "روشتة";
+  if (hasMeds && hasRx) return "Medicine + Prescription";
+  if (hasMeds) return "Medicine";
+  if (hasRx) return "Prescription";
   return "—";
 }
 
@@ -106,18 +106,18 @@ async function downloadFileFromUrl(url: string, filenameBase: string) {
 function classifyOrder(order: ApiOrder): { label: string; tab: "wait" | "prep" | "out" | "done" } {
   const st = normalizeOrderStatus(order);
   if (st === "pending_pharmacy_confirmation") {
-    return { label: "جاري التجهيز", tab: "prep" };
+    return { label: "Preparing", tab: "prep" };
   }
   if (st === "confirmed") {
-    return { label: "بانتظار المريض", tab: "wait" };
+    return { label: "Awaiting patient", tab: "wait" };
   }
   if (st === "preparing") {
-    return { label: "جاري التجهيز", tab: "prep" };
+    return { label: "Preparing", tab: "prep" };
   }
-  if (st === "out_for_delivery") return { label: "بالطريق", tab: "out" };
-  if (st === "ready_for_pickup") return { label: "بالطريق", tab: "out" };
-  if (st === "completed") return { label: "المكتملة", tab: "done" };
-  if (st === "rejected") return { label: "مرفوض", tab: "done" };
+  if (st === "out_for_delivery") return { label: "On the way", tab: "out" };
+  if (st === "ready_for_pickup") return { label: "On the way", tab: "out" };
+  if (st === "completed") return { label: "Completed", tab: "done" };
+  if (st === "rejected") return { label: "Rejected", tab: "done" };
   return { label: String(order.status ?? (order as { Status?: string }).Status ?? "").trim() || st, tab: "prep" };
 }
 
@@ -142,14 +142,14 @@ const AwaitPatientCard = ({
         <div className="mb-4 flex items-start justify-between">
           <div className="flex flex-col gap-2">
             <div className="w-fit rounded-lg bg-amber-100 px-2.5 py-1">
-              <span className="text-xs font-bold tracking-wider text-amber-900">طلب #{row.request_id}</span>
+              <span className="text-xs font-bold tracking-wider text-amber-900">Order #{row.request_id}</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-800">{row.patient_name?.trim() || "مريض"}</h3>
+            <h3 className="text-lg font-bold text-slate-800">{row.patient_name?.trim() || "Patient"}</h3>
           </div>
 
           <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">
             <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-            بانتظار المريض
+            Awaiting patient
           </div>
         </div>
 
@@ -159,7 +159,7 @@ const AwaitPatientCard = ({
               <Pill size={16} className="text-slate-400" />
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-extrabold text-slate-700">المحتويات:</span>
+              <span className="text-sm font-extrabold text-slate-700">Contents:</span>
               <span className="text-sm font-bold text-slate-700">{label}</span>
               {row.prescription_url ? (
                 <button
@@ -170,7 +170,7 @@ const AwaitPatientCard = ({
                     void downloadFileFromUrl(row.prescription_url!, `prescription-${row.request_id}`);
                   }}
                 >
-                  تحميل الروشتة
+                  Download prescription
                 </button>
               ) : null}
             </div>
@@ -190,7 +190,7 @@ const AwaitPatientCard = ({
         className="group flex w-full items-center justify-center gap-2 bg-amber-700 py-4 text-sm font-bold text-white transition-colors hover:bg-amber-800"
         onClick={() => onDetails(row)}
       >
-        <span>عرض التفاصيل</span>
+        <span>View Details</span>
         <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
       </button>
     </motion.div>
@@ -232,7 +232,7 @@ const OrderCard = ({
             <div className="w-fit rounded-lg bg-[#E6EFF7] px-2.5 py-1">
               <span className="text-xs font-bold tracking-wider text-[#004BAB]">#HLP-{order.id}</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-800">{order.patient?.name || "مريض"}</h3>
+            <h3 className="text-lg font-bold text-slate-800">{order.patient?.name || "Patient"}</h3>
           </div>
 
           <div
@@ -285,7 +285,7 @@ const OrderCard = ({
             ) : (
               <>
                 <CheckCircle2 size={16} className="shrink-0" />
-                <span>توصيل الطلب</span>
+                <span>Deliver Order</span>
               </>
             )}
           </button>
@@ -294,7 +294,7 @@ const OrderCard = ({
             className="group flex min-h-[56px] min-w-0 flex-1 items-center justify-center gap-2 bg-[#0456AE] px-2 py-4 text-sm font-bold text-white transition-colors hover:bg-[#004494]"
             onClick={() => onDetails(order)}
           >
-            <span>عرض التفاصيل</span>
+            <span>View Details</span>
             <ArrowLeft size={16} className="shrink-0 transition-transform group-hover:-translate-x-1" />
           </button>
         </div>
@@ -304,7 +304,7 @@ const OrderCard = ({
           className="group flex w-full items-center justify-center gap-2 bg-[#0456AE] py-4 text-sm font-bold text-white transition-colors hover:bg-[#004494]"
           onClick={() => onDetails(order)}
         >
-          <span>عرض التفاصيل</span>
+          <span>View Details</span>
           <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
         </button>
       )}
@@ -371,7 +371,7 @@ export default function PharmacyCurrentOrdersApp() {
         const msg =
           ax.response?.data?.message?.trim() ||
           (e instanceof Error ? e.message : "") ||
-          "تعذر تحديث حالة الطلب. تحقق من الاتصال أو أعد تسجيل الدخول.";
+          "Unable to update order status. Check connection or login again.";
         setShipError(msg);
         console.error("Ship order failed", e);
       } finally {
@@ -438,8 +438,8 @@ export default function PharmacyCurrentOrdersApp() {
     <div className="flex min-h-screen flex-col font-sans">
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8 md:py-12">
         <div className="mb-12 text-center md:text-right">
-          <h1 className="mb-3 text-4xl font-black text-slate-900">الطلبات الحالية</h1>
-          <p className="text-lg text-slate-500">تابع حالة طلبات الأدوية الجارية (بعد العرض) والتسليم</p>
+          <h1 className="mb-3 text-4xl font-black text-slate-900">Current Orders</h1>
+          <p className="text-lg text-slate-500">Track in-progress medicine orders and deliveries</p>
         </div>
 
         {shipError ? (
@@ -453,23 +453,23 @@ export default function PharmacyCurrentOrdersApp() {
               className="mr-3 text-xs font-bold text-red-600 underline"
               onClick={() => setShipError(null)}
             >
-              إغلاق
+              Close
             </button>
           </div>
         ) : null}
 
         {loading ? (
-          <div className="py-20 text-center text-slate-500">جاري التحميل...</div>
+          <div className="py-20 text-center text-slate-500">Loading...</div>
         ) : null}
 
         <div className="mb-10 flex flex-wrap items-center justify-center gap-2 border-b border-slate-100 pb-px md:justify-start">
           {(
             [
-              ["all", `الكل (${stats.all})`],
-              ["wait", `بانتظار المريض (${stats.wait})`],
-              ["prep", `جاري التجهيز (${stats.prep})`],
-              ["out", `بالطريق (${stats.out})`],
-              ["done", `المكتملة (${stats.done})`],
+              ["all", `All (${stats.all})`],
+              ["wait", `Awaiting patient (${stats.wait})`],
+              ["prep", `Preparing (${stats.prep})`],
+              ["out", `On the way (${stats.out})`],
+              ["done", `Completed (${stats.done})`],
             ] as const
           ).map(([key, text]) => (
             <button
@@ -511,7 +511,7 @@ export default function PharmacyCurrentOrdersApp() {
         </div>
 
         {!loading && filtered.length === 0 ? (
-          <div className="py-16 text-center text-slate-500">لا توجد طلبات في هذا القسم حالياً.</div>
+          <div className="py-16 text-center text-slate-500">No orders in this section at the moment.</div>
         ) : null}
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
@@ -520,11 +520,11 @@ export default function PharmacyCurrentOrdersApp() {
             className="flex items-center gap-2 font-bold text-[#0456AE] transition-all hover:underline"
             onClick={() => void load()}
           >
-            <span>تحديث القائمة</span>
+            <span>Refresh list</span>
             <ChevronDown size={20} />
           </button>
           <Link href="/pharmacy-dashboard/new-orders" className="text-sm font-bold text-slate-500 hover:text-[#0456AE]">
-            إدارة الطلبات الجديدة والعروض
+            Manage new orders and offers
           </Link>
         </div>
       </main>
@@ -540,25 +540,25 @@ export default function PharmacyCurrentOrdersApp() {
           >
             {detail.kind === "order" ? (
               <>
-                <h2 className="mb-4 text-xl font-black text-slate-900">تفاصيل الطلب #{detail.order.id}</h2>
+                <h2 className="mb-4 text-xl font-black text-slate-900">Order Details #{detail.order.id}</h2>
                 <p className="mb-2 text-sm text-slate-600">
-                  المريض: <strong>{detail.order.patient?.name || "—"}</strong>
+                  Patient: <strong>{detail.order.patient?.name || "—"}</strong>
                 </p>
                 <p className="mb-2 text-sm text-slate-600">
-                  الحالة: <strong>{classifyOrder(detail.order).label}</strong>
+                  Status: <strong>{classifyOrder(detail.order).label}</strong>
                 </p>
                 <p className="mb-2 text-sm text-slate-600">
-                  طريقة الاستلام: <strong>{detail.order.delivery ? "توصيل للمنزل" : "استلام من الصيدلية"}</strong>
+                  Delivery method: <strong>{detail.order.delivery ? "Home delivery" : "Pickup from pharmacy"}</strong>
                 </p>
                 <p className="mb-4 text-sm text-slate-600">
-                  الإجمالي: <strong>{Number(detail.order.total_price || 0).toFixed(2)} ج.م</strong>
+                  Total: <strong>{Number(detail.order.total_price || 0).toFixed(2)} EGP</strong>
                 </p>
                 <ul className="space-y-2 border-t border-slate-100 pt-4 text-right">
                   {(detail.order.items || []).map((i, idx) => (
                     <li key={idx} className="flex justify-between text-sm">
                       <span>{i.medicine_name}</span>
                       <span className="text-slate-500">
-                        {i.quantity} × {Number(i.price).toFixed(2)} ج.م
+                        {i.quantity} × {Number(i.price).toFixed(2)} EGP
                       </span>
                     </li>
                   ))}
@@ -566,15 +566,15 @@ export default function PharmacyCurrentOrdersApp() {
               </>
             ) : (
               <>
-                <h2 className="mb-4 text-xl font-black text-slate-900">طلب رقم #{detail.row.request_id}</h2>
+                <h2 className="mb-4 text-xl font-black text-slate-900">Order #{detail.row.request_id}</h2>
                 <p className="mb-2 text-sm text-slate-600">
-                  المريض: <strong>{detail.row.patient_name?.trim() || "—"}</strong>
+                  Patient: <strong>{detail.row.patient_name?.trim() || "—"}</strong>
                 </p>
                 <p className="mb-2 text-sm font-bold text-amber-800">
-                  بانتظار المريض — <span className="text-slate-800">المحتويات: {contentsLabelFromRequestLike(detail.row)}</span>
+                  Awaiting patient — <span className="text-slate-800">Contents: {contentsLabelFromRequestLike(detail.row)}</span>
                 </p>
                 <p className="mb-4 text-sm text-slate-500">
-                  رقم العرض: {detail.row.response_id} — تاريخ الطلب: {relativeArabic(detail.row.created_at)}
+                  Offer ID: {detail.row.response_id} — Created: {relativeArabic(detail.row.created_at)}
                 </p>
                 {detail.row.prescription_url ? (
                   <button
@@ -582,7 +582,7 @@ export default function PharmacyCurrentOrdersApp() {
                     className="mb-4 inline-flex w-full items-center justify-center rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-black text-[#1a56db]"
                     onClick={() => void downloadFileFromUrl(detail.row.prescription_url!, `prescription-${detail.row.request_id}`)}
                   >
-                    تحميل الروشتة
+                    Download prescription
                   </button>
                 ) : null}
                 <ul className="space-y-2 border-t border-slate-100 pt-4 text-right">
@@ -600,7 +600,7 @@ export default function PharmacyCurrentOrdersApp() {
               className="mt-6 w-full rounded-xl bg-slate-100 py-3 text-sm font-bold text-slate-800"
               onClick={() => setDetail(null)}
             >
-              إغلاق
+              Close
             </button>
           </div>
         </div>
@@ -610,7 +610,7 @@ export default function PharmacyCurrentOrdersApp() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <CheckCircle2 size={18} className="text-blue-500" />
-            <span>Healup - منصة إدارة الصيدليات والطلبات الطبية</span>
+            <span>Healup - Pharmacy and medical orders management platform</span>
           </div>
         </div>
       </footer>

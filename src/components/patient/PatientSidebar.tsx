@@ -33,24 +33,24 @@ export default function PatientSidebar({ open = true, onClose, mode = "dynamic",
         <nav className={styles.nav}>
           <Link href="/patient-home" className={item("home", styles.item)} onClick={onClose}>
             <span className={styles.icon}>▦</span>
-            الرئيسية
+            Home
           </Link>
           <Link href="/patient-cart" className={item("cart", styles.item)} onClick={onClose}>
             <span className={styles.icon}>🧺</span>
-            سلة المشتريات
+            Cart
             {cartCount > 0 ? <span className={styles.badge}>{cartCount}</span> : null}
           </Link>
           <Link href="/patient-review-orders" className={item("orders", styles.item)} onClick={onClose}>
             <span className={styles.icon}>🧾</span>
-            طلباتي
+            My orders
           </Link>
           <Link href="/patient-review-order-history" className={item("history", styles.item)} onClick={onClose}>
             <span className={styles.icon}>🕒</span>
-            تاريخ الطلبات
+            Order history
           </Link>
           <Link href="/patient-profile" className={item("profile", styles.item)} onClick={onClose}>
             <span className={styles.icon}>👤</span>
-            الملف الشخصي
+            Profile
           </Link>
         </nav>
         {isLoggedIn ? (
@@ -64,13 +64,13 @@ export default function PatientSidebar({ open = true, onClose, mode = "dynamic",
                 window.location.assign("/patient-home");
               }}
             >
-              تسجيل الخروج
+              Logout
             </button>
           </div>
         ) : (
           <div className={styles.footer}>
             <Link href="/patient-login" className={styles.loginLink} onClick={onClose}>
-              تسجيل الدخول
+              Login
             </Link>
           </div>
         )}

@@ -43,13 +43,13 @@ import {
 } from 'recharts';
 
 const revenueData = [
-  { name: 'السبت', value: 230000 },
-  { name: 'الأحد', value: 280000 },
-  { name: 'الاثنين', value: 120000 },
-  { name: 'الثلاثاء', value: 210000 },
-  { name: 'الأربعاء', value: 180000 },
-  { name: 'الخميس', value: 220000 },
-  { name: 'الجمعة', value: 150000 },
+  { name: 'Sat', value: 230000 },
+  { name: 'Sun', value: 280000 },
+  { name: 'Mon', value: 120000 },
+  { name: 'Tue', value: 210000 },
+  { name: 'Wed', value: 180000 },
+  { name: 'Thu', value: 220000 },
+  { name: 'Fri', value: 150000 },
 ];
 
 const topMedicines = [
@@ -100,25 +100,25 @@ export default function Dashboard() {
       <main className="container mx-auto p-4 md:p-8 space-y-8">
         {/* Title Section */}
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-slate-900">تحليلات الطلبات</h1>
-          <p className="text-slate-500">نظرة عامة شاملة على أداء مبيعات الصيدلية</p>
+          <h1 className="text-3xl font-bold text-slate-900">Order Analytics</h1>
+          <p className="text-slate-500">Comprehensive overview of pharmacy sales performance</p>
         </div>
 
         {/* KPI Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">إجمالي الإيرادات</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-500">Total revenue</CardTitle>
             </CardHeader>
             <CardContent className="flex items-baseline justify-between">
-              <div className="text-2xl font-bold">45,000 ج.م</div>
+              <div className="text-2xl font-bold">45,000 EGP</div>
               <Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+12%</Badge>
             </CardContent>
           </Card>
           
           <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">الطلبات المكتملة</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-500">Completed orders</CardTitle>
             </CardHeader>
             <CardContent className="flex items-baseline justify-between">
               <div className="text-2xl font-bold">1,250</div>
@@ -128,17 +128,17 @@ export default function Dashboard() {
 
           <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">متوسط قيمة الطلب</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-500">Average order value</CardTitle>
             </CardHeader>
             <CardContent className="flex items-baseline justify-between">
-              <div className="text-2xl font-bold">85 ج.م</div>
+              <div className="text-2xl font-bold">85 EGP</div>
               <Badge variant="secondary" className="bg-[#DCFCE7] text-[#009C31] border-none">+2%</Badge>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">رضا العملاء</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-500">Customer satisfaction</CardTitle>
             </CardHeader>
             <CardContent className="flex items-baseline justify-between">
               <div className="text-2xl font-bold">98%</div>
@@ -153,13 +153,13 @@ export default function Dashboard() {
           <Card className="lg:col-span-2 border-none shadow-sm overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg">اتجاهات الإيرادات اليومية</CardTitle>
+                <CardTitle className="text-lg">Daily revenue trends</CardTitle>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-2xl font-bold">315,000 ج.م</span>
-                  <span className="text-xs text-green-600 font-medium">أعلى من الأسبوع الماضي بنسبة 8%</span>
+                  <span className="text-2xl font-bold">315,000 EGP</span>
+                  <span className="text-xs text-green-600 font-medium">8% higher than last week</span>
                 </div>
               </div>
-              <Badge variant="outline" className="text-slate-500 font-normal">آخر 7 أيام</Badge>
+              <Badge variant="outline" className="text-slate-500 font-normal">Last 7 days</Badge>
             </CardHeader>
             <CardContent className="p-0 pt-4">
               <div className="h-[300px] w-full">
@@ -208,14 +208,14 @@ export default function Dashboard() {
           {/* Top Medicines */}
           <Card className="lg:col-span-1 border-none shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg">أعلى 5 أدوية مطلوبة</CardTitle>
+              <CardTitle className="text-lg">Top 5 requested medicines</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {topMedicines.map((med, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-slate-700">{med.name}</span>
-                    <span className="text-slate-500">{med.orders} طلب</span>
+                    <span className="text-slate-500">{med.orders} orders</span>
                   </div>
                   <Progress 
                     value={med.percentage} 
@@ -225,7 +225,7 @@ export default function Dashboard() {
                 </div>
               ))}
               <button className="w-full text-center text-sm font-medium text-primary hover:underline mt-4">
-                عرض القائمة الكاملة
+                View full list
               </button>
             </CardContent>
           </Card>
@@ -234,17 +234,17 @@ export default function Dashboard() {
         {/* Category Table */}
         <Card className="border-none shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg">توزيع الطلبات حسب الفئة</CardTitle>
+            <CardTitle className="text-lg">Order distribution by category</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="text-right text-[#5A6C85]">الفئة</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">عدد الطلبات</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">الإيرادات</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">النمو</TableHead>
-                  <TableHead className="text-right text-[#5A6C85]">الحالة</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">Category</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">Orders</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">Revenue</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">Growth</TableHead>
+                  <TableHead className="text-right text-[#5A6C85]">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -274,12 +274,12 @@ export default function Dashboard() {
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-sm text-slate-500 flex items-center gap-1">
             <span className="font-bold text-[#0058B0]">Healup</span>
-            <span>© 2024 تحليلات الصيدلية الذكية</span>
+            <span>© 2024 Smart pharmacy analytics</span>
           </div>
           <div className="flex gap-6 text-sm font-medium text-slate-600">
-            <a href="#" className="hover:text-primary transition-colors">التقارير</a>
-            <a href="#" className="hover:text-primary transition-colors">الإعدادات</a>
-            <a href="#" className="hover:text-primary transition-colors">الدعم الفني</a>
+            <a href="#" className="hover:text-primary transition-colors">Reports</a>
+            <a href="#" className="hover:text-primary transition-colors">Settings</a>
+            <a href="#" className="hover:text-primary transition-colors">Technical Support</a>
           </div>
         </div>
       </footer>

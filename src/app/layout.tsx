@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const cairo = Cairo({
-  subsets: ['arabic', 'latin'],
+  subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '900'],
   display: 'swap',
   variable: '--font-cairo',
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} ${cairo.className}`}>
+    <html lang="en" dir="ltr" className={`${cairo.variable} ${cairo.className}`}>
       <body>{children}</body>
     </html>
   );

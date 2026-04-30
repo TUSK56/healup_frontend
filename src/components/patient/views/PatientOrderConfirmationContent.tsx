@@ -20,7 +20,7 @@ import { orderService, type Order } from "@/services/orderService";
 const brand = "#0456AE";
 
 function formatMoney(n: number) {
-  return `${n.toFixed(2)} ج.م`;
+  return `${n.toFixed(2)} EGP`;
 }
 
 export default function PatientOrderConfirmationContent() {
@@ -35,7 +35,7 @@ export default function PatientOrderConfirmationContent() {
   React.useEffect(() => {
     if (!Number.isFinite(orderId) || orderId < 1) {
       setLoading(false);
-      setError("رقم الطلب غير صالح.");
+      setError("Invalid order number.");
       return;
     }
 
@@ -50,7 +50,7 @@ export default function PatientOrderConfirmationContent() {
         if (!cancelled) {
           const ax = e as { response?: { data?: { message?: string } } };
           const msg = ax.response?.data?.message?.trim();
-          setError(msg || "تعذر تحميل الطلب. حاول مرة أخرى.");
+          setError(msg || "Unable to load order. Please try again.");
           setOrder(null);
         }
       } finally {
@@ -93,7 +93,7 @@ export default function PatientOrderConfirmationContent() {
     return (
       <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 rtl font-sans">
         <div className="mx-auto max-w-3xl rounded-3xl border border-gray-100 bg-white p-10 text-center text-gray-500 shadow-sm">
-          جاري التحميل…
+          Loading...
         </div>
       </div>
     );
@@ -103,27 +103,27 @@ export default function PatientOrderConfirmationContent() {
     return (
       <div className="patient-order-confirmation-wrap min-h-[60vh] bg-[#F8FAFC] px-4 py-8 rtl font-sans">
         <div className="mx-auto max-w-3xl rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm">
-          <p className="text-gray-700">{error || "الطلب غير موجود."}</p>
+          <p className="text-gray-700">{error || "Order not found."}</p>
           <Link
             href="/patient-home"
             className="mt-6 inline-flex items-center justify-center rounded-2xl px-6 py-3 font-bold text-white shadow-lg shadow-blue-100"
             style={{ background: brand }}
           >
-            العودة للرئيسية
+            Back to Home
           </Link>
         </div>
       </div>
     );
   }
 
-  const pharmacyName = order.pharmacy?.name ?? "الصيدلية";
-  const deliveryLabel = order.delivery ? "توصيل للمنزل" : "استلام من الصيدلية";
+  const pharmacyName = order.pharmacy?.name ?? "Pharmacy";
+  const deliveryLabel = order.delivery ? "Home Delivery" : "Pickup from pharmacy";
   const etaLabel =
     patientPharmacyDistanceKm != null
       ? formatDeliveryEtaRangeKm(patientPharmacyDistanceKm)
       : order.delivery
-        ? "يُحدَّد بعد تأكيد الموقع مع الصيدلية"
-        : "يُحدَّد بعد ربط موقعك بملفك";
+        ? "Set after location confirmation with the pharmacy"
+        : "Set after linking your location in profile";
   const payLabel = order.payment_method?.trim() || "—";
 
   return (
@@ -139,15 +139,15 @@ export default function PatientOrderConfirmationContent() {
               <CheckCircle2 className="h-12 w-12 text-[#10B981]" />
             </div>
           </div>
-          <h1 className="mb-3 text-3xl font-black text-gray-900">تم تأكيد طلبك بنجاح!</h1>
+          <h1 className="mb-3 text-3xl font-black text-gray-900">Your order has been confirmed successfully!</h1>
           <p className="mx-auto mb-6 max-w-md leading-relaxed text-gray-500">
-            شكراً لثقتك بـ Healup. نحن نقوم بمعالجة طلبك الآن.
+            Thank you for choosing Healup. We are processing your order now.
           </p>
           <div
             className="inline-flex items-center rounded-full px-6 py-2 text-sm font-bold"
             style={{ background: "#F1F5F9", color: brand }}
           >
-            رقم الطلب #{order.id}
+            Order #{order.id}
           </div>
         </motion.div>
 
@@ -160,7 +160,7 @@ export default function PatientOrderConfirmationContent() {
           >
             <div className="text-right">
               <p className="mb-1 text-sm text-gray-400">
-                {order.delivery ? "وقت التوصيل المتوقع" : "الوقت للوصول للصيدلية (تقريبي)"}
+                {order.delivery ? "Estimated delivery time" : "Estimated time to pharmacy"}
               </p>
               <h3 className="text-xl font-bold text-gray-900">{etaLabel}</h3>
             </div>
@@ -179,7 +179,7 @@ export default function PatientOrderConfirmationContent() {
             className="flex items-center justify-between rounded-3xl border border-gray-100 bg-white p-6 shadow-sm"
           >
             <div className="text-right">
-              <p className="mb-1 text-sm text-gray-400">طريقة الاستلام</p>
+              <p className="mb-1 text-sm text-gray-400">Delivery method</p>
               <h3 className="text-xl font-bold text-gray-900">{deliveryLabel}</h3>
             </div>
             <div
@@ -198,7 +198,7 @@ export default function PatientOrderConfirmationContent() {
           className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm"
         >
           <div className="border-b border-gray-50 p-6">
-            <h2 className="text-xl font-bold text-gray-900">ملخص الطلب</h2>
+            <h2 className="text-xl font-bold text-gray-900">Order Summary</h2>
           </div>
 
           <div className="space-y-6 p-6">
@@ -212,7 +212,7 @@ export default function PatientOrderConfirmationContent() {
                     <h4 className="font-bold text-gray-900">{item.medicine_name}</h4>
                     <p className="text-xs text-gray-400">
                       {pharmacyName}
-                      {item.quantity > 1 ? ` · الكمية ${item.quantity}` : ""}
+                      {item.quantity > 1 ? ` · Qty ${item.quantity}` : ""}
                     </p>
                   </div>
                 </div>
@@ -222,29 +222,29 @@ export default function PatientOrderConfirmationContent() {
 
             <div className="space-y-3 border-t border-gray-50 pt-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">المجموع الفرعي</span>
+                <span className="text-gray-500">Subtotal</span>
                 <span className="font-medium text-gray-900">{formatMoney(pricing.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">رسوم التوصيل</span>
+                <span className="text-gray-500">Delivery fee</span>
                 <span className="font-medium text-gray-900">
-                  {order.delivery ? formatMoney(pricing.deliveryDisplay) : "—"}
+                  {order.delivery ? formatMoney(pricing.deliveryDisplay) : "-"}
                 </span>
               </div>
               {pricing.discountDisplay > 0 ? (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">الخصم{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
+                  <span className="text-gray-500">Discount{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
                   <span className="font-medium text-emerald-700">-{formatMoney(pricing.discountDisplay)}</span>
                 </div>
               ) : null}
               {pricing.subtotal > 0 ? (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">ضريبة القيمة المضافة (15%)</span>
+                  <span className="text-gray-500">VAT (15%)</span>
                   <span className="font-medium text-gray-900">{formatMoney(pricing.vatDisplay)}</span>
                 </div>
               ) : null}
               <div className="flex justify-between border-t border-gray-50 pt-3">
-                <span className="text-lg font-black text-gray-900">الإجمالي</span>
+                <span className="text-lg font-black text-gray-900">Total</span>
                 <span className="text-lg font-black text-gray-900">{formatMoney(pricing.grandDisplay)}</span>
               </div>
             </div>
@@ -252,7 +252,7 @@ export default function PatientOrderConfirmationContent() {
             <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#F8FAFC] p-4">
               <div className="flex items-center gap-3">
                 <CreditCard className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-500">طريقة الدفع</span>
+                <span className="text-sm text-gray-500">Payment method</span>
               </div>
               <span className="text-sm font-bold text-gray-900">{payLabel}</span>
             </div>
@@ -266,7 +266,7 @@ export default function PatientOrderConfirmationContent() {
             style={{ background: brand }}
           >
             <MapPin className="h-5 w-5" />
-            <span>تتبع الطلب</span>
+            <span>Track Order</span>
           </Link>
           <Link
             href="/patient-home"
@@ -274,15 +274,15 @@ export default function PatientOrderConfirmationContent() {
             style={{ borderColor: brand, color: brand }}
           >
             <Home className="h-5 w-5" />
-            <span>العودة للرئيسية</span>
+            <span>Back to Home</span>
           </Link>
         </div>
 
         <div className="pt-2 text-center">
           <p className="text-sm text-gray-400">
-            لديك استفسار؟{" "}
+            Need help?{" "}
             <a href="mailto:support@healup.app" className="font-bold underline underline-offset-4" style={{ color: brand }}>
-              تواصل مع خدمة العملاء
+              Contact customer support
             </a>
           </p>
         </div>

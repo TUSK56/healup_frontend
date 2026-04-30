@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { orderService, type Order } from "@/services/orderService";
 import { requestService } from "@/services/requestService";
 
-type FilterTab = "الكل" | "اليوم" | "هذا الأسبوع" | "هذا الشهر";
+type FilterTab = "All" | "Today" | "This Week" | "This Month";
 
 function parseServerDate(value?: string | null): Date {
   const v = (value || "").trim();
@@ -22,7 +22,7 @@ function formatArabicDateTime(value?: string | null) {
 }
 
 function formatMoney(value: number) {
-  return `${value.toFixed(2)} ج.م`;
+  return `${value.toFixed(2)} EGP`;
 }
 
 function orderItemsLabel(order: Order) {
@@ -36,18 +36,18 @@ function isCompleted(order: Order) {
 }
 
 function matchesDateFilter(order: Order, filter: FilterTab) {
-  if (filter === "الكل") return true;
+  if (filter === "All") return true;
   const created = parseServerDate(order.created_at);
   const now = new Date();
   const diffDays = Math.floor((now.getTime() - created.getTime()) / 86400000);
-  if (filter === "اليوم") return diffDays === 0;
-  if (filter === "هذا الأسبوع") return diffDays < 7;
-  if (filter === "هذا الشهر") return diffDays < 30;
+  if (filter === "Today") return diffDays === 0;
+  if (filter === "This Week") return diffDays < 7;
+  if (filter === "This Month") return diffDays < 30;
   return true;
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<FilterTab>("الكل");
+  const [activeTab, setActiveTab] = useState<FilterTab>("All");
   const [query, setQuery] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +64,7 @@ export default function App() {
         const data = Array.isArray(res.data) ? res.data : [];
         setOrders(data.filter((order) => isCompleted(order)));
       } catch {
-        setError("تعذر تحميل الطلبات المكتملة حالياً.");
+        setError("Unable to load completed orders right now.");
         setOrders([]);
       } finally {
         setLoading(false);
@@ -99,9 +99,9 @@ export default function App() {
   const totals = useMemo(
     () => ({
       all: orders.length,
-      today: orders.filter((order) => matchesDateFilter(order, "اليوم")).length,
-      week: orders.filter((order) => matchesDateFilter(order, "هذا الأسبوع")).length,
-      month: orders.filter((order) => matchesDateFilter(order, "هذا الشهر")).length,
+      today: orders.filter((order) => matchesDateFilter(order, "Today")).length,
+      week: orders.filter((order) => matchesDateFilter(order, "This Week")).length,
+      month: orders.filter((order) => matchesDateFilter(order, "This Month")).length,
     }),
     [orders],
   );
@@ -131,7 +131,7 @@ export default function App() {
         a.remove();
       }, 250);
     } catch {
-      alert("تعذر تحميل الفاتورة حالياً. حاول مرة أخرى بعد قليل.");
+      alert("Unable to download invoice right now. Please try again later.");
     } finally {
       setDownloadingRequestId(null);
     }
@@ -149,16 +149,16 @@ export default function App() {
               </div>
             </div>
             <button className="text-sm font-medium text-brand-blue transition-opacity hover:opacity-80">
-              <span>لوحة التحكم</span>
+              <span>Dashboard</span>
             </button>
           </div>
 
           <div className="flex items-center gap-3">
             <div>
-              <h2 className="text-sm font-bold text-slate-800">الطلبات المكتملة</h2>
+              <h2 className="text-sm font-bold text-slate-800">Completed Orders</h2>
               <div className="flex items-center gap-1 text-[10px] text-slate-500">
                 <MapPin size={10} />
-                <span>الطلبات المنجزة فقط</span>
+                <span>Completed orders only</span>
               </div>
             </div>
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100">
@@ -169,14 +169,14 @@ export default function App() {
       </header>
 
       <main className="mx-auto mt-8 max-w-7xl px-4">
-        <h1 className="mb-6 text-2xl font-bold text-slate-900">الطلبات المكتملة</h1>
+        <h1 className="mb-6 text-2xl font-bold text-slate-900">Completed Orders</h1>
 
         <div className="relative mb-6">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="البحث برقم الطلب أو اسم المريض..."
+            placeholder="Search by order number or patient name..."
             className="w-full rounded-xl border border-slate-200 bg-white px-12 py-3 text-sm shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20"
           />
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
@@ -184,10 +184,10 @@ export default function App() {
 
         <div className="mb-8 flex rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
           {([
-            ["الكل", totals.all],
-            ["اليوم", totals.today],
-            ["هذا الأسبوع", totals.week],
-            ["هذا الشهر", totals.month],
+            ["All", totals.all],
+            ["Today", totals.today],
+            ["This Week", totals.week],
+            ["This Month", totals.month],
           ] as const).map(([tab, count]) => (
             <button
               key={tab}
@@ -204,7 +204,7 @@ export default function App() {
         {loading ? (
           <div className="flex items-center justify-center gap-3 rounded-2xl border border-slate-100 bg-white py-10 text-slate-500 shadow-sm">
             <Loader2 className="animate-spin" size={18} />
-            جاري تحميل الطلبات...
+            Loading orders...
           </div>
         ) : null}
 
@@ -216,7 +216,7 @@ export default function App() {
 
         {!loading && filteredOrders.length === 0 ? (
           <div className="rounded-2xl border border-slate-100 bg-white py-10 text-center text-slate-500 shadow-sm">
-            لا توجد طلبات مكتملة مطابقة للبحث أو التصفية.
+            No completed orders match your search/filter.
           </div>
         ) : null}
 
@@ -239,7 +239,7 @@ export default function App() {
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-brand-blue">#HLP-{order.id}</span>
-                    <span className="rounded-md bg-brand-light-green px-2 py-0.5 text-[10px] font-bold text-brand-green">المكتملة</span>
+                    <span className="rounded-md bg-brand-light-green px-2 py-0.5 text-[10px] font-bold text-brand-green">Completed</span>
                   </div>
                   <span className="text-xs text-slate-400">{formatArabicDateTime(order.created_at)}</span>
                 </div>
@@ -247,7 +247,7 @@ export default function App() {
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2 font-bold text-slate-700">
                     <User size={16} className="text-slate-400" />
-                    <span>{order.patient?.name || "مريض"}</span>
+                    <span>{order.patient?.name || "Patient"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-slate-500">
                     <Pill size={14} className="text-slate-300" />
@@ -257,7 +257,7 @@ export default function App() {
 
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xs text-slate-400">الإجمالي:</span>
+                    <span className="text-xs text-slate-400">Total:</span>
                     <span className="text-xl font-bold text-slate-900">{formatMoney(Number(order.total_price || 0))}</span>
                   </div>
 
@@ -269,7 +269,7 @@ export default function App() {
                       className="inline-flex items-center gap-2 rounded-lg border border-slate-100 bg-white px-6 py-2 text-xs font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {downloadingRequestId === order.request_id ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-                      <span>عرض الفاتورة</span>
+                      <span>View Invoice</span>
                     </button>
                     <button
                       type="button"
@@ -277,7 +277,7 @@ export default function App() {
                       className="inline-flex items-center gap-2 rounded-lg bg-brand-blue px-6 py-2 text-xs font-bold text-white transition-colors hover:bg-brand-blue/90"
                     >
                       <Eye size={14} />
-                      <span>التفاصيل</span>
+                      <span>Details</span>
                     </button>
                   </div>
                 </div>
@@ -288,7 +288,7 @@ export default function App() {
 
         <div className="mt-10 flex justify-center">
           <button className="group flex items-center gap-2 rounded-full border-2 border-brand-blue px-8 py-2.5 text-sm font-bold text-brand-blue transition-all hover:bg-brand-blue hover:text-white">
-            <span>تحميل المزيد من الطلبات</span>
+            <span>Load more orders</span>
             <ChevronDown size={18} className="transition-transform group-hover:translate-y-0.5" />
           </button>
         </div>

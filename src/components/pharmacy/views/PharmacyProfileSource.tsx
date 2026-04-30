@@ -212,11 +212,11 @@ export default function PharmacyProfileSource() {
     setPasswordShake(false);
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("يرجى ملء كل حقول كلمة المرور.");
+      setPasswordError("Please fill in all password fields.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("كلمة المرور الجديدة وتأكيدها غير متطابقين.");
+      setPasswordError("New password and confirmation do not match.");
       return;
     }
 
@@ -233,7 +233,7 @@ export default function PharmacyProfileSource() {
       setPasswordOpen(false);
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string; field?: string }>;
-      const message = axiosError.response?.data?.message || "تعذر تغيير كلمة المرور.";
+      const message = axiosError.response?.data?.message || "Unable to change password.";
       const field = axiosError.response?.data?.field;
       setPasswordError(message);
       if (field === "current_password") {
@@ -247,7 +247,7 @@ export default function PharmacyProfileSource() {
   };
 
   if (loading || !me || !draft) {
-    return <div className="p-8 text-right text-slate-500">جاري تحميل بيانات الصيدلية...</div>;
+    return <div className="p-8 text-right text-slate-500">Loading pharmacy profile...</div>;
   }
 
   return (
@@ -325,7 +325,7 @@ export default function PharmacyProfileSource() {
               <h1 className="text-2xl font-bold text-slate-900 font-arabic">{me.name}</h1>
               <div className="flex items-center justify-start gap-1 text-slate-400 text-sm mt-1">
                 <CheckCircle2 size={14} className="text-slate-400" />
-                <span className="font-arabic">رقم الترخيص: {me.license_number || "-"}</span>
+                <span className="font-arabic">License #: {me.license_number || "-"}</span>
               </div>
             </div>
           </div>
@@ -333,23 +333,23 @@ export default function PharmacyProfileSource() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <InfoCard title="البيانات الأساسية" icon={FileText}>
+            <InfoCard title="Basic Information" icon={FileText}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="اسم الصيدلية" value={me.name} readOnly />
-                <InputField label="اسم الصيدلي المسؤول" value={me.responsible_pharmacist_name || me.name} readOnly />
+                <InputField label="Pharmacy name" value={me.name} readOnly />
+                <InputField label="Responsible pharmacist" value={me.responsible_pharmacist_name || me.name} readOnly />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="رقم الترخيص" value={me.license_number || "-"} dir="ltr" readOnly />
-                <InputField label="البريد الإلكتروني" value={draft.email} dir="ltr" onChange={(value) => updateDraft("email", value)} />
+                <InputField label="License number" value={me.license_number || "-"} dir="ltr" readOnly />
+                <InputField label="Email" value={draft.email} dir="ltr" onChange={(value) => updateDraft("email", value)} />
               </div>
             </InfoCard>
 
-            <InfoCard title="الموقع والعنوان" icon={MapPin}>
+            <InfoCard title="Location & Address" icon={MapPin}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="المدينة" value={draft.city} onChange={(value) => updateDraft("city", value)} />
-                <InputField label="الحي" value={draft.district} onChange={(value) => updateDraft("district", value)} />
+                <InputField label="City" value={draft.city} onChange={(value) => updateDraft("city", value)} />
+                <InputField label="District" value={draft.district} onChange={(value) => updateDraft("district", value)} />
               </div>
-              <InputField label="العنوان بالتفصيل" value={draft.address_details} onChange={(value) => updateDraft("address_details", value)} />
+              <InputField label="Address details" value={draft.address_details} onChange={(value) => updateDraft("address_details", value)} />
 
               <div className="profile-map mt-4 relative rounded-2xl overflow-hidden h-48 border border-slate-200">
                 <LeafletPicker
@@ -362,7 +362,7 @@ export default function PharmacyProfileSource() {
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                   <div className="relative">
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-lg text-xs font-bold whitespace-nowrap border border-slate-100">
-                      موقع الصيدلية
+                      Pharmacy location
                     </div>
                   </div>
                 </div>
@@ -372,26 +372,26 @@ export default function PharmacyProfileSource() {
                   disabled={locating}
                   onClick={focusToCurrentLocation}
                   className="absolute bottom-4 left-4 z-[1200] inline-flex items-center gap-2 rounded-xl border border-[#cfdcf4] bg-white px-3.5 py-2 text-xs font-bold text-[#1a4b9c] shadow-[0_8px_20px_rgba(15,23,42,0.12)] transition-all hover:-translate-y-0.5 hover:bg-[#eef4ff] hover:text-[#123b84] disabled:cursor-not-allowed disabled:opacity-50"
-                  title="موقعي الحالي"
+                  title="My current location"
                 >
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-[#1a4b9c] text-white">
                     <LocateFixed size={13} />
                   </span>
-                  <span>موقعي الحالي</span>
+                  <span>My location</span>
                 </button>
               </div>
             </InfoCard>
           </div>
 
           <div className="space-y-6">
-            <InfoCard title="بيانات التواصل" icon={Phone}>
-              <InputField label="رقم الهاتف" value={draft.phone} dir="ltr" onChange={(value) => updateDraft("phone", value)} />
+            <InfoCard title="Contact Information" icon={Phone}>
+              <InputField label="Phone number" value={draft.phone} dir="ltr" onChange={(value) => updateDraft("phone", value)} />
             </InfoCard>
 
-            <InfoCard title="الأمان" icon={Shield}>
+            <InfoCard title="Security" icon={Shield}>
               <div className="text-right space-y-4">
                 <p className="text-sm text-slate-500 font-arabic leading-relaxed">
-                  قم بتغيير كلمة المرور بشكل دوري للحفاظ على أمان حسابك.
+                  Change your password regularly to keep your account secure.
                 </p>
                 <button
                   type="button"
@@ -399,7 +399,7 @@ export default function PharmacyProfileSource() {
                   onClick={() => setPasswordOpen((open) => !open)}
                 >
                   <ChevronLeft size={18} />
-                  <span>تغيير كلمة المرور</span>
+                  <span>Change Password</span>
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -414,14 +414,14 @@ export default function PharmacyProfileSource() {
                     >
                       <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <PasswordField
-                          label="كلمة المرور الحالية"
+                          label="Current password"
                           value={currentPassword}
                           onChange={setCurrentPassword}
                           invalid={currentPasswordWrong}
                           shake={passwordShake}
                         />
-                        <PasswordField label="كلمة المرور الجديدة" value={newPassword} onChange={setNewPassword} />
-                        <PasswordField label="تأكيد كلمة المرور الجديدة" value={confirmPassword} onChange={setConfirmPassword} />
+                        <PasswordField label="New password" value={newPassword} onChange={setNewPassword} />
+                        <PasswordField label="Confirm new password" value={confirmPassword} onChange={setConfirmPassword} />
                         {passwordError ? <p className="text-xs text-red-600">{passwordError}</p> : null}
                         <button
                           type="button"
@@ -429,7 +429,7 @@ export default function PharmacyProfileSource() {
                           disabled={passwordLoading}
                           className="w-full rounded-lg bg-[#1a4b9c] px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-60"
                         >
-                          {passwordLoading ? "جاري الحفظ..." : "تحديث كلمة المرور"}
+                          {passwordLoading ? "Saving..." : "Update Password"}
                         </button>
                       </div>
                     </motion.div>
@@ -448,7 +448,7 @@ export default function PharmacyProfileSource() {
             className="bg-[#1a4b9c] text-white px-10 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-900/20 hover:bg-blue-800 transition-all flex items-center gap-2 disabled:opacity-70 font-arabic min-w-[160px] justify-center"
           >
             <Save size={18} />
-            <span>{saving ? "جاري الحفظ..." : "حفظ التغييرات"}</span>
+            <span>{saving ? "Saving..." : "Save Changes"}</span>
           </button>
           <button
             type="button"
@@ -456,7 +456,7 @@ export default function PharmacyProfileSource() {
             disabled={!isDirty}
             className="bg-slate-50 text-slate-500 border border-slate-200 px-10 py-3.5 rounded-xl font-bold hover:bg-slate-100 transition-all font-arabic min-w-[120px] justify-center disabled:opacity-50"
           >
-            إلغاء
+            Cancel
           </button>
         </div>
       </main>
@@ -464,8 +464,8 @@ export default function PharmacyProfileSource() {
       {showUnsavedModal ? (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 text-right shadow-2xl">
-            <h3 className="mb-2 text-lg font-bold text-slate-900">يوجد تغييرات غير محفوظة</h3>
-            <p className="mb-5 text-sm text-slate-600">هل تريد حفظ التغييرات قبل الانتقال؟</p>
+            <h3 className="mb-2 text-lg font-bold text-slate-900">You have unsaved changes</h3>
+            <p className="mb-5 text-sm text-slate-600">Do you want to save changes before leaving?</p>
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
@@ -475,7 +475,7 @@ export default function PharmacyProfileSource() {
                 }}
                 className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
               >
-                إلغاء
+                Cancel
               </button>
               <button
                 type="button"
@@ -488,14 +488,14 @@ export default function PharmacyProfileSource() {
                 }}
                 className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
               >
-                تجاهل
+                Discard
               </button>
               <button
                 type="button"
                 onClick={onSaveThenNavigate}
                 className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800"
               >
-                حفظ التغييرات
+                Save Changes
               </button>
             </div>
           </div>

@@ -215,12 +215,12 @@ export default function PatientShell({ children, active }: { children: ReactNode
 
                 {notificationOpen ? (
                   <div className={styles.notificationPopup} role="dialog" aria-label="new notifications">
-                    <div className={styles.notificationHeader}>الإشعارات الجديدة</div>
+                    <div className={styles.notificationHeader}>New notifications</div>
                     <div className={styles.notificationList}>
                       {loadingNotifications ? (
-                        <p className={styles.notificationEmpty}>جاري تحميل الإشعارات...</p>
+                        <p className={styles.notificationEmpty}>Loading notifications...</p>
                       ) : unreadNotifications.length === 0 ? (
-                        <p className={styles.notificationEmpty}>لا توجد إشعارات جديدة.</p>
+                        <p className={styles.notificationEmpty}>No new notifications.</p>
                       ) : (
                         unreadNotifications.map((n) => (
                           <button
@@ -261,7 +261,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                       onClick={() => setProfileOpen(false)}
                     >
                       <Settings size={15} />
-                      الإعدادات
+                      Settings
                     </Link>
                     <button
                       type="button"
@@ -273,7 +273,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                       }}
                     >
                       <LogOut size={15} />
-                      تسجيل الخروج
+                      Logout
                     </button>
                   </div>
                 ) : null}

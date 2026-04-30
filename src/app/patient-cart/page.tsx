@@ -30,22 +30,22 @@ const GRADIENTS = [
   "linear-gradient(135deg,#ede9fe,#c4b5fd)",
 ];
 
-const DEFAULT_DESC_TABLETS = "أقراص - حسب الوصفة";
-const DEFAULT_DESC_DRINK = "شراب - حسب الوصفة";
+const DEFAULT_DESC_TABLETS = "Tablets - as prescribed";
+const DEFAULT_DESC_DRINK = "Syrup - as prescribed";
 
 function pendingDrugToCartItem(pending: { name: string; type?: string; strength?: string; tabletCount?: string; drinkType?: string; volume?: string }): CartItem {
   const idx = 0;
   let desc = "";
   if (pending.type === "drink") {
     desc = pending.drinkType && pending.volume
-      ? `${pending.drinkType}، ${pending.volume} مل`
+      ? `${pending.drinkType}, ${pending.volume} ml`
       : DEFAULT_DESC_DRINK;
   } else {
     desc = pending.strength && pending.tabletCount
       ? (() => {
           const cnt = parseInt(pending.tabletCount, 10) || 0;
-          const word = cnt === 1 ? " قرص" : cnt === 2 ? " قرصان" : cnt >= 3 && cnt <= 10 ? " أقراص" : " قرص";
-          return `${pending.strength} ملغ، ${pending.tabletCount}${word}`;
+          const word = cnt === 1 ? " tablet" : " tablets";
+          return `${pending.strength} mg, ${pending.tabletCount}${word}`;
         })()
       : DEFAULT_DESC_TABLETS;
   }
@@ -72,13 +72,13 @@ function buildTabletDesc(strength: string, count: string): string {
   if (!strength || !count) return DEFAULT_DESC_TABLETS;
   const cnt = parseInt(count, 10) || 0;
   const word =
-    cnt === 1 ? " قرص" : cnt === 2 ? " قرصان" : cnt >= 3 && cnt <= 10 ? " أقراص" : " قرص";
-  return `${strength} ملغ، ${count}${word}`;
+    cnt === 1 ? " tablet" : " tablets";
+  return `${strength} mg, ${count}${word}`;
 }
 
 function buildDrinkDesc(drinkType: string, volume: string): string {
   if (!drinkType || !volume) return DEFAULT_DESC_DRINK;
-  return `${drinkType}، ${volume} مل`;
+  return `${drinkType}, ${volume} ml`;
 }
 
 function dataUrlToFile(dataUrl: string, filename: string): File | null {
@@ -319,7 +319,7 @@ export default function PatientCartPage() {
     }));
 
     if (!medicines.length && !prescription) {
-      setCheckoutError("يرجى إضافة دواء أو روشتة قبل إتمام الطلب.");
+      setCheckoutError("Please add a medicine or a prescription before checkout.");
       return;
     }
     setCheckoutError(null);
@@ -359,15 +359,15 @@ export default function PatientCartPage() {
     } catch {
       setCheckoutError(
         prescription
-          ? "تعذر رفع الروشتة وإرسالها للصيدلية حالياً. حاول مرة أخرى."
-          : "تعذر إرسال الطلب حالياً. حاول مرة أخرى.",
+          ? "Unable to upload and send the prescription to the pharmacy right now. Please try again."
+          : "Unable to submit the order right now. Please try again.",
       );
     }
   }, [appliedCoupon, items, prescription, router, total]);
 
   const handleCheckout = useCallback(() => {
     if (!items.length && !prescription) {
-      setCheckoutError("يرجى إضافة دواء أو روشتة قبل إتمام الطلب.");
+      setCheckoutError("Please add a medicine or a prescription before checkout.");
       return;
     }
     if (isUserLoggedIn) {
@@ -392,7 +392,7 @@ export default function PatientCartPage() {
       setLoginPromptOpen(false);
       await submitRequestFromCart();
     } catch (e: unknown) {
-      setLoginError(getAuthErrorMessage(e, "فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى."));
+      setLoginError(getAuthErrorMessage(e, "Login failed. Please check your details and try again."));
     } finally {
       setIsLoginSubmitting(false);
     }
@@ -443,7 +443,7 @@ export default function PatientCartPage() {
       <div className="main">
         <div className="cart-right">
           <div className="section-header">
-            <h1 className="section-title">الأدوية المختارة</h1>
+            <h1 className="section-title">Selected Medicines</h1>
             <div className="badge">
               <svg
                 width="13"
@@ -456,18 +456,18 @@ export default function PatientCartPage() {
                 <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
                 <line x1="7" y1="7" x2="7.01" y2="7" />
               </svg>
-              {items.length + (prescription ? 1 : 0)} أصناف
+              {items.length + (prescription ? 1 : 0)} items
             </div>
           </div>
 
           {prescription && (
             <div className="product-card prescription-card">
               <div className="product-info" style={{ flex: 1 }}>
-                <div className="product-name">روشتة طبية</div>
-                <div className="product-desc">بانتظار تحديد السعر من الصيدلية</div>
+                <div className="product-name">Prescription</div>
+                <div className="product-desc">Waiting for pharmacy pricing</div>
               </div>
               <div className="prescription-img-wrap">
-                <img src={prescription} alt="الروشتة" />
+                <img src={prescription} alt="Prescription" />
               </div>
               <button
                 type="button"
@@ -482,7 +482,7 @@ export default function PatientCartPage() {
                   <path d="M14 11v6" />
                   <path d="M9 6V4h6v2" />
                 </svg>
-                حذف
+                Delete
               </button>
             </div>
           )}
@@ -526,7 +526,7 @@ export default function PatientCartPage() {
                     <path d="M14 11v6" />
                     <path d="M9 6V4h6v2" />
                   </svg>
-                  حذف
+                  Delete
                 </button>
               </div>
               <div className="product-info">
@@ -535,7 +535,7 @@ export default function PatientCartPage() {
                   <div className="product-desc">{item.desc}</div>
                 ) : null}
                 <div className="product-price">
-                  {item.price.toFixed(2)} ج.م
+                  {item.price.toFixed(2)} EGP
                 </div>
               </div>
               <div
@@ -549,7 +549,7 @@ export default function PatientCartPage() {
 
           <div className="add-more-card" onClick={openModal} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && openModal()}>
             <div className="add-more-icon">+</div>
-            <p className="add-more-text">هل تحتاج إلى أدوية أخرى؟</p>
+            <p className="add-more-text">Need more medicines?</p>
             <button type="button" className="btn-add-drug" onClick={openModal}>
               <svg
                 width="14"
@@ -562,7 +562,7 @@ export default function PatientCartPage() {
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              إضافة دواء آخر
+              Add another medicine
             </button>
           </div>
         </div>
@@ -577,15 +577,15 @@ export default function PatientCartPage() {
             aria-labelledby="add-drug-title"
           >
             <div className="add-modal" onClick={(e) => e.stopPropagation()}>
-              <h3 id="add-drug-title">إضافة دواء جديد</h3>
+              <h3 id="add-drug-title">Add New Medicine</h3>
 
-              <label htmlFor="drugName">اسم الدواء</label>
+              <label htmlFor="drugName">Medicine name</label>
               <div className="add-modal-drug-name-wrap" style={{ position: "relative", marginBottom: 16 }}>
                 <input
                   ref={drugNameInputRef}
                   id="drugName"
                   type="text"
-                  placeholder="أدخل اسم الدواء"
+                  placeholder="Enter medicine name"
                   value={drugName}
                   onChange={handleDrugNameChange}
                   onFocus={() => drugName.trim() && setShowDrugSuggestions(true)}
@@ -608,13 +608,13 @@ export default function PatientCartPage() {
                         </div>
                       ))
                     ) : (
-                      <div className="add-modal-autocomplete-empty">اكتب للبحث</div>
+                      <div className="add-modal-autocomplete-empty">Type to search</div>
                     )}
                   </div>
                 )}
               </div>
 
-              <label>نوع الدواء</label>
+              <label>Medicine type</label>
               <div className="drug-type-row">
                 <label>
                   <input
@@ -624,7 +624,7 @@ export default function PatientCartPage() {
                     checked={drugType === "tablets"}
                     onChange={() => setDrugType("tablets")}
                   />
-                  <span>أقراص</span>
+                  <span>Tablets</span>
                 </label>
                 <label>
                   <input
@@ -634,14 +634,14 @@ export default function PatientCartPage() {
                     checked={drugType === "drink"}
                     onChange={() => setDrugType("drink")}
                   />
-                  <span>شراب</span>
+                  <span>Syrup</span>
                 </label>
               </div>
 
               {drugType === "tablets" ? (
                 <div className="drug-fields-grid">
                   <div>
-                    <label htmlFor="drugStrength">القوة (ملغ)</label>
+                    <label htmlFor="drugStrength">Strength (mg)</label>
                     <input
                       id="drugStrength"
                       type="number"
@@ -652,7 +652,7 @@ export default function PatientCartPage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="drugTabletCount">عدد الأقراص</label>
+                    <label htmlFor="drugTabletCount">Tablet count</label>
                     <input
                       id="drugTabletCount"
                       type="number"
@@ -666,17 +666,17 @@ export default function PatientCartPage() {
               ) : (
                 <div className="drug-fields-grid">
                   <div>
-                    <label htmlFor="drugDrinkType">النوع</label>
+                    <label htmlFor="drugDrinkType">Type</label>
                     <input
                       id="drugDrinkType"
                       type="text"
-                      placeholder="طارد للبلغم"
+                      placeholder="Expectorant"
                       value={drugDrinkType}
                       onChange={(e) => setDrugDrinkType(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label htmlFor="drugVolume">الحجم (مل)</label>
+                    <label htmlFor="drugVolume">Volume (ml)</label>
                     <input
                       id="drugVolume"
                       type="number"
@@ -689,7 +689,7 @@ export default function PatientCartPage() {
                 </div>
               )}
 
-              <label htmlFor="drugQty">الكمية</label>
+              <label htmlFor="drugQty">Quantity</label>
               <input
                 id="drugQty"
                 type="number"
@@ -712,7 +712,7 @@ export default function PatientCartPage() {
                 style={{ marginTop: 8, marginBottom: 10 }}
                 onClick={() => modalPrescriptionInputRef.current?.click()}
               >
-                إضافة روشتة
+                Add prescription
               </button>
 
               <div className="modal-actions">
@@ -721,14 +721,14 @@ export default function PatientCartPage() {
                   className="modal-btn-cancel"
                   onClick={closeModal}
                 >
-                  إلغاء
+                  Cancel
                 </button>
                 <button
                   type="button"
                   className="modal-btn-add"
                   onClick={addDrug}
                 >
-                  إضافة
+                  Add
                 </button>
               </div>
             </div>
@@ -740,36 +740,36 @@ export default function PatientCartPage() {
           <div className="summary-header">
             <div className="summary-header-right">
               <SummaryIconDoc />
-              <span className="summary-title">ملخص الطلب</span>
+              <span className="summary-title">Order Summary</span>
             </div>
           </div>
 
           <div className="summary-row" style={{ borderBottom: "none" }}>
-            <span>المجموع الفرعي</span>
-            <span className="val">{subtotal.toFixed(2)} ج.م</span>
+            <span>Subtotal</span>
+            <span className="val">{subtotal.toFixed(2)} EGP</span>
           </div>
           {appliedCoupon ? (
             <div className="summary-row" style={{ borderBottom: "none" }}>
-              <span>خصم ({appliedCoupon.percent}%)</span>
-              <span className="free">-{discount.toFixed(2)} ج.م</span>
+              <span>Discount ({appliedCoupon.percent}%)</span>
+              <span className="free">-{discount.toFixed(2)} EGP</span>
             </div>
           ) : null}
           <div className="summary-row" style={{ borderBottom: "none" }}>
-            <span>رسوم التوصيل</span>
+            <span>Delivery fee</span>
             {deliveryFee === 0 ? (
-              <span className="free">مجاني</span>
+              <span className="free">Free</span>
             ) : (
-              <span className="val">{deliveryFee.toFixed(2)} ج.م</span>
+              <span className="val">{deliveryFee.toFixed(2)} EGP</span>
             )}
           </div>
           <div className="summary-row">
-            <span>ضريبة القيمة المضافة (15%)</span>
-            <span className="val">{tax.toFixed(2)} ج.م</span>
+            <span>VAT (15%)</span>
+            <span className="val">{tax.toFixed(2)} EGP</span>
           </div>
 
           <div className="total-row">
-            <span className="total-label">الإجمالي الكلي</span>
-            <span className="total-value">{total.toFixed(2)} ج.م</span>
+            <span className="total-label">Total</span>
+            <span className="total-value">{total.toFixed(2)} EGP</span>
           </div>
           <p
             style={{
@@ -784,7 +784,7 @@ export default function PatientCartPage() {
               padding: "10px 12px",
             }}
           >
-            هذا المبلغ <strong>تقديري</strong> من أسعار الدليل داخل التطبيق؛ الأسعار النهائية تأتي من الصيدلية بعد مراجعة طلبك.
+            This amount is an <strong>estimate</strong> based on in-app catalog prices; final prices are provided by the pharmacy after review.
           </p>
 
           <button
@@ -804,22 +804,22 @@ export default function PatientCartPage() {
               <circle cx="20" cy="21" r="1" />
               <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
             </svg>
-            إتمام الطلب
+            Complete Order
           </button>
           {checkoutError ? (
             <p style={{ color: "#b91c1c", fontSize: 12, textAlign: "center", marginTop: 8 }}>{checkoutError}</p>
           ) : null}
           <button type="button" className="btn-continue" onClick={openModal}>
-            متابعة التسوق
+            Continue Shopping
           </button>
 
           <div className="coupon-section">
-            <p className="coupon-label">هل لديك كود خصم؟</p>
+            <p className="coupon-label">Have a discount code?</p>
             <div className="coupon-row">
               <input
                 className={`coupon-input ${couponError ? "error" : ""}`}
                 type="text"
-                placeholder="أدخل الكود هنا"
+                placeholder="Enter code here"
                 value={couponCode}
                 onChange={(e) => { setCouponCode(e.target.value); setCouponError(false); }}
               />
@@ -828,12 +828,12 @@ export default function PatientCartPage() {
                 className={`btn-apply ${couponShake ? "shake" : ""}`}
                 onClick={applyCoupon}
               >
-                تطبيق
+                Apply
               </button>
             </div>
             {appliedCoupon && (
               <p className="coupon-applied" style={{ fontSize: 12, color: "var(--green)", marginTop: 6 }}>
-                تم تطبيق خصم {appliedCoupon.percent}%
+                Discount {appliedCoupon.percent}% applied
               </p>
             )}
           </div>
@@ -853,8 +853,8 @@ export default function PatientCartPage() {
               />
             </svg>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-              <span>تفاعل آمن وموثوق</span>
-              <span>غير بيانات محفوظة</span>
+              <span>Secure and trusted checkout</span>
+              <span>Your data is protected</span>
             </div>
           </div>
         </div>
@@ -863,8 +863,8 @@ export default function PatientCartPage() {
       {loginPromptOpen ? (
         <div className="add-modal-overlay" onClick={() => setLoginPromptOpen(false)} role="dialog" aria-modal="true">
           <div className="add-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>يجب تسجيل الدخول لإتمام الطلب</h3>
-            <label htmlFor="checkout-login-email">البريد الإلكتروني</label>
+            <h3>You must log in to complete your order</h3>
+            <label htmlFor="checkout-login-email">Email</label>
             <input
               id="checkout-login-email"
               type="text"
@@ -872,7 +872,7 @@ export default function PatientCartPage() {
               onChange={(e) => setLoginEmail(e.target.value)}
               placeholder="example@mail.com"
             />
-            <label htmlFor="checkout-login-password">كلمة المرور</label>
+            <label htmlFor="checkout-login-password">Password</label>
             <input
               id="checkout-login-password"
               type="password"
@@ -883,16 +883,16 @@ export default function PatientCartPage() {
             {loginError ? <p style={{ color: "#b91c1c", fontSize: 13, marginBottom: 8 }}>{loginError}</p> : null}
             <div className="modal-actions">
               <button type="button" className="modal-btn-cancel" onClick={() => setLoginPromptOpen(false)}>
-                إلغاء
+                Cancel
               </button>
               <button type="button" className="modal-btn-add" onClick={handleCheckoutLogin} disabled={isLoginSubmitting}>
-                {isLoginSubmitting ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+                {isLoginSubmitting ? "Logging in..." : "Login"}
               </button>
             </div>
             <p style={{ marginTop: 10, fontSize: 13, textAlign: "center" }}>
-              ليس لديك حساب؟{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/signup" style={{ color: "#1a56db", fontWeight: 700 }}>
-                إنشاء حساب جديد
+                Create new account
               </Link>
             </p>
           </div>
@@ -919,7 +919,7 @@ export default function PatientCartPage() {
           </div>
         </div>
         <p className="footer-copy">
-          © Healup 2024. جميع الحقوق محفوظة لشركة للرعاية الصحية المتكاملة.
+          © Healup 2024. All rights reserved.
         </p>
       </footer>
     </div>
