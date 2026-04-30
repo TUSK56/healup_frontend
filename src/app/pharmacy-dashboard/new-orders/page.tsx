@@ -10,7 +10,7 @@ export default function PharmacyNewOrdersPage() {
   const searchParams = useSearchParams();
   const openRequestId = searchParams.get("openRequestId");
   const [modalOpen, setModalOpen] = React.useState(false);
-  const iframeVersion = "20260419-qty-fixed-1";
+  const iframeVersion = React.useMemo(() => `20260430-ui-refresh-${Date.now()}`, []);
 
   React.useEffect(() => {
     void (async () => {

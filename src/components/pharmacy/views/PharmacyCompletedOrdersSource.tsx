@@ -76,6 +76,23 @@ export default function App() {
     void loadOrders();
   }, [loadOrders]);
 
+  useEffect(() => {
+    const refresh = () => {
+      void loadOrders();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", onVisibility);
+    const poll = window.setInterval(refresh, 30000);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.clearInterval(poll);
+    };
+  }, [loadOrders]);
+
   const filteredOrders = useMemo(() => {
     const q = query.trim().toLowerCase();
     return orders

@@ -64,11 +64,12 @@ export default function PatientShell({ children, active }: { children: ReactNode
   }, []);
 
   const resolveTargetRoute = React.useCallback(async (notification: PatientNotification): Promise<string> => {
+    const checkoutPageVersion = "20260430-step-flow-2";
     const rawRoute = (notification.route || "").trim();
     const lowerType = (notification.type || "").toLowerCase();
 
     if (rawRoute.startsWith("/patient_after_pharmacy_confirmation.html")) {
-      return rawRoute;
+      return rawRoute.includes("v=") ? rawRoute : `${rawRoute}${rawRoute.includes("?") ? "&" : "?"}v=${checkoutPageVersion}`;
     }
 
     const requestId = parseRequestId(rawRoute);
@@ -79,7 +80,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
         const offers = Array.isArray(offersRes.data?.offers) ? offersRes.data.offers : [];
         const responseId = Number(offers[0]?.response?.id || 0);
         if (Number.isFinite(responseId) && responseId > 0) {
-          return `/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(String(requestId))}&responseId=${encodeURIComponent(String(responseId))}`;
+          return `/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(String(requestId))}&responseId=${encodeURIComponent(String(responseId))}&v=${checkoutPageVersion}`;
         }
       } catch {
         // fallback below
@@ -94,7 +95,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
         const offers = Array.isArray(offersRes.data?.offers) ? offersRes.data.offers : [];
         const responseId = Number(offers[0]?.response?.id || 0);
         if (Number.isFinite(responseId) && responseId > 0) {
-          return `/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(String(requestId))}&responseId=${encodeURIComponent(String(responseId))}`;
+          return `/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(String(requestId))}&responseId=${encodeURIComponent(String(responseId))}&v=${checkoutPageVersion}`;
         }
       } catch {
         // fallback below

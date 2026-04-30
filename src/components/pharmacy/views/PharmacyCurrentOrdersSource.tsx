@@ -353,6 +353,23 @@ export default function PharmacyCurrentOrdersApp() {
   }, [load]);
 
   React.useEffect(() => {
+    const refresh = () => {
+      void load();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", onVisibility);
+    const poll = window.setInterval(refresh, 20000);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.clearInterval(poll);
+    };
+  }, [load]);
+
+  React.useEffect(() => {
     const t = window.setInterval(() => setNowTick(Date.now()), 1000);
     return () => window.clearInterval(t);
   }, []);

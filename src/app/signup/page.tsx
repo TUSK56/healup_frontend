@@ -86,6 +86,10 @@ export default function SignupPage() {
       setError("كلمتا المرور غير متطابقتين.");
       return;
     }
+    if (latitude == null || longitude == null) {
+      setError("Please select your location on the map to continue.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {

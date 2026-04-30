@@ -81,6 +81,10 @@ export default function PharmacySignupPage() {
       setError("كلمتا المرور غير متطابقتين.");
       return;
     }
+    if (latitude == null || longitude == null) {
+      setError("Please select the pharmacy location on the map to continue.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
