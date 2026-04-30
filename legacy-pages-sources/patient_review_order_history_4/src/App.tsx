@@ -559,7 +559,7 @@ export default function App() {
                           textDecoration: 'none'
                         }}
                       >
-                        Google Maps
+                        خرائط جوجل
                       </a>
                       <button
                         type="button"

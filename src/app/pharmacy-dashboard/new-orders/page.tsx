@@ -108,7 +108,7 @@ export default function PharmacyNewOrdersPage() {
           className="pharmacy-content-shell"
           style={{ position: "relative", zIndex: modalOpen ? 201 : 50 }}
         >
-          <iframe src={iframeSrc} title="Pharmacy Orders 1" className="h-full w-full border-0" />
+          <iframe src={iframeSrc} title="الطلبات الجديدة للصيدلية" className="h-full w-full border-0" />
         </div>
       </div>
     </div>

@@ -20,24 +20,24 @@ import {
 import { authService } from '@/services/authService';
 
 const patientLinks = [
-  { href: '/dashboard', label: 'HealUp Dashboard', icon: LayoutDashboard },
-  { href: '/requests/new', label: 'Create Request', icon: FilePlus },
-  { href: '/requests', label: 'My Requests', icon: List },
-  { href: '/orders', label: 'My Orders', icon: Package },
+  { href: '/dashboard', label: 'لوحة تحكم هيل أب', icon: LayoutDashboard },
+  { href: '/requests/new', label: 'إنشاء طلب', icon: FilePlus },
+  { href: '/requests', label: 'طلباتي', icon: List },
+  { href: '/orders', label: 'طلباتي', icon: Package },
 ];
 
 const pharmacyLinks = [
-  { href: '/pharmacy/dashboard', label: 'HealUp Dashboard', icon: LayoutDashboard },
-  { href: '/pharmacy/requests', label: 'Incoming Requests', icon: Inbox },
-  { href: '/pharmacy/orders', label: 'Orders', icon: ClipboardList },
+  { href: '/pharmacy/dashboard', label: 'لوحة تحكم هيل أب', icon: LayoutDashboard },
+  { href: '/pharmacy/requests', label: 'الطلبات الواردة', icon: Inbox },
+  { href: '/pharmacy/orders', label: 'الطلبات', icon: ClipboardList },
 ];
 
 const adminLinks = [
-  { href: '/admin/dashboard', label: 'HealUp Admin', icon: Shield },
-  { href: '/admin/pharmacies', label: 'Pharmacy Approvals', icon: Building2 },
-  { href: '/admin/patients', label: 'Patients', icon: Users },
-  { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
-  { href: '/admin/financial', label: 'Financial Reports', icon: FileText },
+  { href: '/admin/dashboard', label: 'لوحة تحكم هيل أب', icon: Shield },
+  { href: '/admin/pharmacies', label: 'اعتمادات الصيدليات', icon: Building2 },
+  { href: '/admin/patients', label: 'المرضى', icon: Users },
+  { href: '/admin/orders', label: 'الطلبات', icon: ClipboardList },
+  { href: '/admin/financial', label: 'التقارير المالية', icon: FileText },
 ];
 
 export default function Sidebar() {
@@ -81,7 +81,7 @@ export default function Sidebar() {
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
         >
           <LogOut className="h-5 w-5" />
-          HealUp Logout
+          تسجيل الخروج
         </button>
       </div>
     </aside>

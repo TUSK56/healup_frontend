@@ -148,7 +148,7 @@ export default function PharmacyDashboardPage() {
             <div className="stat-card">
               <div className="stat-top">
                 <div className="stat-icon icon-light">
-                  <span style={{ fontSize: 11, fontWeight: 900, color: "#1a56db", letterSpacing: "-0.5px" }}>NEW</span>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: "#1a56db", letterSpacing: "-0.5px" }}>جديد</span>
                 </div>
                 <span className="stat-badge badge-green">12%+</span>
               </div>
