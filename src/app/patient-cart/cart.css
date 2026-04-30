@@ -23,6 +23,7 @@
   font-family: "Cairo", sans-serif;
   background: var(--bg);
   color: var(--text);
+  direction: rtl;
   min-height: 100vh;
   display: flex;
   flex-direction: column;

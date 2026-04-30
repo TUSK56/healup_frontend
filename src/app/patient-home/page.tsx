@@ -227,7 +227,7 @@ export default function PatientHomePage() {
             </button>
           </div>
           {searchError ? (
-            <p className="search-error-message">Please enter medicine name before searching.</p>
+            <p className="search-error-message">يرجى إدخال اسم الدواء قبل البحث.</p>
           ) : null}
           {showSuggestions && (
             <div className="search-autocomplete">
