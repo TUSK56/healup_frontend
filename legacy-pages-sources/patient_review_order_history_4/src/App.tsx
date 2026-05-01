@@ -273,7 +273,11 @@ export default function App() {
 
   const onConfirmOrder = () => {
     if (!selectedOffer?.response?.id || !requestId) return;
-    router.push(`/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(String(requestId))}&responseId=${encodeURIComponent(String(selectedOffer.response.id))}`);
+    router.push(
+      `/patient_after_pharmacy_confirmation.html?requestId=${encodeURIComponent(String(requestId))}&responseId=${encodeURIComponent(
+        String(selectedOffer.response.id),
+      )}&v=20260501-checkout`,
+    );
   };
 
   const onReorder = async () => {
@@ -311,9 +315,9 @@ export default function App() {
           throw new Error(maybeJsonText || 'invoice_not_ready');
         }
         const pdfBlob = mime.includes('application/pdf') ? blob : new Blob([blob], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(pdfBlob);
+        const href = URL.createObjectURL(pdfBlob);
+        a.href = href;
         a.download = `healup-receipt-request-${requestId}.pdf`;
         a.target = '_self';
         a.rel = 'noopener';
@@ -321,12 +325,11 @@ export default function App() {
         document.body.appendChild(a);
         a.click();
         window.setTimeout(() => {
-          URL.revokeObjectURL(a.href);
-          URL.revokeObjectURL(url);
+          URL.revokeObjectURL(href);
           a.remove();
         }, 200);
       } catch {
-        alert('تعذر تحميل الفاتورة حالياً. حاول مرة أخرى بعد قليل.');
+        alert('Unable to download invoice right now. Please try again later.');
       } finally {
         setActionBusy(false);
       }

@@ -227,7 +227,7 @@ export default function PatientOrderTrackingView() {
   const orderCompleted = (order.status || "").toLowerCase() === "completed";
   const statusLower = (order.status || "").toLowerCase();
   const isDelivery = orderDeliveryFlag(order);
-  const mapProgressKey = `healup_tracking_car_km_${order.id}_${statusLower}_${isDelivery ? "delivery" : "pickup"}`;
+  const mapProgressKey = `healup_tracking_car_km_${order.id}_${isDelivery ? "delivery" : "pickup"}`;
 
   return (
     <div className="patient-order-tracking-wrap min-h-screen bg-slate-50 px-4 py-6 font-sans rtl" dir="rtl">
