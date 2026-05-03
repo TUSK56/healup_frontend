@@ -7,6 +7,8 @@ import { LogOut, Settings } from "lucide-react";
 import api from "@/services/apiService";
 import { authService } from "@/services/authService";
 import { readAvatar } from "@/lib/avatarStorage";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nContext";
 
 type PharmacyNotification = {
   id: number;
@@ -27,6 +29,7 @@ function toArabicTime(value?: string | null): string {
 
 export default function PharmacyTopNavbar() {
   const router = useRouter();
+  const { t } = useI18n();
   const [avatar, setAvatar] = React.useState<string | null>(null);
   const [name, setName] = React.useState("Pharmacy");
   const [open, setOpen] = React.useState(false);
@@ -89,20 +92,20 @@ export default function PharmacyTopNavbar() {
         const identity = user?.id ?? user?.email;
         const avatarUrl = readAvatar("pharmacy", identity, { migrateLegacy: true });
         setAvatar(avatarUrl);
-        setName(String(user?.name || "Pharmacy"));
+        setName(String(user?.name || t("pharmacy.defaultName")));
       } catch {
         setAvatar(null);
-        setName("Pharmacy");
+        setName(t("pharmacy.defaultName"));
       }
     };
-    load();
     window.addEventListener("storage", load);
     window.addEventListener("healup:pharmacy-profile-updated", load as EventListener);
+    load();
     return () => {
       window.removeEventListener("storage", load);
       window.removeEventListener("healup:pharmacy-profile-updated", load as EventListener);
     };
-  }, []);
+  }, [t]);
 
   return (
     <header className="pharmacy-topbar">
@@ -111,7 +114,7 @@ export default function PharmacyTopNavbar() {
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" placeholder="Search for a patient or medicine..." />
+        <input type="text" placeholder={t("pharmacy.searchPlaceholder")} />
       </div>
 
       <div className="topbar-right">
@@ -121,7 +124,7 @@ export default function PharmacyTopNavbar() {
             type="button"
             style={{ position: "relative" }}
             onClick={() => setOpen((v) => !v)}
-            title="Notifications"
+            title={t("common.notifications")}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -132,12 +135,12 @@ export default function PharmacyTopNavbar() {
 
           {open ? (
             <div className="notif-popup">
-              <div className="notif-popup-head">New notifications</div>
+              <div className="notif-popup-head">{t("common.newNotifications")}</div>
               <div className="notif-popup-body">
                 {loadingNotifs ? (
-                  <p className="notif-popup-empty">Loading notifications...</p>
+                  <p className="notif-popup-empty">{t("common.loadingNotifications")}</p>
                 ) : unread.length === 0 ? (
-                  <p className="notif-popup-empty">No new notifications.</p>
+                  <p className="notif-popup-empty">{t("common.noNotifications")}</p>
                 ) : (
                   unread.map((n) => (
                     <button
@@ -167,16 +170,7 @@ export default function PharmacyTopNavbar() {
           ) : null}
         </div>
 
-        <button className="topbar-icon-btn" type="button" title="Change language">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 8l6 6" />
-            <path d="M4 14l6-6 2-3" />
-            <path d="M2 5h12" />
-            <path d="M7 2h1" />
-            <path d="M22 22l-5-10-5 10" />
-            <path d="M14 18h6" />
-          </svg>
-        </button>
+        <LanguageSwitcher compact />
 
         <div style={{ width: 1, height: 32, background: "var(--border)", margin: "0 4px" }} />
 
@@ -189,7 +183,7 @@ export default function PharmacyTopNavbar() {
           >
             <div className="profile-info">
               <div className="profile-name">{name}</div>
-              <div className="profile-role">Pharmacy manager</div>
+              <div className="profile-role">{t("pharmacy.managerRole")}</div>
             </div>
             <div className="profile-avatar" style={{ overflow: "hidden" }}>
               {avatar ? (
@@ -214,7 +208,7 @@ export default function PharmacyTopNavbar() {
                 </div>
                 <div className="profile-popup-headline-text">
                   <div className="profile-popup-headline-name">{name}</div>
-                  <div className="profile-popup-headline-role">Pharmacy manager</div>
+                  <div className="profile-popup-headline-role">{t("pharmacy.managerRole")}</div>
                 </div>
               </div>
 
@@ -224,7 +218,7 @@ export default function PharmacyTopNavbar() {
                 onClick={() => setProfileOpen(false)}
               >
                 <Settings size={15} />
-                Settings
+                {t("common.settings")}
               </Link>
               <button
                 type="button"
@@ -236,7 +230,7 @@ export default function PharmacyTopNavbar() {
                 }}
               >
                 <LogOut size={15} />
-                Logout
+                {t("common.logout")}
               </button>
             </div>
           ) : null}

@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PatientSidebar from "./PatientSidebar";
 import styles from "./PatientSidebar.module.css";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nContext";
 import { patientService } from "@/services/patientService";
 import api from "@/services/apiService";
 import { authService } from "@/services/authService";
@@ -41,6 +43,7 @@ function parseRequestId(route: string): number | null {
 
 export default function PatientShell({ children, active }: { children: ReactNode; active: ActiveKey }) {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const showSharedNavbar = active !== "home";
   const [avatar, setAvatar] = React.useState<string | null>(null);
   const [notificationOpen, setNotificationOpen] = React.useState(false);
@@ -194,20 +197,21 @@ export default function PatientShell({ children, active }: { children: ReactNode
   }, [notificationOpen, profileOpen]);
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} dir={dir}>
       <PatientSidebar mode="static" active={active} />
       <main className={`${styles.shellMain} ${showSharedNavbar ? styles.withTopbar : styles.homeMain}`}>
         {showSharedNavbar ? (
           <header className={styles.topbar}>
             <div className={styles.topbarActions}>
-              <Link href="/patient-cart" className={styles.topbarIconBtn} aria-label="cart">
+              <LanguageSwitcher compact className="shrink-0" />
+              <Link href="/patient-cart" className={styles.topbarIconBtn} aria-label={t("common.cart")}>
                 <ShoppingCart size={20} />
               </Link>
               <div className={styles.notificationWrap} ref={notifWrapRef}>
                 <button
                   type="button"
                   className={styles.topbarIconBtn}
-                  aria-label="notifications"
+                  aria-label={t("common.notifications")}
                   onClick={() => setNotificationOpen((v) => !v)}
                 >
                   <Bell size={20} />
@@ -215,13 +219,13 @@ export default function PatientShell({ children, active }: { children: ReactNode
                 </button>
 
                 {notificationOpen ? (
-                  <div className={styles.notificationPopup} role="dialog" aria-label="new notifications">
-                    <div className={styles.notificationHeader}>New notifications</div>
+                  <div className={styles.notificationPopup} role="dialog" aria-label={t("common.newNotifications")}>
+                    <div className={styles.notificationHeader}>{t("common.newNotifications")}</div>
                     <div className={styles.notificationList}>
                       {loadingNotifications ? (
-                        <p className={styles.notificationEmpty}>Loading notifications...</p>
+                        <p className={styles.notificationEmpty}>{t("common.loadingNotifications")}</p>
                       ) : unreadNotifications.length === 0 ? (
-                        <p className={styles.notificationEmpty}>No new notifications.</p>
+                        <p className={styles.notificationEmpty}>{t("common.noNotifications")}</p>
                       ) : (
                         unreadNotifications.map((n) => (
                           <button
@@ -243,7 +247,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                 <button
                   type="button"
                   className={`${styles.topbarIconBtn} ${styles.topbarIconBtnActive}`}
-                  aria-label="profile"
+                  aria-label={t("patient.nav.profile")}
                   onClick={() => setProfileOpen((v) => !v)}
                 >
                   {avatar ? (
@@ -255,14 +259,14 @@ export default function PatientShell({ children, active }: { children: ReactNode
                 </button>
 
                 {profileOpen ? (
-                  <div className={styles.profilePopup} role="dialog" aria-label="profile menu">
+                  <div className={styles.profilePopup} role="dialog" aria-label={t("patient.nav.profile")}>
                     <Link
                       href="/patient-profile"
                       className={styles.profilePopupItem}
                       onClick={() => setProfileOpen(false)}
                     >
                       <Settings size={15} />
-                      Settings
+                      {t("common.settings")}
                     </Link>
                     <button
                       type="button"
@@ -274,7 +278,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
                       }}
                     >
                       <LogOut size={15} />
-                      Logout
+                      {t("common.logout")}
                     </button>
                   </div>
                 ) : null}

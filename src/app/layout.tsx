@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Cairo } from 'next/font/google';
 import './globals.css';
 import "leaflet/dist/leaflet.css";
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'HealUp - Medicine Request Platform',
@@ -21,8 +22,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" dir="ltr" className={`${cairo.variable} ${cairo.className}`}>
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning className={`${cairo.variable} ${cairo.className}`}>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

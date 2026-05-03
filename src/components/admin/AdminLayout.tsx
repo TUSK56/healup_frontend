@@ -14,26 +14,28 @@ import { cn } from "@/lib/utils";
 import AdminTopNavbar from "@/components/admin/AdminTopNavbar";
 import RealtimeBridge from "@/components/RealtimeBridge";
 import HealupLogo from "@/components/HealupLogo";
+import { useI18n } from "@/i18n/I18nContext";
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard", label: "لوحة القيادة", icon: LayoutDashboard },
-  { href: "/admin/pharmacies", label: "إدارة الصيدليات", icon: Store },
-  { href: "/admin/patients", label: "إدارة المرضى", icon: Users },
-  { href: "/admin/orders", label: "الطلبات", icon: ShoppingCart },
-  { href: "/admin/financial", label: "التقارير", icon: FileText },
+  { href: "/admin/dashboard", labelKey: "admin.nav.dashboard", icon: LayoutDashboard },
+  { href: "/admin/pharmacies", labelKey: "admin.nav.pharmacies", icon: Store },
+  { href: "/admin/patients", labelKey: "admin.nav.patients", icon: Users },
+  { href: "/admin/orders", labelKey: "admin.nav.orders", icon: ShoppingCart },
+  { href: "/admin/financial", labelKey: "admin.nav.financial", icon: FileText },
 ] as const;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const settingsActive = pathname === "/admin/settings";
+  const { t, dir } = useI18n();
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir="rtl">
-      <aside className="sticky top-0 z-40 flex h-screen w-72 shrink-0 flex-col border-l border-slate-200 bg-white p-6">
+    <div className="flex min-h-screen bg-[#F8FAFC] font-sans" dir={dir}>
+      <aside className="sticky top-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-slate-200 bg-white p-6">
         <div className="mb-10 px-2">
           <HealupLogo href="/admin/dashboard" />
           <div>
-            <p className="text-xs font-medium text-slate-400">لوحة الإدارة</p>
+            <p className="text-xs font-medium text-slate-400">{t("admin.panelSubtitle")}</p>
           </div>
         </div>
 
@@ -53,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 )}
               >
                 <Icon size={20} />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             );
           })}
@@ -70,7 +72,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             )}
           >
             <Settings size={20} />
-            <span>الإعدادات</span>
+            <span>{t("admin.nav.settings")}</span>
           </Link>
         </div>
       </aside>

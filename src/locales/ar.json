@@ -1,0 +1,273 @@
+{
+  "meta": {
+    "title": "هيل أب - منصة طلب الأدوية",
+    "description": "هيل أب تربط المرضى بالصيدليات للعثور على الأدوية النادرة."
+  },
+  "language": {
+    "switch": "اللغة",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "common": {
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "settings": "الإعدادات",
+    "notifications": "الإشعارات",
+    "cart": "السلة",
+    "newNotifications": "إشعارات جديدة",
+    "loadingNotifications": "جاري تحميل الإشعارات...",
+    "noNotifications": "لا توجد إشعارات جديدة.",
+    "search": "بحث",
+    "joinUs": "انضم إلينا",
+    "brand": "Healup",
+    "copyrightHealup": "© {year} هيل أب ({brand}). جميع الحقوق محفوظة للرعاية الصحية الذكية."
+  },
+  "errors": {
+    "loginFailed": "فشل تسجيل الدخول. تأكد من البيانات وحاول مرة أخرى.",
+    "registerFailed": "فشل إنشاء الحساب. تأكد من البيانات وحاول مرة أخرى.",
+    "sendOtpFailed": "تعذر إرسال كود التحقق. حاول مرة أخرى.",
+    "incorrectOtp": "رمز التحقق غير صحيح.",
+    "resendOtpFailed": "تعذر إعادة إرسال الكود.",
+    "noResetIdentifier": "لا يوجد معرف استرجاع. أعد طلب كود جديد.",
+    "geolocationUnsupported": "المتصفح لا يدعم تحديد الموقع الجغرافي.",
+    "geolocationDenied": "تعذر الحصول على موقعك الحالي. تأكد من السماح بخدمة الموقع.",
+    "termsRequired": "يجب الموافقة على شروط الاستخدام وسياسة الخصوصية.",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+    "mapPickRequired": "يرجى تحديد موقعك على الخريطة للمتابعة.",
+    "invalidCredentials": "بيانات الدخول غير صحيحة"
+  },
+  "landing": {
+    "chooseAccountTitle": "مرحباً بك في هيل أب - اختر نوع حسابك",
+    "chooseAccountSubtitle": "بوابتك الذكية لإدارة الدواء والرعاية الصحية. اختر المسار المناسب لبدء الاستخدام.",
+    "patientLoginTitle": "تسجيل دخول المريض",
+    "patientLoginDesc": "للباحثين عن الدواء، إدارة الطلبات الشخصية، ومتابعة السجلات الصحية بكل سهولة وخصوصية.",
+    "patientCta": "دخول المريض",
+    "pharmacyLoginTitle": "تسجيل دخول الصيدلية",
+    "pharmacyLoginDesc": "لأصحاب الصيدليات لإدارة المخزون، استقبال الطلبات الواردة، وتوسيع نطاق خدماتكم الرقمية.",
+    "pharmacyCta": "دخول الصيدلية",
+    "adminLoginTitle": "تسجيل دخول الإدارة",
+    "adminLoginDesc": "لوحة التحكم الكاملة لمشرفي النظام لمراقبة الأداء، إدارة المستخدمين، وضمان جودة الخدمة.",
+    "adminCta": "دخول الإدارة",
+    "footerSecure": "أمن ومحمي 100%",
+    "footerSupport": "دعم فني على مدار الساعة",
+    "patientAlt": "مريض",
+    "pharmacyAlt": "صيدلية",
+    "adminAlt": "إدارة"
+  },
+  "auth": {
+    "welcomeBack": "مرحباً بك مجدداً في {brand}. يرجى إدخال بياناتك.",
+    "emailOrPhone": "البريد الالكتروني أو رقم الهاتف",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "rememberMe": "تذكرني على هذا الجهاز",
+    "emailPlaceholder": "example@mail.com",
+    "passwordPlaceholder": "••••••••",
+    "loggingIn": "جاري تسجيل الدخول...",
+    "loginButton": "تسجيل الدخول",
+    "guestLogin": "الدخول كضيف",
+    "noAccount": "ليس لديك حساب؟",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "createAccount": "إنشاء حساب جديد",
+    "footerMedical": "© {year} Healup. جميع الحقوق محفوظة للنظام الطبي المتكامل.",
+    "patientLogin": {
+      "title": "تسجيل الدخول",
+      "imageAlt": "تسجيل دخول المريض",
+      "submit": "تسجيل الدخول"
+    },
+    "pharmacyLogin": {
+      "title": "تسجيل دخول الصيدلية",
+      "imageAlt": "تسجيل دخول الصيدلية"
+    },
+    "signup": {
+      "pageTitle": "إنشاء حساب جديد",
+      "subtitle": "انضم إلى منصة Healup الصحية وابدأ رحلتك نحو رعاية أفضل",
+      "navServices": "خدماتنا",
+      "navHome": "الرئيسية",
+      "accountType": "نوع الحساب",
+      "patient": "مريض",
+      "pharmacy": "صيدلية",
+      "fullName": "الاسم الكامل",
+      "fullNamePlaceholder": "أدخل اسمك بالكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "phonePlaceholder": "+966 5x xxx xxxx",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "locationSection": "تحديد الموقع",
+      "governoratePlaceholder": "المحافظة / المدينة",
+      "districtPlaceholder": "الحي / المنطقة",
+      "addressDetailsPlaceholder": "العنوان بالتفصيل",
+      "locating": "جاري تحديد الموقع...",
+      "useMyLocation": "تحديد موقعي الحالي",
+      "termsAgree": "أوافق على",
+      "termsLink": "شروط الاستخدام",
+      "termsAnd": "و",
+      "privacyLink": "سياسة الخصوصية",
+      "creating": "جاري إنشاء الحساب...",
+      "submit": "إنشاء حساب",
+      "footer": "© {year} Healup. جميع الحقوق محفوظة."
+    },
+    "forgotPassword": {
+      "title": "نسيت كلمة المرور؟",
+      "subtitle": "لا تقلق. أدخل بريدك الإلكتروني أو رقم هاتفك وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.",
+      "sendCode": "إرسال كود التحقق",
+      "sending": "جارٍ الإرسال...",
+      "backToLogin": "العودة إلى تسجيل الدخول",
+      "footer": "© 2023 Healup. جميع الحقوق محفوظة لمنصة هيل أب الطبية."
+    },
+    "verifyOtp": {
+      "title": "تحقق من الرمز",
+      "subtitle": "لقد أرسلنا كود التحقق المكون من 4 أرقام إلى بريدك الإلكتروني أو رقم هاتفك. يرجى إدخاله أدناه.",
+      "verifyNow": "تحقق الان",
+      "didntGetCode": "لم يصلك الكود؟",
+      "resend": "إعادة إرسال",
+      "timerHint": "يمكنك طلب كود جديد خلال {minutes}:{seconds}",
+      "secureFooter": "اتصال آمن ومشفر bit-256",
+      "backShort": "العودة"
+    },
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "يرجى إدخال كلمة المرور الجديدة أدناه لتحديث حسابك في Healup وضمان أمن بياناتك الصحية.",
+      "newPassword": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
+      "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+      "confirmPlaceholder": "أعد إدخال كلمة المرور الجديدة",
+      "requirementLength": "يجب أن تتكون من 8 أحرف على الأقل",
+      "requirementComplex": "يجب أن تحتوي على أرقام ورموز خاصة",
+      "updatePassword": "تحديث كلمة المرور",
+      "backToPatientLogin": "العودة لتسجيل الدخول ←",
+      "backToPharmacyLogin": "العودة إلى تسجيل الدخول ←"
+    },
+    "adminLogin": {
+      "help": "المساعدة",
+      "dashboardBadge": "لوحة التحكم",
+      "title": "تسجيل دخول الإدارة",
+      "subtitle": "يرجى إدخال بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم",
+      "username": "البريد الإلكتروني أو اسم المستخدم",
+      "usernamePlaceholder": "example@healup.com",
+      "submit": "دخول إلى لوحة التحكم",
+      "disclaimer": "هذا النظام مخصص للموظفين المصرح لهم فقط. يتم مراقبة جميع الأنشطة وتسجيلها لضمان أمن البيانات والخصوصية.",
+      "panelWelcome": "أهلاً بك في نظام الإدارة",
+      "panelText": "منصة {brand} توفر لك كافة الأدوات اللازمة لإدارة المرافق الطبية والبيانات الصحية بأمان وكفاءة عالية.",
+      "encryptedConnection": "اتصال مشفر",
+      "dataProtection": "حماية البيانات",
+      "footer": "© {year} Healup Medical Solutions. جميع الحقوق محفوظة."
+    }
+  },
+  "patientHome": {
+    "nav": {
+      "home": "الرئيسية",
+      "howItWorks": "كيف يعمل",
+      "pharmacies": "الصيدليات",
+      "contact": "تواصل معنا"
+    },
+    "hero": {
+      "topBadge": "أكبر شبكة صيدليات في المنطقة",
+      "titleBefore": "اعثر على دوائك",
+      "titleHighlight": "الآن",
+      "titleAfter": "بسهولة",
+      "subtitle": "نربط المرضى بالصيدليات التي توفر الأدوية النادرة والأساسية بسرعة."
+    },
+    "search": {
+      "placeholder": "ما الدواء الذي تبحث عنه؟",
+      "allCities": "جميع المدن",
+      "searchBtn": "بحث",
+      "emptyError": "يرجى إدخال اسم الدواء قبل البحث.",
+      "autocompleteEmpty": "اكتب للبحث عن الأدوية"
+    },
+    "cartItemDesc": "أقراص - حسب الوصفة",
+    "prescription": {
+      "alt": "الوصفة الطبية",
+      "goToCart": "الذهاب للسلة",
+      "uploadTitle": "رفع الوصفة الطبية",
+      "uploadSubtitle": "اضغط هنا لرفع ملف الوصفة"
+    },
+    "badges": {
+      "verified": "أدوية موثقة",
+      "delivery": "توصيل سريع",
+      "support": "دعم على مدار الساعة"
+    },
+    "how": {
+      "title": "كيف يعمل هيل أب؟",
+      "subtitle": "ثلاث خطوات بسيطة للحصول على دوائك النادر أو المفقود.",
+      "step1Title": "1. بحث",
+      "step1Text": "أدخل اسم الدواء في محرك البحث للتحقق من قاعدة بياناتنا الواسعة.",
+      "step2Title": "2. طلب",
+      "step2Text": "إذا لم يتوفر، أرسل طلباً مباشراً للصيدليات في شبكتنا بنقرة واحدة.",
+      "step3Title": "3. النتائج",
+      "step3Text": "استلم تنبيهاً فورياً عند توفر الدواء في الصيدليات القريبة."
+    },
+    "why": {
+      "overlayTitle": "ثقة وأمان",
+      "overlaySub": "أكثر من 5000 صيدلية موثقة",
+      "sectionTitle": "لماذا هيل أب؟",
+      "f1Title": "شبكة واسعة ومتنامية",
+      "f1Text": "نشمل آلاف الصيدليات عبر المدن لتحسين توفر الدواء.",
+      "f2Title": "استجابة سريعة",
+      "f2Text": "يرسل نظامنا طلبك فوراً وتتلقى الردود خلال دقائق.",
+      "f3Title": "خصوصية كاملة",
+      "f3Text": "بياناتك الطبية مشفرة وتُشارك فقط مع الصيدلية المختارة.",
+      "cta": "ابدأ البحث مجاناً"
+    },
+    "stats": {
+      "users": "مستخدمون نشطون",
+      "pharmacies": "صيدليات مسجلة",
+      "requests": "طلبات أدوية ناجحة",
+      "cities": "مدن مغطاة"
+    },
+    "footer": {
+      "tagline": "نبسط رحلة العثور على الدواء ومقدمي الرعاية الصحية مع وصول في الوقت المناسب للعلاج.",
+      "quickLinks": "روابط سريعة",
+      "legal": "قانوني",
+      "newsletterTitle": "اشترك في النشرة",
+      "newsletterSub": "احصل على آخر التحديثات الصحية وتنبيهات توفر الأدوية.",
+      "subscribe": "اشتراك",
+      "emailPlaceholder": "البريد الإلكتروني",
+      "linkHome": "الرئيسية",
+      "linkAbout": "عن هيل أب",
+      "linkPartners": "صيدليات الشركاء",
+      "linkApp": "تطبيق هيل أب",
+      "linkPrivacy": "سياسة الخصوصية",
+      "linkTerms": "شروط الخدمة",
+      "linkFaq": "الأسئلة الشائعة",
+      "linkContact": "تواصل معنا",
+      "bottom": "© هيل أب {year}. جميع الحقوق محفوظة."
+    }
+  },
+  "patient": {
+    "nav": {
+      "home": "الرئيسية",
+      "cart": "السلة",
+      "orders": "طلباتي",
+      "history": "سجل الطلبات",
+      "profile": "الملف الشخصي"
+    }
+  },
+  "pharmacy": {
+    "searchPlaceholder": "ابحث عن مريض أو دواء...",
+    "managerRole": "مدير الصيدلية",
+    "nav": {
+      "home": "الرئيسية",
+      "newOrders": "طلبات جديدة",
+      "currentOrders": "طلبات حالية",
+      "completedOrders": "طلبات مكتملة",
+      "analytics": "التحليلات",
+      "settings": "الإعدادات"
+    },
+    "defaultName": "صيدلية"
+  },
+  "admin": {
+    "panelSubtitle": "لوحة الإدارة",
+    "searchPlaceholder": "البحث عن طلبات، مرضى، أو صيدليات...",
+    "notificationsTitle": "الإشعارات الجديدة",
+    "profileName": "أحمد علي",
+    "profileRole": "مدير النظام",
+    "nav": {
+      "dashboard": "لوحة القيادة",
+      "pharmacies": "إدارة الصيدليات",
+      "patients": "إدارة المرضى",
+      "orders": "الطلبات",
+      "financial": "التقارير",
+      "settings": "الإعدادات"
+    }
+  }
+}

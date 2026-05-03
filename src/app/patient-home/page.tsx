@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/authService";
 import PatientShell from "@/components/patient/PatientShell";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nContext";
 import { searchDrugs, getDrugPrice } from "@/lib/drugs";
 import { getCart, setCart, setPrescription, type CartItemData } from "@/lib/cartStorage";
 import "./landing.css";
@@ -19,6 +21,8 @@ const GRADIENTS = [
 ];
 
 export default function PatientHomePage() {
+  const { t, dir } = useI18n();
+  const year = new Date().getFullYear();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -65,7 +69,7 @@ export default function PatientHomePage() {
     const newItem: CartItemData = {
       id: `item-${Date.now()}`,
       name: q,
-      desc: "Tablets - as prescribed",
+      desc: t("patientHome.cartItemDesc"),
       price: getDrugPrice(q),
       qty: 1,
       emoji: EMOJIS[idx],
@@ -73,7 +77,7 @@ export default function PatientHomePage() {
     };
     setCart([...existing, newItem]);
     router.push("/patient-cart");
-  }, [searchQuery, router]);
+  }, [searchQuery, router, t]);
 
   const handlePrescriptionUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,46 +98,47 @@ export default function PatientHomePage() {
 
   return (
     <PatientShell active="home">
-    <div className="healupLanding">
+    <div className="healupLanding" dir={dir}>
       {/* ─── NAVBAR ─── */}
       <nav>
         <ul className="nav-links">
           <li>
-            <Link href="/patient-home">Home</Link>
+            <Link href="/patient-home">{t("patientHome.nav.home")}</Link>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("how")}>
-              How it works
+              {t("patientHome.nav.howItWorks")}
             </button>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("pharmacies")}>
-              Pharmacies
+              {t("patientHome.nav.pharmacies")}
             </button>
           </li>
           <li>
             <button type="button" className="nav-link-btn" onClick={() => scrollToSection("contact")}>
-              Contact us
+              {t("patientHome.nav.contact")}
             </button>
           </li>
         </ul>
 
         <div className="nav-actions">
+          <LanguageSwitcher compact />
           <Link href="/patient-cart" className="btn-login-nav" style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 01-8 0" />
             </svg>
-            Cart
+            {t("common.cart")}
           </Link>
           {!isLoggedIn ? (
             <>
               <a className="btn-login-nav" href="/patient-login">
-                Login
+                {t("common.login")}
               </a>
               <a className="btn-cta-nav" href="/signup">
-                Join us
+                {t("common.joinUs")}
               </a>
             </>
           ) : (
@@ -145,7 +150,7 @@ export default function PatientHomePage() {
                 router.refresh();
               }}
             >
-              Logout
+              {t("common.logout")}
             </button>
           )}
         </div>
@@ -154,13 +159,13 @@ export default function PatientHomePage() {
       {/* ─── HERO ─── */}
       <section className="hero">
         <div className="hero-badge">
-          <span>The largest pharmacy network in the region</span>
+          <span>{t("patientHome.hero.topBadge")}</span>
         </div>
 
         <h1>
-          Find your medicine <span className="highlight">now</span> with ease
+          {t("patientHome.hero.titleBefore")} <span className="highlight">{t("patientHome.hero.titleHighlight")}</span> {t("patientHome.hero.titleAfter")}
         </h1>
-        <p>We connect patients with pharmacies that provide rare and essential medicines quickly.</p>
+        <p>{t("patientHome.hero.subtitle")}</p>
 
         <div id="search-section" className="search-bar-wrap">
           <div className={`search-bar ${searchError ? "search-bar-error" : ""}`}>
@@ -183,7 +188,7 @@ export default function PatientHomePage() {
               ref={searchInputRef}
               className={`search-input ${searchError ? "search-input-error" : ""}`}
               type="text"
-              placeholder="What medicine are you looking for?"
+              placeholder={t("patientHome.search.placeholder")}
               value={searchQuery}
               onChange={handleSearchChange}
               onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
@@ -207,7 +212,7 @@ export default function PatientHomePage() {
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>All cities</span>
+              <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>{t("patientHome.search.allCities")}</span>
               <svg
                 width="12"
                 height="12"
@@ -223,11 +228,11 @@ export default function PatientHomePage() {
             </div>
             <div className="search-divider" />
             <button className={`btn-search ${searchShake ? "btn-search-shake" : ""}`} type="button" onClick={handleSearchSubmit}>
-              Search
+              {t("patientHome.search.searchBtn")}
             </button>
           </div>
           {searchError ? (
-            <p className="search-error-message">Please enter a medicine name before searching.</p>
+            <p className="search-error-message">{t("patientHome.search.emptyError")}</p>
           ) : null}
           {showSuggestions && (
             <div className="search-autocomplete">
@@ -246,7 +251,7 @@ export default function PatientHomePage() {
                 ))
               ) : (
                 <div className="search-autocomplete-empty">
-                  Type to search medicines
+                  {t("patientHome.search.autocompleteEmpty")}
                 </div>
               )}
             </div>
@@ -263,9 +268,9 @@ export default function PatientHomePage() {
         />
         {prescriptionPreview ? (
           <div className="prescription-uploaded" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 8 }}>
-            <img src={prescriptionPreview} alt="Prescription" style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: "1px solid var(--border)" }} />
+            <img src={prescriptionPreview} alt={t("patientHome.prescription.alt")} style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: "1px solid var(--border)" }} />
             <Link href="/patient-cart" className="btn-search" style={{ textDecoration: "none" }}>
-              Go to cart
+              {t("patientHome.prescription.goToCart")}
             </Link>
           </div>
         ) : (
@@ -292,8 +297,8 @@ export default function PatientHomePage() {
             </svg>
           </span>
           <span className="prescription-text">
-            <strong>Upload prescription</strong>
-            <span>Click here to upload your prescription file</span>
+            <strong>{t("patientHome.prescription.uploadTitle")}</strong>
+            <span>{t("patientHome.prescription.uploadSubtitle")}</span>
           </span>
         </button>
         )}
@@ -303,27 +308,27 @@ export default function PatientHomePage() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563eb" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 14.5l-4-4 1.41-1.41L10.5 13.67l5.59-5.59L17.5 9.5l-7 7z" />
             </svg>
-            Verified medicines
+            {t("patientHome.badges.verified")}
           </div>
           <div className="hero-badge-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb" xmlns="http://www.w3.org/2000/svg">
               <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
             </svg>
-            Fast delivery
+            {t("patientHome.badges.delivery")}
           </div>
           <div className="hero-badge-item">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563eb" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 3a9 9 0 0 0-9 9v5a3 3 0 0 0 3 3h1a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H4.07A8 8 0 0 1 20 12h-3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1a3 3 0 0 0 3-3v-5a9 9 0 0 0-9-9z" />
             </svg>
-            24/7 support
+            {t("patientHome.badges.support")}
           </div>
         </div>
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
       <section id="how" className="section section-center">
-        <h2>How Healup works?</h2>
-        <p className="section-sub">Three simple steps to get your rare or missing medicine.</p>
+        <h2>{t("patientHome.how.title")}</h2>
+        <p className="section-sub">{t("patientHome.how.subtitle")}</p>
 
         <div className="steps-grid">
           <div className="step">
@@ -334,8 +339,8 @@ export default function PatientHomePage() {
                 <polyline points="7.5 10 9.5 12 13 8" />
               </svg>
             </div>
-            <h3>1. Search</h3>
-            <p>Enter the medicine name in our search engine to check our wide database.</p>
+            <h3>{t("patientHome.how.step1Title")}</h3>
+            <p>{t("patientHome.how.step1Text")}</p>
           </div>
           <div className="step">
             <div className="step-icon">
@@ -345,8 +350,8 @@ export default function PatientHomePage() {
                 <polyline points="9 13 11 15 15 11" />
               </svg>
             </div>
-            <h3>2. Request</h3>
-            <p>If unavailable, send a direct request to pharmacies in our network with one click.</p>
+            <h3>{t("patientHome.how.step2Title")}</h3>
+            <p>{t("patientHome.how.step2Text")}</p>
           </div>
           <div className="step">
             <div className="step-icon">
@@ -354,8 +359,8 @@ export default function PatientHomePage() {
                 <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
               </svg>
             </div>
-            <h3>3. Get results</h3>
-            <p>Receive instant alerts when the medicine becomes available at nearby pharmacies.</p>
+            <h3>{t("patientHome.how.step3Title")}</h3>
+            <p>{t("patientHome.how.step3Text")}</p>
           </div>
         </div>
       </section>
@@ -364,7 +369,7 @@ export default function PatientHomePage() {
       <section className="why-section">
         <div className="why-image-col">
           <div className="why-image-wrap">
-            <img src="/images/patient_home.png" alt="patient home" />
+            <img src="/images/patient_home.png" alt="" />
             <div className="why-card-overlay">
               <div className="why-card-overlay-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -373,15 +378,15 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-card-overlay-text">
-                <strong>Trust & Safety</strong>
-                <span>More than 5000 verified pharmacies</span>
+                <strong>{t("patientHome.why.overlayTitle")}</strong>
+                <span>{t("patientHome.why.overlaySub")}</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="why-content">
-          <h2>Why choose Healup?</h2>
+          <h2>{t("patientHome.why.sectionTitle")}</h2>
 
           <div className="why-features">
             <div className="why-feature">
@@ -393,8 +398,8 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-feature-text">
-                <strong>Wide and growing network</strong>
-                <span>We include thousands of pharmacies across cities for better medicine availability.</span>
+                <strong>{t("patientHome.why.f1Title")}</strong>
+                <span>{t("patientHome.why.f1Text")}</span>
               </div>
             </div>
 
@@ -405,8 +410,8 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-feature-text">
-                <strong>Fast response</strong>
-                <span>Our system sends your request instantly and you receive replies within minutes.</span>
+                <strong>{t("patientHome.why.f2Title")}</strong>
+                <span>{t("patientHome.why.f2Text")}</span>
               </div>
             </div>
 
@@ -418,8 +423,8 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="why-feature-text">
-                <strong>Complete privacy</strong>
-                <span>Your medical data is encrypted and shared only with the selected pharmacy.</span>
+                <strong>{t("patientHome.why.f3Title")}</strong>
+                <span>{t("patientHome.why.f3Text")}</span>
               </div>
             </div>
           </div>
@@ -429,7 +434,7 @@ export default function PatientHomePage() {
             type="button"
             onClick={() => document.getElementById("search-section")?.scrollIntoView({ behavior: "smooth" })}
           >
-            Start searching for free
+            {t("patientHome.why.cta")}
           </button>
         </div>
       </section>
@@ -438,19 +443,19 @@ export default function PatientHomePage() {
       <section className="stats-section" id="pharmacies">
         <div className="stat-item">
           <div className="stat-number">100K+</div>
-          <div className="stat-label">Active users</div>
+          <div className="stat-label">{t("patientHome.stats.users")}</div>
         </div>
         <div className="stat-item">
           <div className="stat-number">5K+</div>
-          <div className="stat-label">Registered pharmacies</div>
+          <div className="stat-label">{t("patientHome.stats.pharmacies")}</div>
         </div>
         <div className="stat-item">
           <div className="stat-number">200K+</div>
-          <div className="stat-label">Successful medicine requests</div>
+          <div className="stat-label">{t("patientHome.stats.requests")}</div>
         </div>
         <div className="stat-item">
           <div className="stat-number">15</div>
-          <div className="stat-label">Covered cities</div>
+          <div className="stat-label">{t("patientHome.stats.cities")}</div>
         </div>
       </section>
 
@@ -469,7 +474,7 @@ export default function PatientHomePage() {
                 </svg>
               </span>
             </a>
-            <p>We simplify the journey of finding medicine and healthcare providers with timely access to treatment.</p>
+            <p>{t("patientHome.footer.tagline")}</p>
             <div className="footer-social" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', width: '100%', marginRight: 0, marginLeft: 'auto', direction: 'ltr' }}>
               <button className="social-btn" type="button">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -490,54 +495,54 @@ export default function PatientHomePage() {
           </div>
 
           <div className="footer-col">
-            <h4>Quick Links</h4>
+            <h4>{t("patientHome.footer.quickLinks")}</h4>
             <ul>
               <li>
-                <a href="#">Home</a>
+                <a href="#">{t("patientHome.footer.linkHome")}</a>
               </li>
               <li>
-                <a href="#">About Healup</a>
+                <a href="#">{t("patientHome.footer.linkAbout")}</a>
               </li>
               <li>
-                <a href="#">Partner Pharmacies</a>
+                <a href="#">{t("patientHome.footer.linkPartners")}</a>
               </li>
               <li>
-                <a href="#">Healup App</a>
+                <a href="#">{t("patientHome.footer.linkApp")}</a>
               </li>
             </ul>
           </div>
 
           <div className="footer-col">
-            <h4>Legal</h4>
+            <h4>{t("patientHome.footer.legal")}</h4>
             <ul>
               <li>
-                <a href="#">Privacy Policy</a>
+                <a href="#">{t("patientHome.footer.linkPrivacy")}</a>
               </li>
               <li>
-                <a href="#">Terms of Service</a>
+                <a href="#">{t("patientHome.footer.linkTerms")}</a>
               </li>
               <li>
-                <a href="#">FAQ</a>
+                <a href="#">{t("patientHome.footer.linkFaq")}</a>
               </li>
               <li>
-                <a href="#">Contact us</a>
+                <a href="#">{t("patientHome.footer.linkContact")}</a>
               </li>
             </ul>
           </div>
 
           <div className="footer-col footer-newsletter">
-            <h4>Subscribe to newsletter</h4>
-            <p>Get the latest health updates and medicine availability alerts.</p>
+            <h4>{t("patientHome.footer.newsletterTitle")}</h4>
+            <p>{t("patientHome.footer.newsletterSub")}</p>
             <div className="newsletter-form">
               <button className="newsletter-btn" type="button">
-                Subscribe
+                {t("patientHome.footer.subscribe")}
               </button>
-              <input className="newsletter-input" type="email" placeholder="Email address" />
+              <input className="newsletter-input" type="email" placeholder={t("patientHome.footer.emailPlaceholder")} />
             </div>
           </div>
         </div>
 
-        <div className="footer-bottom">© Healup 2024. All rights reserved.</div>
+        <div className="footer-bottom">{t("patientHome.footer.bottom", { year })}</div>
       </footer>
     </div>
     </PatientShell>

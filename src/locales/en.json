@@ -1,0 +1,273 @@
+{
+  "meta": {
+    "title": "HealUp - Medicine Request Platform",
+    "description": "HealUp connects patients with pharmacies to find rare medicines."
+  },
+  "language": {
+    "switch": "Language",
+    "en": "English",
+    "ar": "Arabic"
+  },
+  "common": {
+    "logout": "Logout",
+    "login": "Login",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "cart": "Cart",
+    "newNotifications": "New notifications",
+    "loadingNotifications": "Loading notifications...",
+    "noNotifications": "No new notifications.",
+    "search": "Search",
+    "joinUs": "Join us",
+    "brand": "Healup",
+    "copyrightHealup": "© {year} Healup ({brand}). All rights reserved for smart healthcare."
+  },
+  "errors": {
+    "loginFailed": "Failed to log in. Check your details and try again.",
+    "registerFailed": "Failed to create account. Check your details and try again.",
+    "sendOtpFailed": "Could not send verification code. Please try again.",
+    "incorrectOtp": "Invalid verification code.",
+    "resendOtpFailed": "Could not resend the code.",
+    "noResetIdentifier": "No recovery identifier found. Request a new code.",
+    "geolocationUnsupported": "Your browser does not support geolocation.",
+    "geolocationDenied": "Could not get your current location. Allow location access.",
+    "termsRequired": "You must agree to the terms of use and privacy policy.",
+    "passwordMismatch": "Passwords do not match.",
+    "mapPickRequired": "Please select your location on the map to continue.",
+    "invalidCredentials": "Invalid login credentials."
+  },
+  "landing": {
+    "chooseAccountTitle": "Welcome to Healup — choose your account type",
+    "chooseAccountSubtitle": "Your smart gateway to medication and healthcare management. Pick the path that fits you.",
+    "patientLoginTitle": "Patient login",
+    "patientLoginDesc": "For anyone searching for medicine, managing personal orders, and tracking health records with ease and privacy.",
+    "patientCta": "Patient login",
+    "pharmacyLoginTitle": "Pharmacy login",
+    "pharmacyLoginDesc": "For pharmacy owners to manage inventory, receive incoming orders, and grow digital services.",
+    "pharmacyCta": "Pharmacy login",
+    "adminLoginTitle": "Admin login",
+    "adminLoginDesc": "Full dashboard for system supervisors to monitor performance, manage users, and ensure service quality.",
+    "adminCta": "Admin login",
+    "footerSecure": "100% secure & protected",
+    "footerSupport": "24/7 technical support",
+    "patientAlt": "Patient",
+    "pharmacyAlt": "Pharmacy",
+    "adminAlt": "Admin"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back to {brand}. Please enter your details.",
+    "emailOrPhone": "Email or phone number",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "rememberMe": "Remember me on this device",
+    "emailPlaceholder": "example@mail.com",
+    "passwordPlaceholder": "••••••••",
+    "loggingIn": "Signing in...",
+    "loginButton": "Sign in",
+    "guestLogin": "Continue as guest",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "createAccount": "Create account",
+    "footerMedical": "© {year} Healup. All rights reserved.",
+    "patientLogin": {
+      "title": "Sign in",
+      "imageAlt": "Patient sign-in",
+      "submit": "Sign in"
+    },
+    "pharmacyLogin": {
+      "title": "Pharmacy sign in",
+      "imageAlt": "Pharmacy sign-in"
+    },
+    "signup": {
+      "pageTitle": "Create account",
+      "subtitle": "Join the Healup health platform and start your journey toward better care",
+      "navServices": "Services",
+      "navHome": "Home",
+      "accountType": "Account type",
+      "patient": "Patient",
+      "pharmacy": "Pharmacy",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Enter your full name",
+      "email": "Email",
+      "phone": "Phone number",
+      "phonePlaceholder": "+966 5x xxx xxxx",
+      "confirmPassword": "Confirm password",
+      "locationSection": "Location",
+      "governoratePlaceholder": "Governorate / city",
+      "districtPlaceholder": "District / area",
+      "addressDetailsPlaceholder": "Full address",
+      "locating": "Getting location...",
+      "useMyLocation": "Use my current location",
+      "termsAgree": "I agree to",
+      "termsLink": "Terms of use",
+      "termsAnd": "and",
+      "privacyLink": "Privacy policy",
+      "creating": "Creating account...",
+      "submit": "Create account",
+      "footer": "© {year} Healup. All rights reserved."
+    },
+    "forgotPassword": {
+      "title": "Forgot password?",
+      "subtitle": "Don't worry. Enter your email or phone number and we'll send you a link to reset your password.",
+      "sendCode": "Send verification code",
+      "sending": "Sending...",
+      "backToLogin": "Back to sign in",
+      "footer": "© 2023 Healup. All rights reserved for Healup Medical Platform."
+    },
+    "verifyOtp": {
+      "title": "Verify code",
+      "subtitle": "We sent a 4-digit verification code to your email or phone. Please enter it below.",
+      "verifyNow": "Verify now",
+      "didntGetCode": "Didn't get the code?",
+      "resend": "Resend",
+      "timerHint": "You can request a new code in {minutes}:{seconds}",
+      "secureFooter": "Secure encrypted connection bit-256",
+      "backShort": "Back"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter your new password below to update your Healup account and keep your health data secure.",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmNewPassword": "Confirm new password",
+      "confirmPlaceholder": "Re-enter new password",
+      "requirementLength": "At least 8 characters",
+      "requirementComplex": "Must include numbers and special characters",
+      "updatePassword": "Update password",
+      "backToPatientLogin": "← Back to sign in",
+      "backToPharmacyLogin": "← Back to pharmacy sign in"
+    },
+    "adminLogin": {
+      "help": "Help",
+      "dashboardBadge": "Dashboard",
+      "title": "Admin sign in",
+      "subtitle": "Enter your credentials to access the dashboard",
+      "username": "Email or username",
+      "usernamePlaceholder": "example@healup.com",
+      "submit": "Enter dashboard",
+      "disclaimer": "This system is for authorized staff only. All activity is monitored and logged to protect data and privacy.",
+      "panelWelcome": "Welcome to the admin system",
+      "panelText": "{brand} gives you everything you need to manage medical facilities and health data safely and efficiently.",
+      "encryptedConnection": "Encrypted connection",
+      "dataProtection": "Data protection",
+      "footer": "© {year} Healup Medical Solutions. All rights reserved."
+    }
+  },
+  "patientHome": {
+    "nav": {
+      "home": "Home",
+      "howItWorks": "How it works",
+      "pharmacies": "Pharmacies",
+      "contact": "Contact us"
+    },
+    "hero": {
+      "topBadge": "The largest pharmacy network in the region",
+      "titleBefore": "Find your medicine",
+      "titleHighlight": "now",
+      "titleAfter": "with ease",
+      "subtitle": "We connect patients with pharmacies that provide rare and essential medicines quickly."
+    },
+    "search": {
+      "placeholder": "What medicine are you looking for?",
+      "allCities": "All cities",
+      "searchBtn": "Search",
+      "emptyError": "Please enter a medicine name before searching.",
+      "autocompleteEmpty": "Type to search medicines"
+    },
+    "cartItemDesc": "Tablets - as prescribed",
+    "prescription": {
+      "alt": "Prescription",
+      "goToCart": "Go to cart",
+      "uploadTitle": "Upload prescription",
+      "uploadSubtitle": "Click here to upload your prescription file"
+    },
+    "badges": {
+      "verified": "Verified medicines",
+      "delivery": "Fast delivery",
+      "support": "24/7 support"
+    },
+    "how": {
+      "title": "How Healup works?",
+      "subtitle": "Three simple steps to get your rare or missing medicine.",
+      "step1Title": "1. Search",
+      "step1Text": "Enter the medicine name in our search engine to check our wide database.",
+      "step2Title": "2. Request",
+      "step2Text": "If unavailable, send a direct request to pharmacies in our network with one click.",
+      "step3Title": "3. Get results",
+      "step3Text": "Receive instant alerts when the medicine becomes available at nearby pharmacies."
+    },
+    "why": {
+      "overlayTitle": "Trust & Safety",
+      "overlaySub": "More than 5000 verified pharmacies",
+      "sectionTitle": "Why choose Healup?",
+      "f1Title": "Wide and growing network",
+      "f1Text": "We include thousands of pharmacies across cities for better medicine availability.",
+      "f2Title": "Fast response",
+      "f2Text": "Our system sends your request instantly and you receive replies within minutes.",
+      "f3Title": "Complete privacy",
+      "f3Text": "Your medical data is encrypted and shared only with the selected pharmacy.",
+      "cta": "Start searching for free"
+    },
+    "stats": {
+      "users": "Active users",
+      "pharmacies": "Registered pharmacies",
+      "requests": "Successful medicine requests",
+      "cities": "Covered cities"
+    },
+    "footer": {
+      "tagline": "We simplify the journey of finding medicine and healthcare providers with timely access to treatment.",
+      "quickLinks": "Quick Links",
+      "legal": "Legal",
+      "newsletterTitle": "Subscribe to newsletter",
+      "newsletterSub": "Get the latest health updates and medicine availability alerts.",
+      "subscribe": "Subscribe",
+      "emailPlaceholder": "Email address",
+      "linkHome": "Home",
+      "linkAbout": "About Healup",
+      "linkPartners": "Partner Pharmacies",
+      "linkApp": "Healup App",
+      "linkPrivacy": "Privacy Policy",
+      "linkTerms": "Terms of Service",
+      "linkFaq": "FAQ",
+      "linkContact": "Contact us",
+      "bottom": "© Healup {year}. All rights reserved."
+    }
+  },
+  "patient": {
+    "nav": {
+      "home": "Home",
+      "cart": "Cart",
+      "orders": "My orders",
+      "history": "Order history",
+      "profile": "Profile"
+    }
+  },
+  "pharmacy": {
+    "searchPlaceholder": "Search for a patient or medicine...",
+    "managerRole": "Pharmacy manager",
+    "nav": {
+      "home": "Home",
+      "newOrders": "New orders",
+      "currentOrders": "Current orders",
+      "completedOrders": "Completed orders",
+      "analytics": "Analytics",
+      "settings": "Settings"
+    },
+    "defaultName": "Pharmacy"
+  },
+  "admin": {
+    "panelSubtitle": "Admin panel",
+    "searchPlaceholder": "Search orders, patients, or pharmacies...",
+    "notificationsTitle": "New notifications",
+    "profileName": "Admin user",
+    "profileRole": "System administrator",
+    "nav": {
+      "dashboard": "Dashboard",
+      "pharmacies": "Pharmacy management",
+      "patients": "Patient management",
+      "orders": "Orders",
+      "financial": "Reports",
+      "settings": "Settings"
+    }
+  }
+}

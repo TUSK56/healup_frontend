@@ -5,6 +5,8 @@ import { Bell, LogOut, Search, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { adminService, AdminNotification } from "@/services/adminService";
 import { authService } from "@/services/authService";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nContext";
 
 function toArabicTime(value?: string | null): string {
   const v = (value || "").trim();
@@ -16,6 +18,7 @@ function toArabicTime(value?: string | null): string {
 
 export default function AdminTopNavbar() {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [open, setOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -84,14 +87,14 @@ export default function AdminTopNavbar() {
   }, [open, profileOpen]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
+    <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8" dir={dir}>
       <div className="relative w-full max-w-md min-w-0 sm:max-w-lg md:w-96">
-        <Search className="pointer-events-none absolute right-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
+        <Search className="pointer-events-none absolute start-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
         <input
           type="search"
           name="admin-global-search"
-          placeholder="البحث عن طلبات، مرضى، أو صيدليات..."
-          className="w-full rounded-xl border-none bg-slate-50 py-2.5 pl-4 pr-11 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
+          placeholder={t("admin.searchPlaceholder")}
+          className="w-full rounded-xl border-none bg-slate-50 py-2.5 ps-11 pe-4 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
           autoComplete="off"
         />
       </div>
@@ -101,28 +104,36 @@ export default function AdminTopNavbar() {
           <button
             type="button"
             className="relative rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100"
-            aria-label="الإشعارات"
+            aria-label={t("common.notifications")}
             onClick={() => setOpen((v) => !v)}
           >
             <Bell size={22} />
-            {unread.length > 0 ? <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500" /> : null}
+            {unread.length > 0 ? (
+              <span
+                className={`absolute top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500 ${dir === "rtl" ? "left-2" : "right-2"}`}
+              />
+            ) : null}
           </button>
 
           {open ? (
-            <div className="absolute left-0 top-12 z-40 w-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-              <div className="border-b border-slate-100 px-4 py-3 text-sm font-bold text-slate-900">الإشعارات الجديدة</div>
+            <div
+              className={`absolute top-12 z-40 w-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ${dir === "rtl" ? "left-0" : "right-0"}`}
+            >
+              <div className="border-b border-slate-100 px-4 py-3 text-sm font-bold text-slate-900">
+                {t("admin.notificationsTitle")}
+              </div>
               <div className="max-h-80 overflow-y-auto">
                 {loading ? (
-                  <p className="px-4 py-4 text-sm text-slate-500">جاري تحميل الإشعارات...</p>
+                  <p className="px-4 py-4 text-sm text-slate-500">{t("common.loadingNotifications")}</p>
                 ) : unread.length === 0 ? (
-                  <p className="px-4 py-4 text-sm text-slate-500">لا توجد إشعارات جديدة.</p>
+                  <p className="px-4 py-4 text-sm text-slate-500">{t("common.noNotifications")}</p>
                 ) : (
                   unread.map((n) => (
                     <button
                       key={n.id}
                       type="button"
                       onClick={() => void onOpenNotification(n)}
-                      className="block w-full border-b border-slate-100 px-4 py-3 text-right transition-colors hover:bg-slate-50"
+                      className={`block w-full border-b border-slate-100 px-4 py-3 transition-colors hover:bg-slate-50 ${dir === "rtl" ? "text-right" : "text-left"}`}
                     >
                       <div className="text-sm font-medium text-slate-800">{n.message}</div>
                       <div className="mt-1 text-xs text-slate-400">{toArabicTime(n.created_at)}</div>
@@ -134,15 +145,17 @@ export default function AdminTopNavbar() {
           ) : null}
         </div>
 
+        <LanguageSwitcher />
+
         <div className="relative" ref={profileRef}>
           <button
             type="button"
             onClick={() => setProfileOpen((v) => !v)}
-            className="flex items-center gap-3 rounded-xl border-r border-slate-200 pr-4 transition-colors hover:bg-slate-50 sm:pr-6"
+            className="flex items-center gap-3 rounded-xl border-s border-slate-200 px-4 transition-colors hover:bg-slate-50 sm:px-6"
           >
-            <div className="text-left">
-              <p className="text-sm font-bold text-slate-900">أحمد علي</p>
-              <p className="text-[10px] font-medium text-slate-400">مدير النظام</p>
+            <div className={dir === "rtl" ? "text-right" : "text-left"}>
+              <p className="text-sm font-bold text-slate-900">{t("admin.profileName")}</p>
+              <p className="text-[10px] font-medium text-slate-400">{t("admin.profileRole")}</p>
             </div>
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-orange-100 shadow-sm">
               <img
@@ -155,17 +168,19 @@ export default function AdminTopNavbar() {
           </button>
 
           {profileOpen ? (
-            <div className="absolute left-0 top-12 z-40 w-[190px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+            <div
+              className={`absolute top-12 z-40 w-[190px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ${dir === "rtl" ? "left-0" : "right-0"}`}
+            >
               <button
                 type="button"
                 onClick={() => {
                   setProfileOpen(false);
                   router.push("/admin/settings");
                 }}
-                className="flex w-full items-center gap-2 border-b border-slate-100 px-4 py-3 text-right text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                className={`flex w-full items-center gap-2 border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${dir === "rtl" ? "text-right" : "text-left"}`}
               >
                 <Settings size={15} />
-                الإعدادات
+                {t("admin.nav.settings")}
               </button>
               <button
                 type="button"
@@ -174,10 +189,10 @@ export default function AdminTopNavbar() {
                   setProfileOpen(false);
                   router.push("/admin-login");
                 }}
-                className="flex w-full items-center gap-2 px-4 py-3 text-right text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50"
+                className={`flex w-full items-center gap-2 px-4 py-3 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50 ${dir === "rtl" ? "text-right" : "text-left"}`}
               >
                 <LogOut size={15} />
-                تسجيل الخروج
+                {t("common.logout")}
               </button>
             </div>
           ) : null}
