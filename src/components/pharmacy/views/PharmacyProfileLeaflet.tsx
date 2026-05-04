@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents, ZoomControl } from "react-leaflet";
 
 type Props = {
   latitude: number;
@@ -42,11 +42,39 @@ function FlyToPoint({ latitude, longitude, focusToken }: { latitude: number; lon
 
 export default function PharmacyProfileLeaflet({ latitude, longitude, onPick, focusToken }: Props) {
   return (
-    <MapContainer center={[latitude, longitude]} zoom={14} style={{ height: "100%", width: "100%" }} attributionControl={false}>
+    <MapContainer
+      center={[latitude, longitude]}
+      zoom={14}
+      style={{ height: "100%", width: "100%" }}
+      attributionControl={false}
+      zoomControl={false}
+    >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <ZoomControl position="bottomright" />
       <Marker position={[latitude, longitude]} />
       <ClickToPick onPick={onPick} />
       <FlyToPoint latitude={latitude} longitude={longitude} focusToken={focusToken} />
+      <style jsx global>{`
+        .leaflet-control-zoom {
+          border: none !important;
+          border-radius: 12px !important;
+          overflow: hidden;
+          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12) !important;
+        }
+        .leaflet-control-zoom a {
+          width: 36px !important;
+          height: 36px !important;
+          line-height: 36px !important;
+          font-size: 20px !important;
+          font-weight: 700 !important;
+          color: #1a2e4a !important;
+          background: #fff !important;
+        }
+        .leaflet-control-zoom a:hover {
+          background: #eef4ff !important;
+          color: #2356c8 !important;
+        }
+      `}</style>
     </MapContainer>
   );
 }

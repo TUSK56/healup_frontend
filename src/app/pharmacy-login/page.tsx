@@ -161,10 +161,21 @@ export default function PharmacyLoginPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    gap: 12,
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#1a2e4a" }}>{tr("كلمة المرور", "Password")}</span>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "#1a2e4a",
+                      flex: 1,
+                      textAlign: isAr ? "right" : "left",
+                    }}
+                  >
+                    {tr("كلمة المرور", "Password")}
+                  </span>
                   <a
                     href="/pharmacy-forgot-password"
                     style={{
@@ -173,6 +184,7 @@ export default function PharmacyLoginPage() {
                       color: "#2356c8",
                       textDecoration: "none",
                       cursor: "pointer",
+                      flexShrink: 0,
                     }}
                   >
                     {tr("نسيت كلمة المرور؟", "Forgot password?")}
@@ -181,6 +193,7 @@ export default function PharmacyLoginPage() {
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                   <input
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     value={password}
                     onChange={(ev) => setPassword(ev.target.value)}
                     placeholder="••••••••"

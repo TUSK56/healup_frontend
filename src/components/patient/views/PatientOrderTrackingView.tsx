@@ -7,6 +7,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { CheckCircle2, Clock, Home, MapPin, Package, Pill, Store, User } from "lucide-react";
 import { patientService } from "@/services/patientService";
+import { authService } from "@/services/authService";
 import { orderService, type Order } from "@/services/orderService";
 import { formatDeliveryEtaRangeKm, haversineKm } from "@/lib/deliveryEta";
 import { computeOrderPricingDisplay } from "@/lib/orderPricingDisplay";
@@ -52,7 +53,11 @@ export default function PatientOrderTrackingView() {
   const [error, setError] = React.useState<string | null>(null);
   const loadOrder = React.useCallback(async () => {
     if (!Number.isFinite(orderId) || orderId < 1) return;
-    const [o, me] = await Promise.all([orderService.getById(orderId), patientService.getMe().catch(() => null)]);
+    const profileReq =
+      authService.getToken() && authService.getGuard() === "user"
+        ? patientService.getMe().catch(() => null)
+        : Promise.resolve(null);
+    const [o, me] = await Promise.all([orderService.getById(orderId), profileReq]);
     setOrder(o);
     const phoneFromOrder = o.patient?.phone ?? null;
     const phoneFromMe = me?.data?.phone ?? null;
@@ -117,7 +122,6 @@ export default function PatientOrderTrackingView() {
     const status = (order?.status || "").toLowerCase();
     if (status === "completed" || status === "rejected") return;
     const id = window.setInterval(() => {
-      if (document.visibilityState !== "visible") return;
       void loadOrder().catch(() => {});
     }, 10000);
     return () => window.clearInterval(id);
@@ -369,6 +373,7 @@ export default function PatientOrderTrackingView() {
                   lockCarAtDestination={orderCompleted}
                   runDeliveryOnce={runCourierOnceToPatient}
                   onCarReachDestination={handleCourierReachedPatient}
+                  progressStorageKey={`healup_courier_order_${order.id}`}
                 />
               </section>
             ) : showCourierMap && !isDelivery ? (

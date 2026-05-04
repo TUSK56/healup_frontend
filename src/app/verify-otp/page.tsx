@@ -41,7 +41,10 @@ export default function VerifyOtpPage() {
     setIsSubmitting(true);
     try {
       await authService.verifyOtp({ identifier, otp: otp.join("") });
-      router.push("/reset-password");
+      const rg =
+        typeof window !== "undefined" ? (localStorage.getItem("healup_reset_guard") || "").trim().toLowerCase() : "";
+      if (rg === "admin") router.push("/admin-reset-password");
+      else router.push("/reset-password");
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err, "رمز التحقق غير صحيح."));
     } finally {
@@ -84,7 +87,7 @@ export default function VerifyOtpPage() {
           </button>
           {/* Resend */}
           <div style={{ fontSize: 13, color: '#9aa3b0', marginBottom: 10, direction: 'rtl' }}>
-            لم يصلك الكود؟ <a href="#" onClick={async (e) => { e.preventDefault(); const identifier = typeof window !== "undefined" ? localStorage.getItem("healup_reset_identifier") : null; if (!identifier) { setError("لا يوجد معرف استرجاع."); return; } setIsResending(true); setError(""); try { await authService.sendOtp({ identifier }); } catch (err: unknown) { setError(getAuthErrorMessage(err, "تعذر إعادة إرسال الكود.")); } finally { setIsResending(false); } }} style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none', cursor: isResending ? 'not-allowed' : 'pointer', opacity: isResending ? 0.7 : 1 }}>إعادة إرسال</a>
+            لم يصلك الكود؟ <a href="#" onClick={async (e) => { e.preventDefault(); const identifier = typeof window !== "undefined" ? localStorage.getItem("healup_reset_identifier") : null; if (!identifier) { setError("لا يوجد معرف استرجاع."); return; } const rgRaw = typeof window !== "undefined" ? (localStorage.getItem("healup_reset_guard") || "").trim().toLowerCase() : ""; const resendGuard = rgRaw === "pharmacy" ? ("pharmacy" as const) : rgRaw === "admin" ? ("admin" as const) : ("user" as const); setIsResending(true); setError(""); try { await authService.sendOtp({ identifier, guard: resendGuard }); } catch (err: unknown) { setError(getAuthErrorMessage(err, "تعذر إعادة إرسال الكود.")); } finally { setIsResending(false); } }} style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none', cursor: isResending ? 'not-allowed' : 'pointer', opacity: isResending ? 0.7 : 1 }}>إعادة إرسال</a>
           </div>
           {/* Timer */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12.5, color: '#9aa3b0', direction: 'ltr' }}>

@@ -133,6 +133,27 @@
   left: 40px;
 }
 
+.healupLanding .nav-lang-toggle {
+  margin-inline-end: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.healupLanding .nav-lang-toggle:hover {
+  border-color: var(--blue);
+  background: #f8fafc;
+}
+
 .healupLanding .btn-login-nav {
   font-size: 14px;
   font-weight: 600;

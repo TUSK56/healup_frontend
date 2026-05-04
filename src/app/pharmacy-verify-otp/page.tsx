@@ -89,7 +89,7 @@ export default function PharmacyVerifyOtpPage() {
           </form>
           {/* Resend */}
           <div style={{ fontSize: 13, color: '#9aa3b0', marginBottom: 10, direction: 'rtl' }}>
-            لم يصلك الكود؟ <a href="#" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none', cursor: isResending ? 'not-allowed' : 'pointer', opacity: isResending ? 0.7 : 1 }} onClick={async (e) => { e.preventDefault(); const identifier = typeof window !== "undefined" ? localStorage.getItem("healup_reset_identifier") : null; if (!identifier) { setError("لا يوجد معرف استرجاع."); return; } setIsResending(true); setError(""); try { await authService.sendOtp({ identifier }); setTimer(59); } catch (err: unknown) { setError(getAuthErrorMessage(err, "تعذر إعادة إرسال الكود.")); } finally { setIsResending(false); } }}>إعادة إرسال</a>
+            لم يصلك الكود؟ <a href="#" style={{ color: '#2356c8', fontWeight: 700, textDecoration: 'none', cursor: isResending ? 'not-allowed' : 'pointer', opacity: isResending ? 0.7 : 1 }} onClick={async (e) => { e.preventDefault(); const identifier = typeof window !== "undefined" ? localStorage.getItem("healup_reset_identifier") : null; if (!identifier) { setError("لا يوجد معرف استرجاع."); return; } setIsResending(true); setError(""); try { await authService.sendOtp({ identifier, guard: "pharmacy" }); setTimer(59); } catch (err: unknown) { setError(getAuthErrorMessage(err, "تعذر إعادة إرسال الكود.")); } finally { setIsResending(false); } }}>إعادة إرسال</a>
           </div>
           {/* Timer */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12.5, color: '#9aa3b0', direction: 'ltr' }}>

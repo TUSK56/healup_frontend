@@ -191,7 +191,7 @@ export default function AdminOrdersView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-start">
+            <table className="w-full text-center">
               <thead>
                 <tr className="bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-500">
                   <th className="px-6 py-4">{t("admin.ordersView.orderNumber", "Order number")}</th>
@@ -201,7 +201,7 @@ export default function AdminOrdersView() {
                   <th className="px-6 py-4">{t("admin.home.location", "Location")}</th>
                   <th className="px-6 py-4">{t("admin.ordersView.totalPrice", "Total price")}</th>
                   <th className="px-6 py-4">{t("admin.home.status", "Status")}</th>
-                  <th className="px-6 py-4 text-center">{t("admin.home.actions", "Actions")}</th>
+                  <th className="px-6 py-4">{t("admin.home.actions", "Actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -235,10 +235,10 @@ export default function AdminOrdersView() {
                         <td className="px-6 py-5 text-sm text-slate-600">{locationText(order, t, locale)}</td>
                         <td className="px-6 py-5 font-bold text-slate-900">{Number(order.total_price || 0).toLocaleString(locale === "ar" ? "ar-EG" : "en-US")} {t("admin.ordersView.currencyShort", "EGP")}</td>
                         <td className="px-6 py-5">
-                          <span className={`rounded-full px-3 py-1 text-xs font-medium ${s.cls}`}>{s.text}</span>
+                          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${s.cls}`}>{s.text}</span>
                         </td>
-                        <td className="px-6 py-5 text-center">
-                          <button type="button" className="inline-flex items-center gap-2 text-xs font-bold text-brand">
+                        <td className="px-6 py-5">
+                          <button type="button" className="inline-flex items-center justify-center gap-2 text-xs font-bold text-brand">
                             <Eye className="h-4 w-4" />
                             {t("admin.ordersView.details", "Details")}
                           </button>

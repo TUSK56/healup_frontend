@@ -83,11 +83,28 @@ export const requestService = {
     return res.data;
   },
 
-  async downloadInvoice(requestId: number) {
-    const res = await api.get<Blob>(`/requests/${requestId}/invoice`, {
-      responseType: 'blob',
+  async downloadInvoice(requestId: number): Promise<Blob> {
+    const res = await api.get<ArrayBuffer>(`/requests/${requestId}/invoice`, {
+      responseType: 'arraybuffer',
       headers: { Accept: 'application/pdf, application/octet-stream;q=0.9, */*;q=0.8' },
     });
-    return res.data;
+    const buf = res.data;
+    if (!buf || buf.byteLength === 0) {
+      throw new Error('empty_invoice');
+    }
+    const u8 = new Uint8Array(buf.slice(0, 4));
+    const magicPdf = u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46;
+    if (magicPdf) return new Blob([buf], { type: 'application/pdf' });
+    const head = new TextDecoder().decode(buf.slice(0, 512)).trimStart();
+    if (head.startsWith('{') || head.startsWith('[')) {
+      try {
+        const j = JSON.parse(new TextDecoder().decode(buf)) as { message?: string };
+        throw new Error(j?.message || 'invoice_not_ready');
+      } catch (e) {
+        if (e instanceof SyntaxError) throw new Error('invoice_not_pdf');
+        throw e;
+      }
+    }
+    return new Blob([buf], { type: 'application/pdf' });
   },
 };

@@ -135,7 +135,7 @@ export default function AdminPatientsView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-start text-sm">
+            <table className="w-full text-center text-sm">
               <thead className="bg-slate-50/50">
                 <tr>
                   <th className="px-6 py-3 font-bold text-slate-900">{t("admin.patientsView.patient", "Patient")}</th>
@@ -159,7 +159,7 @@ export default function AdminPatientsView() {
                   pagedRows.map((patient) => (
                     <tr key={patient.id} className="transition-colors hover:bg-slate-50/50">
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center gap-3">
                           <img
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=patient-${patient.id}`}
                             alt=""

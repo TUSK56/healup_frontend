@@ -39,6 +39,8 @@ export interface LoginPayload {
 
 export interface OtpSendPayload {
   identifier: string;
+  /** Narrows OTP lookup — maps `user` to patient accounts on the server */
+  guard?: Guard | 'patient' | 'admin';
 }
 
 export interface OtpVerifyPayload {
@@ -84,7 +86,21 @@ export const authService = {
   },
 
   async sendOtp(data: OtpSendPayload) {
-    const res = await api.post<OtpResponse>('/otp/send', data);
+    const raw = data.guard;
+    const guard =
+      raw === 'user'
+        ? 'patient'
+        : raw === undefined
+          ? undefined
+          : raw === 'patient'
+            ? 'patient'
+            : raw === 'admin'
+              ? 'admin'
+              : raw;
+    const res = await api.post<OtpResponse>('/otp/send', {
+      identifier: data.identifier,
+      ...(guard ? { guard } : {}),
+    });
     return res.data;
   },
 

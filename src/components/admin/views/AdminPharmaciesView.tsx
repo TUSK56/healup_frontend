@@ -236,15 +236,15 @@ export default function AdminPharmaciesView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-start">
+            <table className="w-full text-center">
               <thead>
                 <tr className="bg-slate-50/50 text-xs font-bold uppercase tracking-wider text-slate-400">
                   <th className="px-6 py-4">{t("admin.pharmaciesView.pharmacyName", "Pharmacy name")}</th>
                   <th className="px-6 py-4">{t("admin.pharmaciesView.licenseNumber", "License number")}</th>
                   <th className="px-6 py-4">{t("admin.pharmaciesView.area", "Area")}</th>
                   <th className="px-6 py-4">{t("admin.pharmaciesView.joinDate", "Join date")}</th>
-                  <th className="px-6 py-4 text-center">{t("admin.pharmaciesView.status", "Status")}</th>
-                  <th className="px-6 py-4 text-center">{t("admin.pharmaciesView.actions", "Actions")}</th>
+                  <th className="px-6 py-4">{t("admin.pharmaciesView.status", "Status")}</th>
+                  <th className="px-6 py-4">{t("admin.pharmaciesView.actions", "Actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -262,7 +262,7 @@ export default function AdminPharmaciesView() {
                     return (
                       <tr key={pharmacy.id} className="transition-colors hover:bg-slate-50/50">
                         <td className="px-6 py-5">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light text-lg font-bold text-brand">
                               {(pharmacy.name || t("admin.pharmaciesView.fallbackInitial", "P")).slice(0, 1)}
                             </div>
@@ -283,7 +283,7 @@ export default function AdminPharmaciesView() {
                             <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.text}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-5 text-center">
+                        <td className="px-6 py-5">
                           <button
                             type="button"
                             disabled={actionId === pharmacy.id}
