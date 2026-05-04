@@ -3,6 +3,7 @@
 import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { HEALUP_PASSWORD_POLICY_AR, isHealupStrictPassword } from "@/lib/passwordPolicy";
 
 export default function ResetPasswordPage() {
   const [showPass1, setShowPass1] = useState(false);
@@ -14,27 +15,22 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple validation: at least 8 chars, contains number and special char, and match
-    if (pass1.length < 8) {
-      setError("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
-      return;
-    }
-    if (!/[0-9]/.test(pass1) || !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pass1)) {
-      setError("يجب أن تحتوي كلمة المرور على أرقام ورموز خاصة");
-      return;
-    }
     if (pass1 !== pass2) {
       setError("كلمتا المرور غير متطابقتين");
       return;
     }
+    if (!isHealupStrictPassword(pass1)) {
+      setError(HEALUP_PASSWORD_POLICY_AR);
+      return;
+    }
     setError("");
-    // Success: go to patient login
     router.push("/patient-login");
   };
 
   return (
-    <div style={{ fontFamily: 'Cairo, sans-serif', background: '#eef0f5', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 20px 60px' }}>
-      <GuestTopNavbar />
+    <div style={{ fontFamily: 'Cairo, sans-serif', background: '#eef0f5', color: '#1a2e4a', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'stretch' }}>
+      <GuestTopNavbar className="w-full shrink-0" />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 20px 60px', width: '100%' }}>
         {/* Illustration */}
         <div style={{ width: '100%', maxWidth: 440, height: 160, background: '#e8ecf4', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 28, marginBottom: 28 }}>
           <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 80, height: 80, opacity: 0.5 }}>
@@ -62,6 +58,7 @@ export default function ResetPasswordPage() {
                 placeholder="أدخل كلمة المرور الجديدة"
                 value={pass1}
                 onChange={e => setPass1(e.target.value)}
+                autoComplete="new-password"
                 style={{ width: '100%', padding: '14px 16px 14px 46px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 14, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }}
               />
               <button type="button" onClick={() => setShowPass1(v => !v)} style={{ position: 'absolute', left: 14, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
@@ -82,6 +79,7 @@ export default function ResetPasswordPage() {
                 placeholder="أعد إدخال كلمة المرور الجديدة"
                 value={pass2}
                 onChange={e => setPass2(e.target.value)}
+                autoComplete="new-password"
                 style={{ width: '100%', padding: '14px 16px 14px 46px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 14, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }}
               />
               <button type="button" onClick={() => setShowPass2(v => !v)} style={{ position: 'absolute', left: 14, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
@@ -96,19 +94,8 @@ export default function ResetPasswordPage() {
           {/* Error message */}
           {error && <div style={{ color: '#e74c3c', fontSize: 14, marginBottom: 12 }}>{error}</div>}
           {/* Requirements */}
-          <div style={{ background: '#f4f6fb', borderRadius: 12, padding: '18px 22px', marginBottom: 22, direction: 'rtl' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 10, fontSize: 13.5, color: '#1a2e4a', fontWeight: 600, marginBottom: 10, direction: 'rtl' }}>
-              <div style={{ width: 22, height: 22, background: '#2356c8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg viewBox="0 0 24 24" style={{ width: 13, height: 13, fill: 'white' }}><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-              </div>
-              يجب أن تتكون من 8 أحرف على الأقل
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 10, fontSize: 13.5, color: '#1a2e4a', fontWeight: 600, marginBottom: 0, direction: 'rtl' }}>
-              <div style={{ width: 22, height: 22, background: '#2356c8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg viewBox="0 0 24 24" style={{ width: 13, height: 13, fill: 'white' }}><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-              </div>
-              يجب أن تحتوي على أرقام ورموز خاصة
-            </div>
+          <div style={{ background: '#f4f6fb', borderRadius: 12, padding: '18px 22px', marginBottom: 22, direction: 'rtl', fontSize: 13.5, color: '#1a2e4a', fontWeight: 600 }}>
+            {HEALUP_PASSWORD_POLICY_AR}
           </div>
           {/* Submit button */}
           <button type="submit" className="btn-submit" style={{ width: '100%', padding: 16, background: '#2356c8', color: 'white', border: 'none', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 17, fontWeight: 800, cursor: 'pointer', transition: 'background 0.2s, transform 0.15s', marginBottom: 20 }}>
@@ -119,6 +106,7 @@ export default function ResetPasswordPage() {
             العودة لتسجيل الدخول ←
           </a>
         </form>
+      </div>
     </div>
   );
 }

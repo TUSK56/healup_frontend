@@ -512,6 +512,16 @@
     80% { transform: translateX(4px); }
   }
 
+  .checkout-panel-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35) !important;
+    animation: panelErrorPulse 1.15s ease-in-out infinite;
+  }
+  @keyframes panelErrorPulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35); }
+    50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2); }
+  }
+
   .checkout-shake {
     border-color: #ef4444 !important;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
@@ -774,7 +784,7 @@
     </div>
 
     <!-- SHIPPING OPTIONS -->
-    <div class="card">
+    <div class="card" id="shipping-checkout-card">
       <div class="card-title">خيارات الشحن</div>
 
       <div class="shipping-tabs">
@@ -828,7 +838,7 @@
     </div>
 
     <!-- PAYMENT -->
-    <div class="card">
+    <div class="card" id="payment-checkout-card">
       <div class="card-title">طرق الدفع</div>
 
       <div class="payment-options">
@@ -1113,7 +1123,13 @@
   function updateCheckoutProgressSteps(state) {
     const ship = Boolean(state.shipping);
     const pay = Boolean(state.payment);
-    const percent = Math.round(((ship ? 0.5 : 0) + (pay ? 0.5 : 0)) * 100);
+    const confirmed = Boolean(state.confirmedDone);
+    let percent = 8;
+    if (ship) percent += 32;
+    if (pay) percent += 33;
+    if (ship && pay && !confirmed) percent += 25;
+    if (confirmed) percent = 100;
+    percent = Math.min(100, Math.max(percent, 8));
 
     const percentEl = document.getElementById('checkout-steps-percent');
     const fillEl = document.getElementById('checkout-steps-fill');
@@ -1127,26 +1143,41 @@
         if (ship) el.classList.add('done');
         else el.classList.add('active');
       } else if (key === 'payment') {
-        if (pay) el.classList.add('done');
-        else if (ship) el.classList.add('active');
-        else el.classList.add('step-pending');
+        if (pay && ship) el.classList.add('done');
+        else if (!ship) el.classList.add('step-pending');
+        else el.classList.add('active');
       } else if (key === 'confirm') {
-        if (ship && pay) el.classList.add('active');
+        if (confirmed && ship && pay) el.classList.add('done');
+        else if (ship && pay) el.classList.add('active');
         else el.classList.add('step-pending');
       }
     });
   }
 
   function isDeliveryShippingComplete() {
-    if (shippingMode !== 'delivery') return true;
-    const { missing } = readRequiredFields();
-    if (missing.length) return false;
-    return (
-      deliveryCoords.lat != null &&
-      deliveryCoords.lng != null &&
-      Number.isFinite(Number(deliveryCoords.lat)) &&
-      Number.isFinite(Number(deliveryCoords.lng))
-    );
+    if (shippingMode !== 'pickup') {
+      const { missing } = readRequiredFields();
+      return missing.length === 0;
+    }
+    /* Pickup path: pharmacy location + mode implies shipping choice is finalized */
+    return true;
+  }
+
+  let shippingHadError = false;
+  let paymentHadError = false;
+
+  function setShippingCheckoutError(flag) {
+    const el = document.getElementById('shipping-checkout-card');
+    const shipNow = isDeliveryShippingComplete();
+    shippingHadError = Boolean(flag && !shipNow);
+    el?.classList.toggle('checkout-panel-error', shippingHadError);
+  }
+
+  function setPaymentCheckoutError(flag) {
+    const el = document.getElementById('payment-checkout-card');
+    const payNow = isPaymentSelected();
+    paymentHadError = Boolean(flag && !payNow);
+    el?.classList.toggle('checkout-panel-error', paymentHadError);
   }
 
   function isPaymentSelected() {
@@ -1161,6 +1192,8 @@
     checkoutState.shipping = isDeliveryShippingComplete();
     checkoutState.payment = isPaymentSelected();
     updateCheckoutProgressSteps(checkoutState);
+    if (checkoutState.shipping) setShippingCheckoutError(false);
+    if (checkoutState.payment) setPaymentCheckoutError(false);
   }
 
   function shakeCheckoutPanels() {
@@ -1191,8 +1224,9 @@
   let shippingMode = 'delivery';
   const checkoutState = {
     shipping: false,
-    confirm: false,
     payment: false,
+    /** Becomes true only after تأكيد الطلب succeeds before redirect */
+    confirmedDone: false,
   };
   let pharmacyLat = null;
   let pharmacyLng = null;
@@ -1556,6 +1590,21 @@
   });
 
   document.getElementById('confirm-order-btn').addEventListener('click', async () => {
+    checkoutState.confirmedDone = false;
+    if (!isDeliveryShippingComplete()) {
+      shakeCheckoutPanels();
+      setShippingCheckoutError(true);
+      setPaymentCheckoutError(false);
+      return;
+    }
+    if (!isPaymentSelected()) {
+      shakeCheckoutPanels();
+      setShippingCheckoutError(false);
+      setPaymentCheckoutError(true);
+      return;
+    }
+    setShippingCheckoutError(false);
+    setPaymentCheckoutError(false);
     if (!isCheckoutReadyForConfirm()) {
       shakeCheckoutPanels();
       return;
@@ -1647,6 +1696,10 @@
         }
         alert(msg);
       } else {
+        checkoutState.confirmedDone = true;
+        checkoutState.shipping = true;
+        checkoutState.payment = true;
+        updateCheckoutProgressSteps(checkoutState);
         const oid = data?.order?.id;
         window.setTimeout(() => {
           window.location.href = oid

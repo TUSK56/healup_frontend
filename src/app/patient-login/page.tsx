@@ -70,13 +70,14 @@ export default function PatientLogin() {
               </div>
               {/* Password */}
               <div style={{ marginBottom: 18 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1a2e4a' }}>{tr("كلمة المرور", "Password")}</span>
-                  <a href="/forgot-password" style={{ fontSize: 12.5, fontWeight: 600, color: '#2356c8', textDecoration: 'none', cursor: 'pointer' }}>{tr("نسيت كلمة المرور؟", "Forgot password?")}</a>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1a2e4a', flex: 1, textAlign: isAr ? "right" : "left" }}>{tr("كلمة المرور", "Password")}</span>
+                  <a href="/forgot-password" style={{ fontSize: 12.5, fontWeight: 600, color: '#2356c8', textDecoration: 'none', cursor: 'pointer', flexShrink: 0 }}>{tr("نسيت كلمة المرور؟", "Forgot password?")}</a>
                 </div>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                   <input
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     value={password}
                     onChange={(ev) => setPassword(ev.target.value)}
                     placeholder="••••••••"
@@ -113,7 +114,7 @@ export default function PatientLogin() {
                 type="button"
                 onClick={() => {
                   authService.setGuestSession();
-                  window.location.assign("/patient-home");
+                  window.location.replace("/patient-home");
                 }}
                 style={{ width: '100%', padding: 14, background: '#eef4ff', color: '#2356c8', border: '1px solid #cfe0ff', borderRadius: 12, fontFamily: 'Cairo, sans-serif', fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 14 }}
               >

@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
     setError("");
     setIsSubmitting(true);
     try {
-      await authService.sendOtp({ identifier });
+      await authService.sendOtp({ identifier, guard: "user" });
       if (typeof window !== "undefined") {
         localStorage.setItem("healup_reset_identifier", identifier);
         localStorage.setItem("healup_reset_guard", "user");

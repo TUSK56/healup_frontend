@@ -273,15 +273,10 @@ export default function Dashboard() {
 
       {/* Footer */}
       <footer className="mt-12 border-t bg-white py-8">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-sm text-slate-500 flex items-center gap-1">
+        <div className="container mx-auto flex flex-col items-center justify-center gap-4 px-4 md:flex-row">
+          <div className="flex items-center gap-1 text-sm text-slate-500">
             <span className="font-bold text-[#0058B0]">Healup</span>
             <span>© 2024 تحليلات الصيدلية الذكية</span>
-          </div>
-          <div className="flex gap-6 text-sm font-medium text-slate-600">
-            <a href="#" className="hover:text-primary transition-colors">التقارير</a>
-            <a href="#" className="hover:text-primary transition-colors">الإعدادات</a>
-            <a href="#" className="hover:text-primary transition-colors">الدعم الفني</a>
           </div>
         </div>
       </footer>

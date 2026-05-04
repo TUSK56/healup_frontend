@@ -113,11 +113,16 @@ function CourierAlongPath({
   const lastTs = useRef<number | null>(null);
   const reachedRef = useRef(false);
   const distAcc = useRef(0);
+  const wallStartMsRef = useRef<number | null>(null);
   const onReachedDestinationRef = useRef(onReachedDestination);
 
   useEffect(() => {
     onReachedDestinationRef.current = onReachedDestination;
   }, [onReachedDestination]);
+
+  const onceMode = Boolean(runOnceToDestination && onReachedDestination);
+  const lsKeyDist = `${(progressStorageKey || "").trim()}:dist`;
+  const lsKeyWall = `${(progressStorageKey || "").trim()}:startedAt`;
 
   useEffect(() => {
     reachedRef.current = false;
@@ -128,10 +133,31 @@ function CourierAlongPath({
       return;
     }
 
-    const key = (progressStorageKey || "").trim();
-    if (key && typeof window !== "undefined") {
+    const baseKey = (progressStorageKey || "").trim();
+    if (baseKey && typeof window !== "undefined" && onceMode) {
       try {
-        const raw = window.localStorage.getItem(key);
+        const rawWall = window.localStorage.getItem(lsKeyWall);
+        const ws = rawWall == null ? NaN : Number(rawWall);
+        if (Number.isFinite(ws) && ws > 0) {
+          wallStartMsRef.current = ws;
+        } else {
+          const start = Date.now();
+          wallStartMsRef.current = start;
+          window.localStorage.setItem(lsKeyWall, String(start));
+        }
+        const raw = window.localStorage.getItem(lsKeyDist);
+        const saved = raw == null ? NaN : Number(raw);
+        if (Number.isFinite(saved) && saved >= 0) {
+          distAcc.current = saved;
+          setDistKm(saved);
+          return;
+        }
+      } catch {
+        wallStartMsRef.current = Date.now();
+      }
+    } else if (baseKey && typeof window !== "undefined" && !onceMode) {
+      try {
+        const raw = window.localStorage.getItem(lsKeyDist);
         const saved = raw == null ? NaN : Number(raw);
         if (Number.isFinite(saved) && saved >= 0) {
           const clamped = Math.min(totalKm, saved);
@@ -144,19 +170,23 @@ function CourierAlongPath({
       }
     }
 
-    distAcc.current = 0;
-    setDistKm(0);
-  }, [pathOrdered, totalKm, lockAtEnd, progressStorageKey]);
+    if (!onceMode) {
+      distAcc.current = 0;
+      setDistKm(0);
+    } else if (wallStartMsRef.current == null) {
+      wallStartMsRef.current = Date.now();
+    }
+  }, [pathOrdered, totalKm, lockAtEnd, progressStorageKey, onceMode, lsKeyDist, lsKeyWall]);
 
   useEffect(() => {
-    const key = (progressStorageKey || "").trim();
-    if (!key || !Number.isFinite(distKm) || typeof window === "undefined") return;
+    const baseKey = (progressStorageKey || "").trim();
+    if (!baseKey || !Number.isFinite(distKm) || typeof window === "undefined") return;
     try {
-      window.localStorage.setItem(key, String(Math.max(0, distKm)));
+      window.localStorage.setItem(lsKeyDist, String(Math.max(0, distKm)));
     } catch {
       // ignore storage write failures
     }
-  }, [progressStorageKey, distKm]);
+  }, [progressStorageKey, distKm, lsKeyDist]);
 
   useEffect(() => {
     if (lockAtEnd) {
@@ -168,15 +198,11 @@ function CourierAlongPath({
 
     let raf = 0;
     const tick = (ts: number) => {
-      if (lastTs.current == null) lastTs.current = ts;
-      const dt = Math.min(0.05, (ts - lastTs.current) / 1000);
-      lastTs.current = ts;
-
       const speed = totalKm / durationSec;
-      const once = Boolean(runOnceToDestination && onReachedDestination);
 
-      if (once) {
-        distAcc.current = Math.min(totalKm, distAcc.current + speed * dt);
+      if (onceMode && wallStartMsRef.current != null) {
+        const elapsedSec = Math.max(0, (Date.now() - wallStartMsRef.current) / 1000);
+        distAcc.current = Math.min(totalKm, speed * elapsedSec);
         setDistKm(distAcc.current);
         if (distAcc.current >= totalKm - 1e-9 && !reachedRef.current) {
           reachedRef.current = true;
@@ -186,6 +212,10 @@ function CourierAlongPath({
         raf = requestAnimationFrame(tick);
         return;
       }
+
+      if (lastTs.current == null) lastTs.current = ts;
+      const dt = Math.min(0.05, (ts - lastTs.current) / 1000);
+      lastTs.current = ts;
 
       distAcc.current += speed * dt;
       if (distAcc.current >= totalKm) distAcc.current = 0;
@@ -198,7 +228,7 @@ function CourierAlongPath({
       cancelAnimationFrame(raf);
       lastTs.current = null;
     };
-  }, [pathOrdered, totalKm, durationSec, lockAtEnd, runOnceToDestination, onReachedDestination]);
+  }, [pathOrdered, totalKm, durationSec, lockAtEnd, onceMode]);
 
   const { pos, bearing } = useMemo(() => {
     if (pathOrdered.length < 2) return { pos: pathOrdered[0], bearing: 0 };

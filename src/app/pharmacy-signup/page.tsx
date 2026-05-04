@@ -5,6 +5,7 @@ import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { HEALUP_PASSWORD_POLICY_AR, isHealupStrictPassword } from "@/lib/passwordPolicy";
 
 const LeafletPicker = dynamic(() => import("@/components/pharmacy/views/PharmacyProfileLeaflet"), { ssr: false });
 
@@ -26,6 +27,8 @@ export default function PharmacySignupPage() {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [locating, setLocating] = useState(false);
   const [focusToken, setFocusToken] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const onPickLocation = async (lat: number, lng: number) => {
     setLatitude(lat);
@@ -80,6 +83,10 @@ export default function PharmacySignupPage() {
 
     if (password !== confirmPassword) {
       setError("كلمتا المرور غير متطابقتين.");
+      return;
+    }
+    if (!isHealupStrictPassword(password)) {
+      setError(HEALUP_PASSWORD_POLICY_AR);
       return;
     }
 
@@ -166,7 +173,7 @@ export default function PharmacySignupPage() {
               <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>رقم الهاتف (مصر)</span>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1 }}>
-                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01X XXXX XXXX" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
+                  <input type="tel" inputMode="numeric" pattern="[0-9]*" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'ltr', transition: 'border-color 0.2s' }} />
                   <span style={{ position: 'absolute', right: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M6.62 10.79a15.15 15.15 0 0 0 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.02l-2.21 2.2z"/></svg>
                   </span>
@@ -177,20 +184,53 @@ export default function PharmacySignupPage() {
             {/* Row 3: Password + Confirm */}
             <div style={{ display: 'flex', gap: 14, marginBottom: 16 }}>
               <div style={{ flex: 1 }}>
-                <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>كلمة المرور</span>
+                <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>
+                  كلمة المرور
+                  <span style={{ display: 'block', fontWeight: 500, fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{HEALUP_PASSWORD_POLICY_AR}</span>
+                </span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
-                  <button type="button" style={{ position: 'absolute', right: 12, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
-                    <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    style={{ width: '100%', padding: '12px 44px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    style={{ position: 'absolute', left: 12, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+                    aria-label="toggle-password"
+                  >
+                    {showPassword ? (
+                      <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" /></svg>
+                    )}
                   </button>
                 </div>
               </div>
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#1a2e4a', marginBottom: 7, textAlign: 'right' }}>تأكيد كلمة المرور</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" style={{ width: '100%', padding: '12px 42px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} />
-                  <button type="button" style={{ position: 'absolute', right: 12, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
-                    <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#9aa3b0' }}><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    style={{ width: '100%', padding: '12px 44px 12px 16px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 13, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    style={{ position: 'absolute', left: 12, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}
+                    aria-label="toggle-confirm-password"
+                  >
+                    {showConfirmPassword ? (
+                      <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" /></svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" /></svg>
+                    )}
                   </button>
                 </div>
               </div>
@@ -239,9 +279,6 @@ export default function PharmacySignupPage() {
                   onPick={onPickLocation}
                   focusToken={focusToken}
                 />
-              </div>
-              <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'white', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#9aa3b0', zIndex: 999, pointerEvents: 'none', direction: 'rtl' }}>
-                انقر لتحديد موقع الصيدلية بدقة
               </div>
               <button
                 type="button"

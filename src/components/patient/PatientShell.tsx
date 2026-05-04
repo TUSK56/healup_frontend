@@ -138,6 +138,7 @@ export default function PatientShell({ children, active }: { children: ReactNode
       setAvatar(localAvatar);
 
       if (localAvatar) return;
+      if (!authService.getToken() || authService.getGuard() !== "user") return;
       try {
         const me = await patientService.getMe();
         const fromApi = me?.data?.avatar_url || null;

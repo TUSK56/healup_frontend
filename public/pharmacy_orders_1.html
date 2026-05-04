@@ -1295,9 +1295,18 @@
       updateSubtitleCount();
       saveRequestsCache();
 
+      /* Open pricing modal once from deep link; strip query so polling refreshes don't reset the form. */
       const params = new URLSearchParams(window.location.search);
       const openRequestId = Number(params.get("openRequestId") || 0);
       if (openRequestId) {
+        params.delete("openRequestId");
+        const qs = params.toString();
+        const path = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash || ""}`;
+        try {
+          window.history.replaceState({}, "", path || window.location.pathname);
+        } catch {
+          // ignore replaceState failures
+        }
         const y = window.scrollY;
         openPriceModal(openRequestId);
         requestAnimationFrame(() => {

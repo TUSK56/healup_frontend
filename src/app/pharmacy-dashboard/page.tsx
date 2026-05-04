@@ -503,26 +503,6 @@ export default function PharmacyDashboardPage() {
                 </div>
               </div>
 
-              <div className="bottom-btns">
-                <button className="bottom-btn btn-add-stock" type="button">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
-                  <span>إضافة مخزون</span>
-                </button>
-
-                <button className="bottom-btn btn-support" type="button">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1a56db" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 11C3 6.03 7.03 2 12 2s9 4.03 9 9" />
-                    <rect x="2" y="11" width="3" height="6" rx="1.5" />
-                    <rect x="19" y="11" width="3" height="6" rx="1.5" />
-                    <path d="M21 17c0 2.21-1.79 4-4 4h-2" />
-                    <circle cx="12" cy="21" r="1" fill="#1a56db" />
-                  </svg>
-                  <span>الدعم الفني</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>

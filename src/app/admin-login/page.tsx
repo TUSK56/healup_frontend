@@ -60,7 +60,7 @@ export default function AdminLogin() {
             <div style={{ marginBottom: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a2e4a" }}>{tr("كلمة المرور", "Password")}</span>
-                <a href="#" style={{ fontSize: 12, fontWeight: 700, color: "#2356c8", textDecoration: "none" }}>{tr("نسيت كلمة المرور؟", "Forgot password?")}</a>
+                <a href="/admin-forgot-password" style={{ fontSize: 12, fontWeight: 700, color: "#2356c8", textDecoration: "none" }}>{tr("نسيت كلمة المرور؟", "Forgot password?")}</a>
               </div>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" id="adminPass" style={{ width: "100%", padding: isAr ? "13px 42px 13px 46px" : "13px 46px 13px 42px", border: "1.5px solid #dde3ed", borderRadius: 10, fontFamily: "'Cairo', sans-serif", fontSize: 13.5, color: "#1a2e4a", background: "#fff", outline: "none", textAlign: isAr ? "right" : "left", direction: isAr ? "rtl" : "ltr", transition: "border-color 0.2s" }} />
