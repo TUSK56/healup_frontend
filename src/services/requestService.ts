@@ -1,3 +1,4 @@
+import axios from 'axios';
 import api from './apiService';
 
 export interface MedicineItem {
@@ -84,27 +85,48 @@ export const requestService = {
   },
 
   async downloadInvoice(requestId: number): Promise<Blob> {
-    const res = await api.get<ArrayBuffer>(`/requests/${requestId}/invoice`, {
-      responseType: 'arraybuffer',
-      headers: { Accept: 'application/pdf, application/octet-stream;q=0.9, */*;q=0.8' },
-    });
-    const buf = res.data;
-    if (!buf || buf.byteLength === 0) {
-      throw new Error('empty_invoice');
-    }
-    const u8 = new Uint8Array(buf.slice(0, 4));
-    const magicPdf = u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46;
-    if (magicPdf) return new Blob([buf], { type: 'application/pdf' });
-    const head = new TextDecoder().decode(buf.slice(0, 512)).trimStart();
-    if (head.startsWith('{') || head.startsWith('[')) {
-      try {
-        const j = JSON.parse(new TextDecoder().decode(buf)) as { message?: string };
-        throw new Error(j?.message || 'invoice_not_ready');
-      } catch (e) {
-        if (e instanceof SyntaxError) throw new Error('invoice_not_pdf');
-        throw e;
+    try {
+      const res = await api.get<ArrayBuffer>(`/requests/${requestId}/invoice`, {
+        responseType: 'arraybuffer',
+        headers: { Accept: 'application/pdf, application/octet-stream;q=0.9, */*;q=0.8' },
+      });
+      const buf = res.data;
+      if (!buf || buf.byteLength === 0) {
+        throw new Error('empty_invoice');
       }
+      const u8 = new Uint8Array(buf.slice(0, 4));
+      const magicPdf = u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46;
+      if (magicPdf) return new Blob([buf], { type: 'application/pdf' });
+      const head = new TextDecoder().decode(buf.slice(0, 512)).trimStart();
+      if (head.startsWith('{') || head.startsWith('[')) {
+        try {
+          const j = JSON.parse(new TextDecoder().decode(buf)) as { message?: string };
+          throw new Error(j?.message || 'invoice_not_ready');
+        } catch (e) {
+          if (e instanceof SyntaxError) throw new Error('invoice_not_pdf');
+          throw e;
+        }
+      }
+      return new Blob([buf], { type: 'application/pdf' });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data instanceof ArrayBuffer) {
+        const ab = err.response.data as ArrayBuffer;
+        if (ab.byteLength > 0) {
+          const raw = new TextDecoder().decode(ab.slice(0, Math.min(1024, ab.byteLength))).trimStart();
+          if (raw.startsWith('{')) {
+            try {
+              const j = JSON.parse(new TextDecoder().decode(ab)) as { message?: string };
+              throw new Error(j?.message || 'HealUp: تعذر تحميل الفاتورة.');
+            } catch (e) {
+              if (e instanceof SyntaxError) {
+                throw err;
+              }
+              throw e;
+            }
+          }
+        }
+      }
+      throw err;
     }
-    return new Blob([buf], { type: 'application/pdf' });
   },
 };

@@ -29,6 +29,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { requestService, Offer, Request } from '../../../src/services/requestService';
 import { orderRequestId, orderService } from '../../../src/services/orderService';
+import { getAuthErrorMessage } from '../../../src/services/authService';
 import { getDrugPrice } from '../../../src/lib/drugs';
 import { useLocale } from '../../../src/contexts/LocaleContext';
 
@@ -324,10 +325,6 @@ export default function App() {
         const blob = await requestService.downloadInvoice(requestId);
         if (!blob || blob.size === 0) throw new Error('empty_invoice');
         const mime = (blob.type || '').toLowerCase();
-        if (mime.includes('application/json')) {
-          const maybeJsonText = await blob.text();
-          throw new Error(maybeJsonText || 'invoice_not_ready');
-        }
         const pdfBlob = mime.includes('application/pdf') ? blob : new Blob([blob], { type: 'application/pdf' });
         const url = URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
@@ -343,8 +340,12 @@ export default function App() {
           URL.revokeObjectURL(url);
           a.remove();
         }, 200);
-      } catch {
-        alert('تعذر تحميل الفاتورة حالياً. حاول مرة أخرى بعد قليل.');
+      } catch (e: unknown) {
+        if (e instanceof Error && e.message && e.message !== 'empty_invoice') {
+          alert(e.message);
+        } else {
+          alert(getAuthErrorMessage(e, 'تعذر تحميل الفاتورة حالياً. حاول مرة أخرى بعد قليل.'));
+        }
       } finally {
         setActionBusy(false);
       }
