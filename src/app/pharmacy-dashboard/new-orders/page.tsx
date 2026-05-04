@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import api from "@/services/apiService";
 import PharmacySidebar from "@/components/pharmacy/PharmacySidebar";
 import PharmacyTopNavbar from "@/components/pharmacy/PharmacyTopNavbar";
@@ -9,10 +9,24 @@ import "../cart.css";
 import "@/components/pharmacy/pharmacy-sidebar.css";
 
 export default function PharmacyNewOrdersPage() {
+	const router = useRouter();
+	const pathname = usePathname();
 	const searchParams = useSearchParams();
-	const openRequestId = searchParams.get("openRequestId");
+	/** Capture deeplink once so iframe `src` stays stable after parent URL is stripped (avoids iframe reload / modal reset). */
+	const [iframeDeeplinkId] = React.useState(() => searchParams.get("openRequestId"));
+
 	const [modalOpen, setModalOpen] = React.useState(false);
-	const iframeVersion = "20260504-openrequest-tab-1";
+	const iframeVersion = "20260504-openrequest-tab-2";
+
+	React.useEffect(() => {
+		const id = searchParams.get("openRequestId");
+		if (!id) return;
+		const params = new URLSearchParams(window.location.search);
+		params.delete("openRequestId");
+		const qs = params.toString();
+		const next = `${pathname}${qs ? `?${qs}` : ""}`;
+		router.replace(next, { scroll: false });
+	}, [pathname, router, searchParams]);
 
 	React.useEffect(() => {
 		void (async () => {
@@ -51,8 +65,8 @@ export default function PharmacyNewOrdersPage() {
 		return () => window.removeEventListener("message", onMessage);
 	}, []);
 
-	const iframeSrc = openRequestId
-		? `/pharmacy_orders_1.html?openRequestId=${encodeURIComponent(openRequestId)}&v=${iframeVersion}`
+	const iframeSrc = iframeDeeplinkId
+		? `/pharmacy_orders_1.html?openRequestId=${encodeURIComponent(iframeDeeplinkId)}&v=${iframeVersion}`
 		: `/pharmacy_orders_1.html?v=${iframeVersion}`;
 
 	return (

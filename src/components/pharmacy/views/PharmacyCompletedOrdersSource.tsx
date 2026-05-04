@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ChevronDown, Eye, FileText, Loader2, MapPin, Pill, Search, User, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { getAuthErrorMessage } from "@/services/authService";
 import { orderRequestId, orderService, type Order } from "@/services/orderService";
 import { requestService } from "@/services/requestService";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -126,18 +127,17 @@ export default function App() {
 
   const onDownloadInvoice = async (order: Order) => {
     const rid = orderRequestId(order);
-    if (!rid) return;
+    if (!rid) {
+      alert("لا يوجد رقم طلب مرتبط بهذا الأمر لتصدير الفاتورة.");
+      return;
+    }
     setDownloadingRequestId(rid);
     try {
       const blob = await requestService.downloadInvoice(rid);
       if (!blob || blob.size === 0) throw new Error("empty_invoice");
-      const mime = (blob.type || "").toLowerCase();
-      if (mime.includes("application/json")) {
-        const maybeJsonText = await blob.text();
-        throw new Error(maybeJsonText || "invoice_not_ready");
-      }
 
-      const pdfBlob = mime.includes("application/pdf") ? blob : new Blob([blob], { type: "application/pdf" });
+      const pdfBlob =
+        (blob.type || "").toLowerCase().includes("application/pdf") ? blob : new Blob([blob], { type: "application/pdf" });
       const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
       a.href = url;
@@ -148,9 +148,15 @@ export default function App() {
       window.setTimeout(() => {
         URL.revokeObjectURL(url);
         a.remove();
-      }, 250);
-    } catch {
-      alert("تعذر تحميل الفاتورة حالياً. حاول مرة أخرى بعد قليل.");
+      }, 400);
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message && e.message !== "empty_invoice") {
+        alert(e.message);
+      } else {
+        alert(
+          getAuthErrorMessage(e, "تعذر تحميل الفاتورة حالياً. حاول مرة أخرى بعد قليل."),
+        );
+      }
     } finally {
       setDownloadingRequestId(null);
     }

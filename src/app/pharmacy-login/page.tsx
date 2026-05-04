@@ -154,42 +154,20 @@ export default function PharmacyLoginPage() {
                 </div>
               </div>
 
-              {/* Password */}
+              {/* Password — label aligned like email; forgot link below the field */}
               <div style={{ marginBottom: 18 }}>
-                <div
+                <span
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 12,
+                    display: "block",
+                    textAlign: isAr ? "right" : "left",
                     marginBottom: 8,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "#1a2e4a",
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: "#1a2e4a",
-                      flex: 1,
-                      textAlign: isAr ? "right" : "left",
-                    }}
-                  >
-                    {tr("كلمة المرور", "Password")}
-                  </span>
-                  <a
-                    href="/pharmacy-forgot-password"
-                    style={{
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      color: "#2356c8",
-                      textDecoration: "none",
-                      cursor: "pointer",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {tr("نسيت كلمة المرور؟", "Forgot password?")}
-                  </a>
-                </div>
+                  {tr("كلمة المرور", "Password")}
+                </span>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -238,6 +216,20 @@ export default function PharmacyLoginPage() {
                       </svg>
                     )}
                   </button>
+                </div>
+                <div style={{ textAlign: isAr ? "left" : "right", marginTop: 6 }}>
+                  <a
+                    href="/pharmacy-forgot-password"
+                    style={{
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      color: "#2356c8",
+                      textDecoration: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {tr("نسيت كلمة المرور؟", "Forgot password?")}
+                  </a>
                 </div>
               </div>
 
