@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +28,7 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    direction: ltr;
+    direction: rtl;
   }
 
   /* ── TOPBAR + SIDEBAR ── */
@@ -44,7 +44,7 @@
     padding: 0 16px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
   .topbar-actions { display: flex; align-items: center; gap: 8px; }
   .topbar-icon-btn {
@@ -84,7 +84,8 @@
   .topbar-notif-popup {
     position: absolute;
     top: calc(100% + 10px);
-    left: 0;
+    right: 0;
+    left: auto;
     width: 340px;
     max-height: 380px;
     background: #fff;
@@ -348,14 +349,23 @@
     background: #f1f5f9;
     border: 2px solid var(--border);
   }
+  /* Current step (not finished yet): outline style — do not look identical to completed */
   .step.active .step-icon {
-    background: var(--blue);
-    border-color: var(--blue);
+    background: #fff;
+    border: 2px solid var(--blue);
+    color: var(--blue);
+    box-shadow: 0 0 0 1px rgba(26, 86, 219, 0.12);
+  }
+  .step.active .step-icon svg {
+    stroke: var(--blue);
   }
   .step.done .step-icon {
     background: var(--blue);
     border-color: var(--blue);
     color: #fff;
+  }
+  .step.done .step-icon svg {
+    stroke: #fff;
   }
 
   .step-connector {
@@ -658,11 +668,8 @@
 
 <header class="topbar">
   <div class="topbar-actions">
-    <a href="/patient-profile" class="topbar-icon-btn active" aria-label="profile">
-      <img id="topbar-avatar" class="topbar-avatar" alt="">
-      <span id="topbar-avatar-fallback" class="topbar-avatar-fallback">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0 1 12 0"/></svg>
-      </span>
+    <a href="/patient-cart" class="topbar-icon-btn" aria-label="cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
     </a>
     <div class="topbar-notif-wrap" id="topbar-notif-wrap">
       <button type="button" class="topbar-icon-btn" id="topbar-notif-btn" aria-label="notifications">
@@ -674,8 +681,21 @@
         <div id="topbar-notif-list" class="topbar-notif-list"></div>
       </div>
     </div>
-    <a href="/patient-cart" class="topbar-icon-btn" aria-label="cart">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    <button type="button" class="topbar-icon-btn" id="topbar-lang-btn" title="تبديل اللغة" aria-label="Language">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 8l6 6" />
+        <path d="M4 14l6-6 2-3" />
+        <path d="M2 5h12" />
+        <path d="M7 2h1" />
+        <path d="M22 22l-5-10-5 10" />
+        <path d="M14 18h6" />
+      </svg>
+    </button>
+    <a href="/patient-profile" class="topbar-icon-btn active" aria-label="profile">
+      <img id="topbar-avatar" class="topbar-avatar" alt="">
+      <span id="topbar-avatar-fallback" class="topbar-avatar-fallback">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0 1 12 0"/></svg>
+      </span>
     </a>
   </div>
 </header>
@@ -738,10 +758,10 @@
     <!-- STEPS -->
     <div id="steps-progress-card" class="card steps-card">
       <div class="steps-header">
-        <span class="steps-percent" id="checkout-steps-percent">66% مكتمل</span>
+        <span class="steps-percent" id="checkout-steps-percent">10% مكتمل</span>
         <span class="steps-title">خطوات إتمام الطلب</span>
       </div>
-      <div class="steps-bar"><div class="steps-bar-fill" id="checkout-steps-fill"></div></div>
+      <div class="steps-bar"><div class="steps-bar-fill" id="checkout-steps-fill" style="width:10%"></div></div>
       <div class="steps-list">
 
         <div class="step" data-step="shipping">
@@ -1124,10 +1144,9 @@
     const ship = Boolean(state.shipping);
     const pay = Boolean(state.payment);
     const confirmed = Boolean(state.confirmedDone);
-    let percent = 8;
-    if (ship) percent += 32;
-    if (pay) percent += 33;
-    if (ship && pay && !confirmed) percent += 25;
+    let percent = 10;
+    if (ship) percent = 40;
+    if (ship && pay) percent = 72;
     if (confirmed) percent = 100;
     percent = Math.min(100, Math.max(percent, 8));
 
@@ -1197,15 +1216,19 @@
   }
 
   function shakeCheckoutPanels() {
-    const stepsCard = document.getElementById('steps-progress-card');
-    const summary = document.getElementById('order-summary-panel');
-    [stepsCard, summary].forEach((el) => {
+    const shipOk = isDeliveryShippingComplete();
+    const payOk = isPaymentSelected();
+    const runShake = (id) => {
+      const el = document.getElementById(id);
       if (!el) return;
       el.classList.remove('checkout-shake');
       void el.offsetWidth;
       el.classList.add('checkout-shake');
-      window.setTimeout(() => el.classList.remove('checkout-shake'), 420);
-    });
+      window.setTimeout(() => el.classList.remove('checkout-shake'), 480);
+    };
+    if (!shipOk) runShake('shipping-checkout-card');
+    if (!payOk) runShake('payment-checkout-card');
+    if (!shipOk || !payOk) runShake('steps-progress-card');
   }
 
   function haversineKm(aLat, aLng, bLat, bLng) {
@@ -1800,6 +1823,17 @@
     window.setInterval(() => {
       void loadTopbarNotifications();
     }, 15000);
+
+    const langBtn = document.getElementById('topbar-lang-btn');
+    langBtn?.addEventListener('click', () => {
+      try {
+        const cur = window.localStorage.getItem('healup_locale') === 'en' ? 'en' : 'ar';
+        window.localStorage.setItem('healup_locale', cur === 'ar' ? 'en' : 'ar');
+      } catch {
+        /* ignore */
+      }
+      window.location.reload();
+    });
   })();
 </script>
 

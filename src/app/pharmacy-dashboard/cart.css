@@ -195,8 +195,8 @@ body {
   max-width: 100%;
 }
 
-/* TOPBAR */
-.pharmacyDashboard .topbar {
+/* TOPBAR — class must match PharmacyTopNavbar (`pharmacy-topbar`), not `.topbar` */
+.pharmacyDashboard .pharmacy-topbar {
   background: var(--white);
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
@@ -292,10 +292,10 @@ body {
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 10px 20px;
-  flex: 1 1 0;
+  flex: 0 1 auto;
   min-width: 0;
-  width: auto;
-  max-width: min(520px, 100%);
+  width: min(400px, 52vw);
+  max-width: 100%;
 }
 
 .pharmacyDashboard .search-bar input {
