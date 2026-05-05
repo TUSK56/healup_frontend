@@ -178,6 +178,7 @@ export default function PharmacyLoginPage() {
                   placeholder=""
                   autoComplete="current-password"
                   rtl={isAr}
+                  showLock={false}
                   inputStyle={{ fontSize: 14 }}
                 />
               </div>

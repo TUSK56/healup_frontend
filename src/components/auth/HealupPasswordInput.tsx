@@ -17,10 +17,12 @@ export type HealupPasswordInputProps = {
   /** When true, use Arabic layout: text RTL, lock + show-password on the left, matching pharmacy email right padding. */
   rtl?: boolean;
   inputStyle?: React.CSSProperties;
+  /** When false, only the show/hide control is shown (e.g. patient / pharmacy login). */
+  showLock?: boolean;
 };
 
 /**
- * Password field with lock + visibility toggle — same SVGs and layout as `/admin-login`.
+ * Password field with optional lock + visibility toggle (admin-style when showLock is true).
  */
 export default function HealupPasswordInput({
   value,
@@ -32,12 +34,18 @@ export default function HealupPasswordInput({
   name,
   id,
   rtl = false,
+  showLock = true,
   inputStyle,
 }: HealupPasswordInputProps) {
-  /** LTR: lock left, eye right — same inset as admin-login. RTL: lock + eye on the left (like the email icon side) with 16px padding on the right so dots align with the email text. */
-  const padding = rtl ? "13px 16px 13px 58px" : "13px 46px 13px 42px";
-  const eyeLeftRtl = 13;
-  const lockLeftRtl = 38;
+  const padding = showLock
+    ? rtl
+      ? "13px 16px 13px 58px"
+      : "13px 46px 13px 42px"
+    : rtl
+      ? "13px 16px 13px 46px"
+      : "13px 46px 13px 16px";
+
+  const eyePos = rtl ? { left: EDGE } : { right: EDGE };
 
   const baseInput: React.CSSProperties = {
     width: "100%",
@@ -67,28 +75,30 @@ export default function HealupPasswordInput({
         autoComplete={autoComplete}
         style={baseInput}
       />
-      <span
-        style={{
-          position: "absolute",
-          ...(rtl ? { left: lockLeftRtl } : { left: EDGE }),
-          pointerEvents: "none",
-          display: "flex",
-          alignItems: "center",
-          zIndex: 1,
-        }}
-        aria-hidden
-      >
-        <svg viewBox="0 0 24 24" width={ICON} height={ICON} fill="#9aa3b0">
-          <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
-        </svg>
-      </span>
+      {showLock ? (
+        <span
+          style={{
+            position: "absolute",
+            ...(rtl ? { left: 38 } : { left: EDGE }),
+            pointerEvents: "none",
+            display: "flex",
+            alignItems: "center",
+            zIndex: 1,
+          }}
+          aria-hidden
+        >
+          <svg viewBox="0 0 24 24" width={ICON} height={ICON} fill="#9aa3b0">
+            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+          </svg>
+        </span>
+      ) : null}
       <button
         type="button"
         onClick={onToggleShow}
         aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
         style={{
           position: "absolute",
-          ...(rtl ? { left: eyeLeftRtl } : { right: EDGE }),
+          ...eyePos,
           background: "none",
           border: "none",
           cursor: "pointer",

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +28,7 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    direction: rtl;
+    direction: ltr;
   }
 
   /* ── TOPBAR + SIDEBAR ── */
@@ -292,7 +292,12 @@
     transition: background 0.15s;
     margin-bottom: 12px;
   }
-  .confirm-btn:hover { background: var(--blue-dark); }
+  .confirm-btn:hover:not(:disabled) { background: var(--blue-dark); }
+  .confirm-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.88;
+  }
 
   .confirm-note {
     font-size: 11px; color: var(--text-light);
@@ -340,7 +345,7 @@
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     font-size: 12px; font-weight: 600; color: var(--text-light);
   }
-  .step.active { color: var(--text); }
+  .step.step-current { color: var(--text-muted); }
   .step.done { color: var(--blue); }
 
   .step-icon {
@@ -349,15 +354,14 @@
     background: #f1f5f9;
     border: 2px solid var(--border);
   }
-  /* Current step (not finished yet): outline style — do not look identical to completed */
-  .step.active .step-icon {
-    background: #fff;
-    border: 2px solid var(--blue);
-    color: var(--blue);
-    box-shadow: 0 0 0 1px rgba(26, 86, 219, 0.12);
+  /* In-progress (not completed yet): neutral — only .step.done uses solid brand blue */
+  .step.step-current .step-icon {
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    color: #94a3b8;
   }
-  .step.active .step-icon svg {
-    stroke: var(--blue);
+  .step.step-current .step-icon svg {
+    stroke: #94a3b8;
   }
   .step.done .step-icon {
     background: var(--blue);
@@ -1157,20 +1161,29 @@
 
     document.querySelectorAll('.steps-list .step[data-step]').forEach((el) => {
       const key = el.getAttribute('data-step');
-      el.classList.remove('active', 'done', 'step-pending');
+      el.classList.remove('active', 'done', 'step-pending', 'step-current');
       if (key === 'shipping') {
         if (ship) el.classList.add('done');
-        else el.classList.add('active');
+        else el.classList.add('step-current');
       } else if (key === 'payment') {
         if (pay && ship) el.classList.add('done');
         else if (!ship) el.classList.add('step-pending');
-        else el.classList.add('active');
+        else el.classList.add('step-current');
       } else if (key === 'confirm') {
-        if (confirmed && ship && pay) el.classList.add('done');
-        else if (ship && pay) el.classList.add('active');
-        else el.classList.add('step-pending');
+        if (confirmed) el.classList.add('done');
+        else if (!ship || !pay) el.classList.add('step-pending');
+        else el.classList.add('step-current');
       }
     });
+  }
+
+  function updateConfirmButtonState() {
+    const btn = document.getElementById('confirm-order-btn');
+    if (!btn) return;
+    const ok = isCheckoutReadyForConfirm();
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? '1' : '';
+    btn.style.cursor = ok ? 'pointer' : 'not-allowed';
   }
 
   function isDeliveryShippingComplete() {
@@ -1211,6 +1224,7 @@
     checkoutState.shipping = isDeliveryShippingComplete();
     checkoutState.payment = isPaymentSelected();
     updateCheckoutProgressSteps(checkoutState);
+    updateConfirmButtonState();
     if (checkoutState.shipping) setShippingCheckoutError(false);
     if (checkoutState.payment) setPaymentCheckoutError(false);
   }

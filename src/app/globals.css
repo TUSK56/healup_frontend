@@ -13,6 +13,40 @@ body {
   @apply bg-slate-50 text-slate-900 antialiased;
 }
 
+@keyframes healup-field-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.healup-forgot-field-wrap {
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.healup-forgot-field-wrap--invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.28);
+}
+
+.healup-forgot-field-wrap--shake {
+  animation: healup-field-shake 0.42s ease-in-out;
+}
+
 @layer components {
   .btn-healup {
     @apply rounded-lg bg-healup-primary px-4 py-2 font-medium text-white shadow-sm transition hover:bg-healup-secondary focus:outline-none focus:ring-2 focus:ring-healup-primary focus:ring-offset-2;

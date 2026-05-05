@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
 
@@ -9,10 +10,13 @@ export default function PharmacyForgotPasswordPage() {
   const [identifier, setIdentifier] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [fieldInvalid, setFieldInvalid] = React.useState(false);
+  const [fieldShake, setFieldShake] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldInvalid(false);
     setIsSubmitting(true);
     try {
       await authService.sendOtp({ identifier, guard: "pharmacy" });
@@ -22,7 +26,15 @@ export default function PharmacyForgotPasswordPage() {
       }
       router.push("/pharmacy-verify-otp");
     } catch (err: unknown) {
-      setError(getAuthErrorMessage(err, "تعذر إرسال كود التحقق. حاول مرة أخرى."));
+      const is404 = isAxiosError(err) && err.response?.status === 404;
+      if (is404) {
+        setFieldInvalid(true);
+        setFieldShake(true);
+        window.setTimeout(() => setFieldShake(false), 450);
+      }
+      setError(
+        getAuthErrorMessage(err, "لا يوجد حساب بهذا البريد أو رقم الهاتف. تحقق من البيانات وحاول مرة أخرى."),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -40,8 +52,35 @@ export default function PharmacyForgotPasswordPage() {
           </p>
           {/* Field */}
           <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1a2e4a', textAlign: 'right', marginBottom: 8 }}>البريد الإلكتروني أو رقم الهاتف</span>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-            <input type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} placeholder="example@mail.com" style={{ width: '100%', padding: '13px 16px 13px 46px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 14, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }} required />
+          <div
+            className={`healup-forgot-field-wrap ${fieldInvalid ? "healup-forgot-field-wrap--invalid" : ""} ${fieldShake ? "healup-forgot-field-wrap--shake" : ""}`}
+            style={{ position: "relative", display: "flex", alignItems: "center", marginBottom: 20 }}
+          >
+            <input
+              type="text"
+              value={identifier}
+              onChange={(e) => {
+                setIdentifier(e.target.value);
+                setFieldInvalid(false);
+                setError("");
+              }}
+              placeholder="example@mail.com"
+              style={{
+                width: "100%",
+                padding: "13px 16px 13px 46px",
+                border: "1.5px solid #dde3ed",
+                borderRadius: 10,
+                fontFamily: "Cairo, sans-serif",
+                fontSize: 14,
+                color: "#1a2e4a",
+                background: "#fff",
+                outline: "none",
+                textAlign: "right",
+                direction: "rtl",
+                transition: "border-color 0.2s",
+              }}
+              required
+            />
             <span style={{ position: 'absolute', left: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', fontSize: 16, fontWeight: 700, color: '#9aa3b0', fontFamily: 'Cairo, sans-serif' }}>@</span>
           </div>
           {error ? <div style={{ color: '#e74c3c', fontSize: 13, marginBottom: 12, textAlign: 'right' }}>{error}</div> : null}
