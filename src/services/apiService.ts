@@ -30,9 +30,10 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    const storedApiUrl = localStorage.getItem('healup_api_url');
+    const storedApiUrl = localStorage.getItem('healup_api_url')?.trim();
     if (storedApiUrl) {
-      localStorage.removeItem('healup_api_url');
+      const base = storedApiUrl.replace(/\/$/, '');
+      config.baseURL = `${base}/api`;
     }
   }
   return config;

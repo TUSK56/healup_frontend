@@ -3,8 +3,24 @@
 import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { HEALUP_PASSWORD_POLICY_AR, isHealupStrictPassword } from "@/lib/passwordPolicy";
+import { isAxiosError } from "axios";
+import { HEALUP_PASSWORD_INVALID_SHORT_AR, isHealupStrictPassword } from "@/lib/passwordPolicy";
 import HealupPasswordInput from "@/components/auth/HealupPasswordInput";
+import { authService, getAuthErrorMessage } from "@/services/authService";
+
+type FieldKey = "pass1" | "pass2" | null;
+
+function apiErrorField(err: unknown): string | undefined {
+  if (!isAxiosError(err)) return undefined;
+  const f = (err.response?.data as { field?: string })?.field;
+  return typeof f === "string" ? f : undefined;
+}
+
+function mapApiFieldToUi(field: string | undefined): FieldKey {
+  if (field === "new_password") return "pass1";
+  if (field === "new_password_confirmation") return "pass2";
+  return null;
+}
 
 export default function AdminResetPasswordPage() {
   const [showPass1, setShowPass1] = useState(false);
@@ -12,20 +28,62 @@ export default function AdminResetPasswordPage() {
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
   const [error, setError] = useState("");
+  const [errorField, setErrorField] = useState<FieldKey>(null);
+  const [shakeField, setShakeField] = useState<FieldKey>(null);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const triggerShake = (f: FieldKey) => {
+    if (!f) return;
+    setShakeField(f);
+    window.setTimeout(() => setShakeField(null), 450);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setErrorField(null);
+
+    const identifier = typeof window !== "undefined" ? localStorage.getItem("healup_reset_identifier") : null;
+    if (!identifier?.trim()) {
+      setError("انتهت الجلسة. ابدأ من «نسيت كلمة المرور» مرة أخرى.");
+      return;
+    }
+
     if (pass1 !== pass2) {
       setError("كلمتا المرور غير متطابقتين");
+      setErrorField("pass2");
+      triggerShake("pass2");
       return;
     }
     if (!isHealupStrictPassword(pass1)) {
-      setError(HEALUP_PASSWORD_POLICY_AR);
+      setError(HEALUP_PASSWORD_INVALID_SHORT_AR);
+      setErrorField("pass1");
+      triggerShake("pass1");
       return;
     }
-    setError("");
-    router.push("/admin-login");
+
+    setSubmitting(true);
+    try {
+      await authService.resetPasswordAfterOtp({
+        identifier: identifier.trim(),
+        guard: "admin",
+        newPassword: pass1,
+        newPasswordConfirmation: pass2,
+      });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("healup_reset_identifier");
+        localStorage.removeItem("healup_reset_guard");
+      }
+      router.push("/admin-login");
+    } catch (err: unknown) {
+      const field = mapApiFieldToUi(apiErrorField(err));
+      setErrorField(field);
+      if (field) triggerShake(field);
+      setError(getAuthErrorMessage(err, "تعذر تحديث كلمة المرور."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -74,55 +132,89 @@ export default function AdminResetPasswordPage() {
         <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 440, textAlign: "center" }}>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: "#1a2e4a", marginBottom: 14 }}>إعادة تعيين كلمة مرور الإدارة</h1>
           <p style={{ fontSize: 13, color: "#9aa3b0", fontWeight: 400, lineHeight: 1.9, marginBottom: 34, direction: "rtl" }}>
-            أدخل كلمة المرور الجديدة وفق المتطلبات أدناه، ثم سجّل الدخول من صفحة الإدارة.
+            أدخل كلمة المرور الجديدة، ثم سجّل الدخول من صفحة الإدارة.
           </p>
-          <div style={{ marginBottom: 18, textAlign: "right" }}>
-            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#1a2e4a", marginBottom: 8 }}>كلمة المرور الجديدة</span>
+          <div className={shakeField === "pass1" ? "healup-forgot-field-wrap--shake" : undefined} style={{ marginBottom: 18, textAlign: "right" }}>
+            <span
+              style={{
+                display: "block",
+                fontSize: 13,
+                fontWeight: 700,
+                color: errorField === "pass1" ? "#ef4444" : "#1a2e4a",
+                marginBottom: 8,
+                borderRadius: 8,
+                padding: errorField === "pass1" ? "4px 8px" : undefined,
+                border: errorField === "pass1" ? "1.5px solid #ef4444" : "1.5px solid transparent",
+              }}
+            >
+              كلمة المرور الجديدة
+            </span>
             <HealupPasswordInput
               value={pass1}
-              onChange={setPass1}
+              onChange={(v) => {
+                setPass1(v);
+                setErrorField(null);
+                setError("");
+              }}
               showPassword={showPass1}
               onToggleShow={() => setShowPass1((v) => !v)}
               placeholder="أدخل كلمة المرور الجديدة"
               autoComplete="new-password"
               rtl
-              inputStyle={{ fontSize: 14, padding: "14px 42px 14px 46px" }}
+              invalid={errorField === "pass1"}
+              inputStyle={{ fontSize: 14 }}
             />
           </div>
-          <div style={{ marginBottom: 18, textAlign: "right" }}>
-            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#1a2e4a", marginBottom: 8 }}>تأكيد كلمة المرور الجديدة</span>
+          <div className={shakeField === "pass2" ? "healup-forgot-field-wrap--shake" : undefined} style={{ marginBottom: 18, textAlign: "right" }}>
+            <span
+              style={{
+                display: "block",
+                fontSize: 13,
+                fontWeight: 700,
+                color: errorField === "pass2" ? "#ef4444" : "#1a2e4a",
+                marginBottom: 8,
+                borderRadius: 8,
+                padding: errorField === "pass2" ? "4px 8px" : undefined,
+                border: errorField === "pass2" ? "1.5px solid #ef4444" : "1.5px solid transparent",
+              }}
+            >
+              تأكيد كلمة المرور الجديدة
+            </span>
             <HealupPasswordInput
               value={pass2}
-              onChange={setPass2}
+              onChange={(v) => {
+                setPass2(v);
+                setErrorField(null);
+                setError("");
+              }}
               showPassword={showPass2}
               onToggleShow={() => setShowPass2((v) => !v)}
               placeholder="أعد إدخال كلمة المرور الجديدة"
               autoComplete="new-password"
               rtl
-              inputStyle={{ fontSize: 14, padding: "14px 42px 14px 46px" }}
+              invalid={errorField === "pass2"}
+              inputStyle={{ fontSize: 14 }}
             />
           </div>
           {error ? <div style={{ color: "#e74c3c", fontSize: 14, marginBottom: 12 }}>{error}</div> : null}
-          <div style={{ background: "#f4f6fb", borderRadius: 12, padding: "18px 22px", marginBottom: 22, direction: "rtl", fontSize: 13.5, color: "#1a2e4a", fontWeight: 600 }}>
-            {HEALUP_PASSWORD_POLICY_AR}
-          </div>
           <button
             type="submit"
+            disabled={submitting}
             style={{
               width: "100%",
               padding: 16,
-              background: "#2356c8",
+              background: submitting ? "#6b88de" : "#2356c8",
               color: "white",
               border: "none",
               borderRadius: 12,
               fontFamily: "Cairo, sans-serif",
               fontSize: 17,
               fontWeight: 800,
-              cursor: "pointer",
+              cursor: submitting ? "not-allowed" : "pointer",
               marginBottom: 20,
             }}
           >
-            تحديث كلمة المرور
+            {submitting ? "جارٍ الحفظ..." : "تحديث كلمة المرور"}
           </button>
           <a href="/admin-login" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 14, fontWeight: 700, color: "#2356c8", textDecoration: "none" }}>
             العودة لتسجيل دخول الإدارة ←

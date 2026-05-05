@@ -14,11 +14,15 @@ export type HealupPasswordInputProps = {
   autoComplete?: string;
   name?: string;
   id?: string;
-  /** When true, use Arabic layout: text RTL, lock + show-password on the left, matching pharmacy email right padding. */
+  /** When true, use Arabic layout: text RTL, eye on the left and lock on the right (mirror of LTR). */
   rtl?: boolean;
   inputStyle?: React.CSSProperties;
   /** When false, only the show/hide control is shown (e.g. patient / pharmacy login). */
   showLock?: boolean;
+  /** Red border on the input (validation error). */
+  invalid?: boolean;
+  /** Brief shake on the field wrapper (matches globals.css keyframes). */
+  shake?: boolean;
 };
 
 /**
@@ -35,17 +39,20 @@ export default function HealupPasswordInput({
   id,
   rtl = false,
   showLock = true,
+  invalid = false,
+  shake = false,
   inputStyle,
 }: HealupPasswordInputProps) {
   const padding = showLock
     ? rtl
-      ? "13px 16px 13px 58px"
+      ? "13px 42px 13px 46px"
       : "13px 46px 13px 42px"
     : rtl
       ? "13px 16px 13px 46px"
       : "13px 46px 13px 16px";
 
   const eyePos = rtl ? { left: EDGE } : { right: EDGE };
+  const lockPos = rtl ? { right: EDGE } : { left: EDGE };
 
   const baseInput: React.CSSProperties = {
     width: "100%",
@@ -61,10 +68,14 @@ export default function HealupPasswordInput({
     direction: rtl ? "rtl" : "ltr",
     transition: "border-color 0.2s",
     ...inputStyle,
+    ...(invalid ? { border: "1.5px solid #ef4444" } : null),
   };
 
   return (
-    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+    <div
+      className={shake ? "healup-forgot-field-wrap--shake" : undefined}
+      style={{ position: "relative", display: "flex", alignItems: "center", borderRadius: 10 }}
+    >
       <input
         id={id}
         name={name}
@@ -79,7 +90,7 @@ export default function HealupPasswordInput({
         <span
           style={{
             position: "absolute",
-            ...(rtl ? { left: 38 } : { left: EDGE }),
+            ...lockPos,
             pointerEvents: "none",
             display: "flex",
             alignItems: "center",

@@ -8,3 +8,6 @@ export function isHealupStrictPassword(value: string): boolean {
 
 export const HEALUP_PASSWORD_POLICY_AR =
   'كلمة المرور من 12–15 خانة وتتضمن على الأقل أحد الرموز: ! @ # $ % ^';
+
+/** Short validation message for forms (policy hint removed from UI). */
+export const HEALUP_PASSWORD_INVALID_SHORT_AR = 'كلمة المرور غير صالحة.';

@@ -5,7 +5,7 @@ import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
-import { HEALUP_PASSWORD_POLICY_AR, isHealupStrictPassword } from "@/lib/passwordPolicy";
+import { HEALUP_PASSWORD_INVALID_SHORT_AR, isHealupStrictPassword } from "@/lib/passwordPolicy";
 import HealupPasswordInput from "@/components/auth/HealupPasswordInput";
 
 const LeafletPicker = dynamic(() => import("@/components/pharmacy/views/PharmacyProfileLeaflet"), { ssr: false });
@@ -92,7 +92,7 @@ export default function SignupPage() {
       return;
     }
     if (!isHealupStrictPassword(password)) {
-      setError(HEALUP_PASSWORD_POLICY_AR);
+      setError(HEALUP_PASSWORD_INVALID_SHORT_AR);
       return;
     }
 
@@ -193,10 +193,7 @@ export default function SignupPage() {
             {/* Password Row */}
             <div style={{ display: 'flex', gap: 14, marginBottom: 16 }}>
               <div style={{ flex: 1 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1a2e4a', marginBottom: 8, display: 'block', textAlign: 'right' }}>
-                  كلمة المرور
-                  <span style={{ display: 'block', fontWeight: 500, fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{HEALUP_PASSWORD_POLICY_AR}</span>
-                </span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#1a2e4a', marginBottom: 8, display: 'block', textAlign: 'right' }}>كلمة المرور</span>
                 <HealupPasswordInput
                   value={password}
                   onChange={setPassword}

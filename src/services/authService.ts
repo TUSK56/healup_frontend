@@ -109,6 +109,21 @@ export const authService = {
     return res.data;
   },
 
+  async resetPasswordAfterOtp(data: {
+    identifier: string;
+    guard: 'patient' | 'pharmacy' | 'admin';
+    newPassword: string;
+    newPasswordConfirmation: string;
+  }) {
+    const res = await api.post<{ message: string }>('/password/reset-after-otp', {
+      identifier: data.identifier,
+      guard: data.guard,
+      newPassword: data.newPassword,
+      newPasswordConfirmation: data.newPasswordConfirmation,
+    });
+    return res.data;
+  },
+
   setSession(data: AuthResponse, guard: Guard) {
     if (typeof window === 'undefined') return;
     localStorage.removeItem('healup_guest');
