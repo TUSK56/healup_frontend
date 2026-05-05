@@ -14,7 +14,7 @@ export type HealupPasswordInputProps = {
   autoComplete?: string;
   name?: string;
   id?: string;
-  /** Matches admin-login: lock toward text start, eye on opposite side */
+  /** When true, use Arabic layout: text RTL, lock + show-password on the left, matching pharmacy email right padding. */
   rtl?: boolean;
   inputStyle?: React.CSSProperties;
 };
@@ -34,9 +34,10 @@ export default function HealupPasswordInput({
   rtl = false,
   inputStyle,
 }: HealupPasswordInputProps) {
-  const lockSide = rtl ? "right" : "left";
-  const eyeSide = rtl ? "left" : "right";
-  const padding = rtl ? "13px 42px 13px 46px" : "13px 46px 13px 42px";
+  /** LTR: lock left, eye right — same inset as admin-login. RTL: lock + eye on the left (like the email icon side) with 16px padding on the right so dots align with the email text. */
+  const padding = rtl ? "13px 16px 13px 58px" : "13px 46px 13px 42px";
+  const eyeLeftRtl = 13;
+  const lockLeftRtl = 38;
 
   const baseInput: React.CSSProperties = {
     width: "100%",
@@ -69,10 +70,11 @@ export default function HealupPasswordInput({
       <span
         style={{
           position: "absolute",
-          [lockSide]: EDGE,
+          ...(rtl ? { left: lockLeftRtl } : { left: EDGE }),
           pointerEvents: "none",
           display: "flex",
           alignItems: "center",
+          zIndex: 1,
         }}
         aria-hidden
       >
@@ -86,13 +88,14 @@ export default function HealupPasswordInput({
         aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
         style={{
           position: "absolute",
-          [eyeSide]: EDGE,
+          ...(rtl ? { left: eyeLeftRtl } : { right: EDGE }),
           background: "none",
           border: "none",
           cursor: "pointer",
           padding: 0,
           display: "flex",
           alignItems: "center",
+          zIndex: 2,
         }}
       >
         {showPassword ? (

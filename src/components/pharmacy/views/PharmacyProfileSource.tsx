@@ -600,6 +600,7 @@ function PasswordField({
   invalid?: boolean;
   shake?: boolean;
 }) {
+  const { isRTL } = useLocale();
   const [showPassword, setShowPassword] = useState(false);
   return (
     <div className={`space-y-1 text-start ${shake ? "healup-shake" : ""}`}>
@@ -617,7 +618,7 @@ function PasswordField({
           showPassword={showPassword}
           onToggleShow={() => setShowPassword((v) => !v)}
           autoComplete="new-password"
-          rtl
+          rtl={isRTL}
           inputStyle={{
             fontSize: 14,
             borderColor: invalid ? "#ef4444" : undefined,
