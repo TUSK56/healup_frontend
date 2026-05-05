@@ -881,11 +881,12 @@ export default function PatientCartPage() {
             <label htmlFor="checkout-login-password">كلمة المرور</label>
             <HealupPasswordInput
               id="checkout-login-password"
+              name="password"
               value={loginPassword}
               onChange={setLoginPassword}
               showPassword={showLoginPassword}
               onToggleShow={() => setShowLoginPassword((v) => !v)}
-              placeholder="••••••••"
+              placeholder=""
               autoComplete="current-password"
               rtl
               inputStyle={{ fontSize: 14 }}

@@ -138,12 +138,13 @@
   padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   min-width: 0;
   overflow-x: clip;
 }
 
+/* Grow to fill space between profile cluster and inner edge so the bar does not leave a wide empty gap */
 .pharmacyDashboard .search-bar {
   display: flex;
   align-items: center;
@@ -152,10 +153,10 @@
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 8px 14px;
-  width: min(360px, 42vw);
+  flex: 1 1 0;
   min-width: 0;
-  max-width: 100%;
-  flex: 1 1 auto;
+  width: auto;
+  max-width: min(520px, 100%);
 }
 
 .pharmacyDashboard .search-bar input {
@@ -438,7 +439,7 @@
   }
 
   .pharmacyDashboard .search-bar {
-    width: min(280px, 38vw);
+    max-width: min(420px, 100%);
   }
 }
 

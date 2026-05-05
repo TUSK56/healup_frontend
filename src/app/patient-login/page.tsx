@@ -72,16 +72,24 @@ export default function PatientLogin() {
               {/* Password */}
               <div style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a2e4a", flex: 1, textAlign: isAr ? "right" : "left" }}>{tr("كلمة المرور", "Password")}</span>
+                  <label
+                    htmlFor="patient-login-password"
+                    style={{ fontSize: 12.5, fontWeight: 700, color: "#1a2e4a", flex: 1, textAlign: isAr ? "right" : "left", cursor: "pointer" }}
+                  >
+                    {tr("كلمة المرور", "Password")}
+                  </label>
                   <a href="/forgot-password" style={{ fontSize: 12, fontWeight: 700, color: "#2356c8", textDecoration: "none", flexShrink: 0 }}>
                     {tr("نسيت كلمة المرور؟", "Forgot password?")}
                   </a>
                 </div>
                 <HealupPasswordInput
+                  id="patient-login-password"
+                  name="password"
                   value={password}
                   onChange={setPassword}
                   showPassword={showPassword}
                   onToggleShow={() => setShowPassword((v) => !v)}
+                  placeholder=""
                   autoComplete="current-password"
                   rtl={isAr}
                   inputStyle={{ fontSize: 14 }}

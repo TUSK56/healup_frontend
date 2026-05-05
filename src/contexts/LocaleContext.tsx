@@ -1,11 +1,29 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 import { translate, type TranslationKey } from "@/i18n/messages";
 
 export type HealupLocale = "ar" | "en";
 
 const STORAGE_KEY = "healup_locale";
+
+export function readStoredLocale(): HealupLocale {
+  if (typeof window === "undefined") return "ar";
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw === "en" || raw === "ar") return raw;
+  } catch {
+    // ignore
+  }
+  return "ar";
+}
 
 type LocaleContextValue = {
   locale: HealupLocale;
@@ -18,33 +36,40 @@ type LocaleContextValue = {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-function readStoredLocale(): HealupLocale {
-  if (typeof window === "undefined") return "ar";
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw === "en" || raw === "ar") return raw;
-  } catch {
-    // ignore
-  }
+function subscribeLocale(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY || e.key === null) onStoreChange();
+  };
+  const onHealupLocale = () => onStoreChange();
+  window.addEventListener("storage", onStorage);
+  window.addEventListener("healup:locale", onHealupLocale);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener("healup:locale", onHealupLocale);
+  };
+}
+
+function getLocaleSnapshot(): HealupLocale {
+  return readStoredLocale();
+}
+
+function getServerLocaleSnapshot(): HealupLocale {
   return "ar";
 }
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<HealupLocale>("ar");
+  const locale = useSyncExternalStore(subscribeLocale, getLocaleSnapshot, getServerLocaleSnapshot);
   const isRTL = locale === "ar";
   const dir: LocaleContextValue["dir"] = isRTL ? "rtl" : "ltr";
 
-  useEffect(() => {
-    setLocaleState(readStoredLocale());
-  }, []);
-
   const setLocale = useCallback((next: HealupLocale) => {
-    setLocaleState(next);
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
     } catch {
       // ignore
     }
+    window.dispatchEvent(new Event("healup:locale"));
   }, []);
 
   const toggleLocale = useCallback(() => {

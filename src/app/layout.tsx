@@ -24,6 +24,12 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning className={`${cairo.variable} ${cairo.className}`}>
       <body>
+        {/* Apply saved locale before React paints so `dir` CSS (e.g. pharmacy dashboard) matches hydration */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k='healup_locale',r=localStorage.getItem(k),l=r==='en'?'en':'ar',d=l==='en'?'ltr':'rtl';document.documentElement.lang=l;document.documentElement.dir=d;}catch(e){}})();`,
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

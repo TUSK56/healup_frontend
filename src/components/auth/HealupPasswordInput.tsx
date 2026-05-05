@@ -12,6 +12,7 @@ export type HealupPasswordInputProps = {
   onToggleShow: () => void;
   placeholder?: string;
   autoComplete?: string;
+  name?: string;
   id?: string;
   /** Matches admin-login: lock toward text start, eye on opposite side */
   rtl?: boolean;
@@ -28,6 +29,7 @@ export default function HealupPasswordInput({
   onToggleShow,
   placeholder = "••••••••",
   autoComplete,
+  name,
   id,
   rtl = false,
   inputStyle,
@@ -56,6 +58,7 @@ export default function HealupPasswordInput({
     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
       <input
         id={id}
+        name={name}
         type={showPassword ? "text" : "password"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
