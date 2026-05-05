@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { pharmacyService, PharmacyMe } from "@/services/pharmacyService";
 import { readAvatar, writeAvatar } from "@/lib/avatarStorage";
 import { useLocale } from "@/contexts/LocaleContext";
+import HealupPasswordInput from "@/components/auth/HealupPasswordInput";
 
 const LeafletPicker = dynamic(() => import("./PharmacyProfileLeaflet"), { ssr: false });
 
@@ -599,17 +600,30 @@ function PasswordField({
   invalid?: boolean;
   shake?: boolean;
 }) {
+  const [showPassword, setShowPassword] = useState(false);
   return (
-    <div className="space-y-1 text-start">
+    <div className={`space-y-1 text-start ${shake ? "healup-shake" : ""}`}>
       <label className="text-xs font-medium text-slate-500">{label}</label>
-      <input
-        type="password"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none ${
-          invalid ? "border-red-500" : "border-slate-300 focus:border-blue-500"
-        } ${shake ? "healup-shake" : ""}`}
-      />
+      <div
+        className={
+          invalid
+            ? "[&_input]:!border-red-500"
+            : "[&_input]:focus:border-blue-500 [&_input]:focus:ring-2 [&_input]:focus:ring-blue-500/20"
+        }
+      >
+        <HealupPasswordInput
+          value={value}
+          onChange={onChange}
+          showPassword={showPassword}
+          onToggleShow={() => setShowPassword((v) => !v)}
+          autoComplete="new-password"
+          rtl
+          inputStyle={{
+            fontSize: 14,
+            borderColor: invalid ? "#ef4444" : undefined,
+          }}
+        />
+      </div>
     </div>
   );
 }

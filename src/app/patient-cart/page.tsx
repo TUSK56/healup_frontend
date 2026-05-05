@@ -17,6 +17,7 @@ import {
   type CartItemData,
 } from "@/lib/cartStorage";
 import { searchDrugs, getDrugPrice } from "@/lib/drugs";
+import HealupPasswordInput from "@/components/auth/HealupPasswordInput";
 import "./cart.css";
 
 export type CartItem = CartItemData;
@@ -149,6 +150,7 @@ export default function PatientCartPage() {
   const [loginPromptOpen, setLoginPromptOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isLoginSubmitting, setIsLoginSubmitting] = useState(false);
@@ -877,12 +879,16 @@ export default function PatientCartPage() {
               placeholder="example@mail.com"
             />
             <label htmlFor="checkout-login-password">كلمة المرور</label>
-            <input
+            <HealupPasswordInput
               id="checkout-login-password"
-              type="password"
               value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
+              onChange={setLoginPassword}
+              showPassword={showLoginPassword}
+              onToggleShow={() => setShowLoginPassword((v) => !v)}
               placeholder="••••••••"
+              autoComplete="current-password"
+              rtl
+              inputStyle={{ fontSize: 14 }}
             />
             {loginError ? <p style={{ color: "#b91c1c", fontSize: 13, marginBottom: 8 }}>{loginError}</p> : null}
             <div className="modal-actions">

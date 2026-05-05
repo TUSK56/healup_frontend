@@ -4,6 +4,7 @@ import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { HEALUP_PASSWORD_POLICY_AR, isHealupStrictPassword } from "@/lib/passwordPolicy";
+import HealupPasswordInput from "@/components/auth/HealupPasswordInput";
 
 export default function ResetPasswordPage() {
   const [showPass1, setShowPass1] = useState(false);
@@ -52,44 +53,30 @@ export default function ResetPasswordPage() {
           {/* New Password */}
           <div style={{ marginBottom: 18, textAlign: 'right' }}>
             <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1a2e4a', marginBottom: 8 }}>كلمة المرور الجديدة</span>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <input
-                type={showPass1 ? "text" : "password"}
-                placeholder="أدخل كلمة المرور الجديدة"
-                value={pass1}
-                onChange={e => setPass1(e.target.value)}
-                autoComplete="new-password"
-                style={{ width: '100%', padding: '14px 16px 14px 46px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 14, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }}
-              />
-              <button type="button" onClick={() => setShowPass1(v => !v)} style={{ position: 'absolute', left: 14, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-                {showPass1 ? (
-                  <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" stroke="#9aa3b0" strokeWidth="1.5" fill="none"/></svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                )}
-              </button>
-            </div>
+            <HealupPasswordInput
+              value={pass1}
+              onChange={setPass1}
+              showPassword={showPass1}
+              onToggleShow={() => setShowPass1((v) => !v)}
+              placeholder="أدخل كلمة المرور الجديدة"
+              autoComplete="new-password"
+              rtl
+              inputStyle={{ fontSize: 14, padding: "14px 42px 14px 46px" }}
+            />
           </div>
           {/* Confirm Password */}
           <div style={{ marginBottom: 18, textAlign: 'right' }}>
             <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1a2e4a', marginBottom: 8 }}>تأكيد كلمة المرور الجديدة</span>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <input
-                type={showPass2 ? "text" : "password"}
-                placeholder="أعد إدخال كلمة المرور الجديدة"
-                value={pass2}
-                onChange={e => setPass2(e.target.value)}
-                autoComplete="new-password"
-                style={{ width: '100%', padding: '14px 16px 14px 46px', border: '1.5px solid #dde3ed', borderRadius: 10, fontFamily: 'Cairo, sans-serif', fontSize: 14, color: '#1a2e4a', background: '#fff', outline: 'none', textAlign: 'right', direction: 'rtl', transition: 'border-color 0.2s' }}
-              />
-              <button type="button" onClick={() => setShowPass2(v => !v)} style={{ position: 'absolute', left: 14, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-                {showPass2 ? (
-                  <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" stroke="#9aa3b0" strokeWidth="1.5" fill="none"/></svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#9aa3b0' }}><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                )}
-              </button>
-            </div>
+            <HealupPasswordInput
+              value={pass2}
+              onChange={setPass2}
+              showPassword={showPass2}
+              onToggleShow={() => setShowPass2((v) => !v)}
+              placeholder="أعد إدخال كلمة المرور الجديدة"
+              autoComplete="new-password"
+              rtl
+              inputStyle={{ fontSize: 14, padding: "14px 42px 14px 46px" }}
+            />
           </div>
           {/* Error message */}
           {error && <div style={{ color: '#e74c3c', fontSize: 14, marginBottom: 12 }}>{error}</div>}

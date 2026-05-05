@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import GuestTopNavbar from "@/components/landing/GuestTopNavbar";
 import { authService, getAuthErrorMessage } from "@/services/authService";
 import { useLocale } from "@/contexts/LocaleContext";
+import HealupPasswordInput from "@/components/auth/HealupPasswordInput";
 
 export default function PharmacyLoginPage() {
   const { locale } = useLocale();
@@ -154,83 +155,25 @@ export default function PharmacyLoginPage() {
                 </div>
               </div>
 
-              {/* Password — label aligned like email; forgot link below the field */}
+              {/* Password — same label row + lock/eye as admin-login */}
               <div style={{ marginBottom: 18 }}>
-                <span
-                  style={{
-                    display: "block",
-                    textAlign: isAr ? "right" : "left",
-                    marginBottom: 8,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: "#1a2e4a",
-                  }}
-                >
-                  {tr("كلمة المرور", "Password")}
-                </span>
-                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(ev) => setPassword(ev.target.value)}
-                    placeholder="••••••••"
-                    style={{
-                      width: "100%",
-                      padding: isAr ? "13px 46px 13px 16px" : "13px 16px 13px 46px",
-                      border: "1.5px solid #dde3ed",
-                      borderRadius: 10,
-                      fontFamily: "Cairo, sans-serif",
-                      fontSize: 14,
-                      color: "#1a2e4a",
-                      background: "#fff",
-                      outline: "none",
-                      textAlign: isAr ? "right" : "left",
-                      direction: isAr ? "rtl" : "ltr",
-                      transition: "border-color 0.2s",
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{
-                      position: "absolute",
-                      [isAr ? "left" : "right"]: 14,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: 0,
-                    }}
-                    aria-label="toggle password"
-                  >
-                    {showPassword ? (
-                      <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: "#9aa3b0" }}>
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" />
-                      </svg>
-                    ) : (
-                      <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: "#9aa3b0" }}>
-                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                <div style={{ textAlign: isAr ? "left" : "right", marginTop: 6 }}>
-                  <a
-                    href="/pharmacy-forgot-password"
-                    style={{
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      color: "#2356c8",
-                      textDecoration: "none",
-                      cursor: "pointer",
-                    }}
-                  >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a2e4a", flex: 1, textAlign: isAr ? "right" : "left" }}>
+                    {tr("كلمة المرور", "Password")}
+                  </span>
+                  <a href="/pharmacy-forgot-password" style={{ fontSize: 12, fontWeight: 700, color: "#2356c8", textDecoration: "none", flexShrink: 0 }}>
                     {tr("نسيت كلمة المرور؟", "Forgot password?")}
                   </a>
                 </div>
+                <HealupPasswordInput
+                  value={password}
+                  onChange={setPassword}
+                  showPassword={showPassword}
+                  onToggleShow={() => setShowPassword((v) => !v)}
+                  autoComplete="current-password"
+                  rtl={isAr}
+                  inputStyle={{ fontSize: 14 }}
+                />
               </div>
 
               {error ? (
